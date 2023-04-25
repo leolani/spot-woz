@@ -18,8 +18,6 @@ from cltl.backend.source.remote_tts import AnimatedRemoteTextOutput
 from cltl.backend.spi.audio import AudioSource
 from cltl.backend.spi.image import ImageSource
 from cltl.backend.spi.text import TextOutput
-from cltl.chatui.api import Chats
-from cltl.chatui.memory import MemoryChats
 from cltl.combot.event.bdi import IntentionEvent
 from cltl.combot.infra.config.k8config import K8LocalConfigurationContainer
 from cltl.combot.infra.di_container import singleton
@@ -49,7 +47,9 @@ from flask import Flask
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
 from werkzeug.serving import run_simple
 
-from cltl_service.chatui.service import ChatUiService
+from spot.chatui.api import Chats
+from spot.chatui.memory import MemoryChats
+from spot_service.chatui.service import ChatUiService
 
 logging.config.fileConfig(os.environ.get('CLTL_LOGGING_CONFIG', default='config/logging.config'),
                           disable_existing_loggers=False)
