@@ -1,4 +1,4 @@
-src/cltl_service/chatui/static/chat-bubble
+src/spot_service/chatui/static/chat-bubble
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
