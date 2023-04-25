@@ -47,6 +47,7 @@ from spot.chatui.api import Chats
 from spot.chatui.memory import MemoryChats
 from spot_service.chatui.service import ChatUiService
 from spot_service.context.service import ContextService
+from spot_service.spot_game.service import SpotGameService
 
 logging.config.fileConfig(os.environ.get('CLTL_LOGGING_CONFIG', default='config/logging.config'),
                           disable_existing_loggers=False)
@@ -344,7 +345,24 @@ class ChatUIContainer(InfraContainer):
         super().stop()
 
 
-class ApplicationContainer(ElizaComponentsContainer, ChatUIContainer,
+class SpotGameContainer(InfraContainer):
+    @property
+    @singleton
+    def spot_game_service(self) -> ChatUiService:
+        return SpotGameService.from_config(self.event_bus, self.resource_manager, self.config_manager)
+
+    def start(self):
+        logger.info("Start Chat UI")
+        super().start()
+        self.chatui_service.start()
+
+    def stop(self):
+        logger.info("Stop Chat UI")
+        self.chatui_service.stop()
+        super().stop()
+
+
+class ApplicationContainer(ElizaComponentsContainer, ChatUIContainer, SpotGameContainer,
                            ASRContainer, VADContainer,
                            EmissorStorageContainer, BackendContainer):
     @property
@@ -395,6 +413,7 @@ def main():
             '/storage': started_app.storage_service.app,
             '/emissor': started_app.emissor_data_service.app,
             '/chatui': started_app.chatui_service.app,
+            '/spot': started_app.spot_game_service.app,
         }
         if started_app.server:
             routes['/host'] = started_app.server.app

@@ -18,9 +18,6 @@ from spot.chatui.api import Chats, Utterance
 logger = logging.getLogger(__name__)
 
 
-class VectorIdentity:
-    pass
-
 
 class ChatUiService:
     @classmethod
