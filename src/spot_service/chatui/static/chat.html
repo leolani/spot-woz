@@ -1,24 +1,89 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
+<head>
+    <meta charset="UTF-8"/>
     <title>My chat-bubble Project</title>
 
     <!-- stylesheets are conveniently separated into components -->
-    <link rel="stylesheet" media="all" href="chat-bubble/component/styles/setup.css" />
-    <link rel="stylesheet" media="all" href="chat-bubble/component/styles/says.css" />
-    <link rel="stylesheet" media="all" href="chat-bubble/component/styles/reply.css" />
-    <link rel="stylesheet" media="all" href="chat-bubble/component/styles/typing.css" />
-    <link rel="stylesheet" media="all" href="chat-bubble/component/styles/input.css" />
-    <link rel="stylesheet" media="all" href="chat.css" />
-  </head>
-  <body>
-    <!-- container element for chat window -->
+    <link rel="stylesheet" media="all" href="chat-bubble/component/styles/setup.css"/>
+    <link rel="stylesheet" media="all" href="chat-bubble/component/styles/says.css"/>
+    <link rel="stylesheet" media="all" href="chat-bubble/component/styles/reply.css"/>
+    <link rel="stylesheet" media="all" href="chat-bubble/component/styles/typing.css"/>
+    <link rel="stylesheet" media="all" href="chat-bubble/component/styles/input.css"/>
+    <link rel="stylesheet" media="all" href="chat.css"/>
+</head>
+<body>
+
+<div id="page">
+
+    <div class="phrases">
+        <button class="phrase single" hotkey="1">
+            Hoi, ik ben robot Robin. Hoe heet jij?
+        </button>
+        <button class="phrase single" hotkey="2">
+            Oké, leuk dat je mee doet met dit spelletje! Het gaat over mijn 4 vrienden. Ik
+            zal ze aan je voorstellen. Zie je daar die tablet, op die standaard naast mij?
+        </button>
+        <button class="phrase single" hotkey="3">
+            Als je op het scherm tikt, zie je mijn vrienden. Kijk goed naar hun gezichten – die moet je een beetje
+            onthouden.
+        </button>
+        <button class="phrase single" hotkey="4">
+            Deze vrienden gaan overal naar toe en maken dan een foto. Wij krijgen allebei deze foto’s te zien. MAAARRR,
+            ik heb een andere foto dan jij. Daar maken we een leuk spel van – zoek de verschillen! Op mijn foto staan
+            mijn vrienden op andere plekken dan op jouw foto. Wij gaan nu samen uitzoeken wie waar staat. Oké?
+        </button>
+        <button class="phrase single" hotkey="5">
+            Het werkt als volgt: Als je denkt dat één van die 4 vrienden op een andere plek staat dan bij mij, kun je op
+            het hoofd van die vriend drukken – op de tablet dus. Je ziet dan een menuutje. Daar kun je aanklikken of die
+            vriend op dezelfde plek staat, OF, dat die vriend op een ‘andere’ plek staat. Zullen we dit even proberen?
+        </button>
+        <button class="phrase single" hotkey="6">
+            Raak het tablet aan zodat je mijn 4 vrienden ziet. Klik bij eentje op het hoofd. Zie je dat je nu kunt
+            kiezen tussen ‘hetzelfde’ of ‘anders’?
+        </button>
+        <button class="phrase single" hotkey="7">
+            Mooi. Kies eens iets – maakt nu even niet uit wat. Als het goed is, zie je nu, als je een keuze hebt
+            gemaakt, dat het hoofd van die vriend aan de zijkant rechts op het scherm komt te staan. Klopt dat?
+        </button>
+        <button class="phrase single" hotkey="8">
+            Top. Als we goed overleggen, vinden we samen de juiste antwoorden en is onze score hoger! Leuk toch?
+        </button>
+        <button class="phrase single" hotkey="9">
+            Goed, nog even een paar spelregels: Je krijgt het plaatje maar een paar seconden te zien. Onthoud dus goed
+            wie
+            waar staat en hoe die persoon er uit ziet. Daarna gaan wij bespreken wie waar staat op jouw plaatje en op de
+            mijne. Oké?
+        </button>
+        <button class="phrase single" hotkey="0">
+            Top. Hoe beter wij elkaar begrijpen, hoe hoger onze score. Maar, als je het plaatje nog een keer wilt zien,
+            klik
+            dan op het scherm 'Laat het plaatje zien'. Let op: hoe
+            vaker je dat doet, hoe LAGER onze score. Dat willen we niet hè. Zullen we nog even oefenen met een makkelijk
+            voorbeeldje?
+        </button>
+        <button class="phrase single" hotkey="-">
+            Oké, klik op 'Ga door' op de tablet. Dan gaan we even oefenen zonder mijn vrienden. Leuk hoor.
+        </button>
+    </div>
+
+    <!-- container element for chat window                   -->
     <div id="chat"></div>
 
-    <!-- import the JavaScript file -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="chat-bubble/component/Bubbles.js"></script>
-    <script src="chat.js"></script>
-  </body>
+    <div class="phrases">
+        <button class="phrase" hotkey="n">
+            Nee.
+        </button>
+        <button class="phrase" hotkey="t">
+            Laat me nadenken...
+        </button>
+    </div>
+</div>
+
+<!-- import the JavaScript file -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="chat-bubble/component/Bubbles.js"></script>
+<script src="chat.js"></script>
+
+</body>
 </html>

@@ -103,6 +103,44 @@ $(document).ready(function() {
         silence: {says: [], reply: []}
     };
 
+    $(".phrase").click(function() {
+        let phrase = $(this).text();
+        console.log("Clicked:", phrase);
+
+        $.post(restPath + "/chat/" + chatId, phrase);
+
+        if ($(this).hasClass("single")) {
+            $(this).prop("disabled", true);
+        }
+    })
+
+
+    let intro = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-'];
+    var last = -1;
+    $(document).keydown(function (event) {
+        if (event.ctrlKey && event.key !== 'Control') {
+            var selector = null;
+            if (event.key === "ArrowRight" && last < intro.length - 1) {
+                last += 1;
+                selector = "button[hotkey='" + intro[last] + "']";
+            } else if (event.key === "ArrowRight") {
+                console.log("Intro already finished.")
+                return;
+            } else {
+                selector = "button[hotkey='" + event.key + "']";
+            }
+
+            console.log("Pressed s", selector, event.key);
+
+            let butt = $(selector);
+            if (!butt.prop('disabled')) {
+                butt.click();
+            }
+
+            event.preventDefault();
+        }
+    });
+
     initChat()
     chatWindow.talk(initialConvo);
     poll();
