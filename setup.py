@@ -7,16 +7,16 @@ with open("VERSION", "r") as fh:
     version = fh.read().strip()
 
 setup(
-    name='cltl.chat-ui',
+    name='spot.chat-ui',
     version=version,
     package_dir={'': 'src'},
-    packages=find_namespace_packages(include=['cltl.*', 'cltl_service.*'], where='src'),
+    packages=find_namespace_packages(include=['spot.*', 'spot_service.*'], where='src'),
     package_data={
         # setuptools doesn't expand /**/* globs (https://github.com/pypa/setuptools/issues/1806)
-        "cltl_service.chatui": ["static/*", "static/*/*", "static/*/*/*", "static/*/*/*/*", "static/*/*/*/*/*"]
+        "spot_service.chatui": ["static/*", "static/*/*", "static/*/*/*", "static/*/*/*/*", "static/*/*/*/*/*"]
     },
     data_files=[('VERSION', ['VERSION'])],
-    url="https://github.com/leolani/cltl-chat-ui",
+    url="https://github.com/leolani/spot-woz",
     license='MIT License',
     author='CLTL',
     author_email='t.baier@vu.nl',
