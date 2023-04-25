@@ -5,6 +5,7 @@ import time
 from cltl.backend.api.backend import Backend
 from cltl.backend.api.camera import CameraResolution, Camera
 from cltl.backend.api.microphone import Microphone
+from cltl.backend.api.gestures import GestureType
 from cltl.backend.api.storage import AudioStorage, ImageStorage
 from cltl.backend.api.text_to_speech import TextToSpeech
 from cltl.backend.impl.cached_storage import CachedAudioStorage, CachedImageStorage
@@ -88,8 +89,8 @@ class BackendContainer(InfraContainer):
     def text_output(self) -> TextOutput:
         config = self.config_manager.get_config("cltl.backend.text_output")
         remote_url = config.get("remote_url")
-        gestures = config.get("gestures", multi=True) if "gestures" in config else None
         if remote_url:
+            gestures = config.get_enum("gestures", GestureType, multi=True) if "gestures" in config else None
             return AnimatedRemoteTextOutput(remote_url, gestures)
         else:
             return ConsoleOutput()
