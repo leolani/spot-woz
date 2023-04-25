@@ -15,6 +15,21 @@
     vertical-align: top;
 }
 
+#participantid {
+    margin-bottom: 20px;
+    display: inline-block;
+}
+
+#participantid  label, #participantid  input {
+    display: inline-block;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+#participantid input {
+    width: 50px;
+}
+
 button.phrase {
     width: 100%;
     margin: 5px;

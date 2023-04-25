@@ -25,8 +25,6 @@ from cltl.combot.infra.event import Event
 from cltl.combot.infra.event.memory import SynchronousEventBusContainer
 from cltl.combot.infra.event_log import LogWriter
 from cltl.combot.infra.resource.threaded import ThreadedResourceContainer
-from cltl.eliza.api import Eliza
-from cltl.eliza.eliza import ElizaImpl
 from cltl.emissordata.api import EmissorDataStorage
 from cltl.emissordata.file_storage import EmissorDataFileStorage
 from cltl.vad.webrtc_vad import WebRtcVAD
@@ -35,8 +33,6 @@ from cltl_service.backend.backend import BackendService
 from cltl_service.backend.storage import StorageService
 from cltl_service.bdi.service import BDIService
 from cltl_service.combot.event_log.service import EventLogService
-from cltl_service.context.service import ContextService
-from cltl_service.eliza.service import ElizaService
 from cltl_service.emissordata.client import EmissorDataClient
 from cltl_service.emissordata.service import EmissorDataService
 from cltl_service.intentions.init import InitService
@@ -50,6 +46,7 @@ from werkzeug.serving import run_simple
 from spot.chatui.api import Chats
 from spot.chatui.memory import MemoryChats
 from spot_service.chatui.service import ChatUiService
+from spot_service.context.service import ContextService
 
 logging.config.fileConfig(os.environ.get('CLTL_LOGGING_CONFIG', default='config/logging.config'),
                           disable_existing_loggers=False)
@@ -294,10 +291,9 @@ class ElizaComponentsContainer(EmissorStorageContainer, InfraContainer):
     @property
     @singleton
     def bdi_service(self) -> BDIService:
-        # TODO make configurable
         bdi_model = {"init":
-                         {"initialized": ["eliza"]},
-                     "eliza":
+                         {"initialized": ["spot"]},
+                     "spot":
                          {"quit": ["init"]}
                      }
 
@@ -348,31 +344,7 @@ class ChatUIContainer(InfraContainer):
         super().stop()
 
 
-class ElizaContainer(EmissorStorageContainer, InfraContainer):
-    @property
-    @singleton
-    def eliza(self) -> Eliza:
-        return ElizaImpl()
-
-    @property
-    @singleton
-    def eliza_service(self) -> ElizaService:
-        return ElizaService.from_config(self.eliza, self.emissor_data_client,
-                                        self.event_bus, self.resource_manager, self.config_manager)
-
-    def start(self):
-        logger.info("Start Eliza")
-        super().start()
-        self.eliza_service.start()
-
-    def stop(self):
-        logger.info("Stop Eliza")
-        self.eliza_service.stop()
-        super().stop()
-
-
-class ApplicationContainer(ElizaContainer, ElizaComponentsContainer,
-                           ChatUIContainer,
+class ApplicationContainer(ElizaComponentsContainer, ChatUIContainer,
                            ASRContainer, VADContainer,
                            EmissorStorageContainer, BackendContainer):
     @property

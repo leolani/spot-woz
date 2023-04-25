@@ -29,7 +29,11 @@ $(document).ready(function() {
                 chatId = data.id;
                 agentId = data.agent;
                 console.log("Retrieved chat ID:", chatId, agentId);
-        });
+            })
+            .fail(function () {
+                console.log("Waiting for chat ID");
+                setTimeout(initChat, 5);
+            });
     };
 
     let talk = function(utterances) {
@@ -103,6 +107,24 @@ $(document).ready(function() {
         silence: {says: [], reply: []}
     };
 
+    $("button.phrase").prop("disabled", true);
+
+    $("#participantid").submit(function (e) {
+        e.preventDefault();
+
+        let participant = ($("input[value='participant']", this).val());
+        $.post(restPath + "/chat/" + chatId + '/participantid', participant);
+        $("input", this).prop("disabled", true);
+        $("button.phrase").prop("disabled", false);
+        console.log("Submit", participant);
+    });
+
+    $("#stop").click(function() {
+        console.log("Stop scenario");
+        $.post(restPath + "/chat/" + chatId + "/stop");
+        $(this).prop("disabled", true);
+    })
+
     $(".phrase").click(function() {
         let phrase = $(this).text();
         console.log("Clicked:", phrase);
@@ -113,7 +135,6 @@ $(document).ready(function() {
             $(this).prop("disabled", true);
         }
     })
-
 
     let intro = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-'];
     var last = -1;

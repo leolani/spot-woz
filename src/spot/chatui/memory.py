@@ -2,7 +2,7 @@ import logging
 from threading import Lock
 from typing import Iterable, Union
 
-from cltl.chatui.api import Chats, Utterance
+from spot.chatui.api import Chats, Utterance
 
 logger = logging.getLogger(__name__)
 

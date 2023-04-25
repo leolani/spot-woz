@@ -1,21 +1,26 @@
 import logging
-import logging
 import uuid
 
 import flask
+from cltl.combot.event.bdi import DesireEvent
 from cltl.combot.event.emissor import TextSignalEvent, ScenarioStopped
 from cltl.combot.infra.config import ConfigurationManager
 from cltl.combot.infra.event import Event, EventBus
 from cltl.combot.infra.resource import ResourceManager
 from cltl.combot.infra.time_util import timestamp_now
 from cltl.combot.infra.topic_worker import TopicWorker
-from emissor.representation.scenario import TextSignal
+from emissor.representation.scenario import TextSignal, Annotation, Mention
 from flask import Response
 from flask import jsonify
 
-from cltl.chatui.api import Chats, Utterance
+from spot.chatui.api import Chats, Utterance
 
 logger = logging.getLogger(__name__)
+
+
+class VectorIdentity:
+    pass
+
 
 class ChatUiService:
     @classmethod
@@ -28,19 +33,24 @@ class ChatUiService:
         config = config_manager.get_config("cltl.chat-ui.events")
         utterance_topic = config.get("topic_utterance")
         response_topic = config.get("topic_response")
+        speaker_topic = config.get("topic_speaker")
         scenario_topic = config.get("topic_scenario")
+        desire_topic = config.get("topic_desire")
 
-        return cls(name, external_input, utterance_topic, response_topic, scenario_topic, chats,
+        return cls(name, external_input, utterance_topic, response_topic, speaker_topic, scenario_topic, desire_topic, chats,
                    event_bus, resource_manager)
 
-    def __init__(self, name: str, external_input: bool, utterance_topic: str, response_topic: str, scenario_topic: str,
+    def __init__(self, name: str, external_input: bool, utterance_topic: str, response_topic: str,
+                 speaker_topic: str, scenario_topic: str, desire_topic: str,
                  chats: Chats, event_bus: EventBus, resource_manager: ResourceManager):
         self._name = name
         self._external_input = external_input
 
         self._response_topic = response_topic
         self._utterance_topic = utterance_topic
+        self._speaker_topic = speaker_topic
         self._scenario_topic = scenario_topic
+        self._desire_topic = desire_topic
         self._chats = chats
 
         self._scenario_id = None
@@ -77,9 +87,11 @@ class ChatUiService:
 
         @self._app.route('/chat/current', methods=['GET'])
         def current_chat():
-            current_chat = self._chats.current_chat if self._chats.current_chat else str(uuid.uuid4())
+            if not self._scenario_id:
+                return Response(status=404)
+
             agent_name = self._agent.name if self._agent and self._agent.name else "Leolani"
-            return {"id": current_chat, "agent": agent_name}
+            return {"id": self._scenario_id, "agent": agent_name}
 
         @self._app.route('/chat/<chat_id>', methods=['GET', 'POST'])
         def utterances(chat_id: str):
@@ -113,6 +125,26 @@ class ChatUiService:
 
             return Response(utterance.id, status=200)
 
+        @self._app.route('/chat/<chat_id>/participantid', methods=['POST'])
+        def participant_id(chat_id: str):
+            if not chat_id:
+                return Response("Missing chat id", status=400)
+
+            id = flask.request.get_data(as_text=True)
+            payload = self._create_participant_id_payload(id)
+            self._event_bus.publish(self._speaker_topic, Event.for_payload(payload))
+
+            return Response(status=200)
+
+        @self._app.route('/chat/<chat_id>/stop', methods=['POST'])
+        def stop_scenario(chat_id: str):
+            if not chat_id:
+                return Response("Missing chat id", status=400)
+
+            self._event_bus.publish(self._desire_topic, Event.for_payload(DesireEvent(['quit'])))
+
+            return Response(status=200)
+
         @self._app.route('/urlmap')
         def url_map():
             return str(self._app.url_map)
@@ -134,7 +166,20 @@ class ChatUiService:
         signal = TextSignal.for_scenario(self._scenario_id, utterance.timestamp, utterance.timestamp,
                                          None, utterance.text, signal_id=utterance.id)
 
-        return TextSignalEvent.for_speaker(signal)
+        return TextSignalEvent.for_agent(signal)
+
+    def _create_participant_id_payload(self, id: str):
+        if not self._scenario_id:
+            raise ValueError("No active scenario in chat UI for participant id %" + id)
+
+        ts = timestamp_now()
+        signal = TextSignal.for_scenario(self._scenario_id, ts, ts, None, id)
+
+        offset = signal.ruler
+        id_annotations = [Annotation("ParticipantID", id, __name__, ts)]
+        signal.mentions = [Mention(str(uuid.uuid4()), [offset], id_annotations)]
+
+        return TextSignalEvent.for_agent(signal)
 
     def _process(self, event: Event[TextSignalEvent]) -> None:
         if event.metadata.topic == self._scenario_topic:
@@ -154,8 +199,11 @@ class ChatUiService:
 
             return
 
-        chat_id = self._chats.current_chat
-        chat_id = chat_id if chat_id else str(uuid.uuid4())
+        if not self._scenario_id:
+            logger.warning("Dropped event outside scenario: %s", event)
+            return
+
+        chat_id = self._scenario_id
 
         if event.metadata.topic == self._response_topic:
             agent_name = self._agent.name if self._agent and self._agent.name else "Leolani"
