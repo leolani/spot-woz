@@ -1,5 +1,7 @@
 import logging
+import time
 import uuid
+from datetime import datetime
 
 import requests
 from cltl.combot.event.emissor import LeolaniContext, Agent, ScenarioStarted, ScenarioStopped, ScenarioEvent
@@ -114,8 +116,9 @@ class ContextService:
         scenario_start = timestamp_now()
         location = self._get_location()
 
+        id_str = f"{datetime.fromtimestamp(scenario_start//1000):%y%m%d_%H%M%S}_{uuid.uuid4()}"
         scenario_context = LeolaniContext(AGENT, Agent(), str(uuid.uuid4()), location, [], [])
-        scenario = Scenario.new_instance(str(uuid.uuid4()), scenario_start, None, scenario_context, signals)
+        scenario = Scenario.new_instance(id_str, scenario_start, None, scenario_context, signals)
 
         capsule = {
             "type": "context",

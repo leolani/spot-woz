@@ -275,20 +275,8 @@ class ASRContainer(EmissorStorageContainer, InfraContainer):
 class ElizaComponentsContainer(EmissorStorageContainer, InfraContainer):
     @property
     @singleton
-    def keyword_service(self) -> KeywordService:
-        return KeywordService.from_config(self.emissor_data_client,
-                                          self.event_bus, self.resource_manager, self.config_manager)
-
-    @property
-    @singleton
     def context_service(self) -> ContextService:
         return ContextService.from_config(self.event_bus, self.resource_manager, self.config_manager)
-
-    @property
-    @singleton
-    def keyword_service(self) -> KeywordService:
-        return KeywordService.from_config(self.emissor_data_client,
-                                          self.event_bus, self.resource_manager, self.config_manager)
 
     @property
     @singleton
@@ -311,7 +299,6 @@ class ElizaComponentsContainer(EmissorStorageContainer, InfraContainer):
         logger.info("Start Eliza services")
         super().start()
         self.bdi_service.start()
-        self.keyword_service.start()
         self.context_service.start()
         self.init_intention.start()
 
@@ -319,7 +306,6 @@ class ElizaComponentsContainer(EmissorStorageContainer, InfraContainer):
         logger.info("Stop Eliza services")
         self.init_intention.stop()
         self.bdi_service.stop()
-        self.keyword_service.stop()
         self.context_service.stop()
         super().stop()
 
