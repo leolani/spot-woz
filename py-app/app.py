@@ -1,11 +1,13 @@
 import logging.config
 import os
 import time
+from typing import Optional, List
 
+import requests as requests
 from cltl.backend.api.backend import Backend
 from cltl.backend.api.camera import CameraResolution, Camera
-from cltl.backend.api.microphone import Microphone
 from cltl.backend.api.gestures import GestureType
+from cltl.backend.api.microphone import Microphone
 from cltl.backend.api.storage import AudioStorage, ImageStorage
 from cltl.backend.api.text_to_speech import TextToSpeech
 from cltl.backend.impl.cached_storage import CachedAudioStorage, CachedImageStorage
@@ -37,7 +39,6 @@ from cltl_service.combot.event_log.service import EventLogService
 from cltl_service.emissordata.client import EmissorDataClient
 from cltl_service.emissordata.service import EmissorDataService
 from cltl_service.intentions.init import InitService
-from cltl_service.keyword.service import KeywordService
 from cltl_service.vad.service import VadService
 from emissor.representation.util import serializer as emissor_serializer
 from flask import Flask
@@ -61,6 +62,17 @@ class InfraContainer(SynchronousEventBusContainer, K8LocalConfigurationContainer
 
     def stop(self):
         pass
+
+
+class TurnTakingTextOutput(AnimatedRemoteTextOutput):
+    def __init__(self, remote_url: str, gestures: List[GestureType] = None):
+        super().__init__(remote_url, gestures)
+        requests.delete(f"{remote_url}/behaviour/autonomous_visual_feedback")
+
+    def consume(self, text: str, language: Optional[str] = None):
+        led_talk = '^pCall(ALLeds.fadeRGB("FaceLeds", 0.8, 0.0, 0.8, 0.1))'
+        led_listen = '^pCall(ALLeds.fadeRGB("FaceLeds", 0.7, 1.0, 0.4, 0.1))'
+        super().consume(f"{led_talk}{text}{led_listen}", language)
 
 
 class BackendContainer(InfraContainer):
@@ -91,7 +103,8 @@ class BackendContainer(InfraContainer):
         remote_url = config.get("remote_url")
         if remote_url:
             gestures = config.get_enum("gestures", GestureType, multi=True) if "gestures" in config else None
-            return AnimatedRemoteTextOutput(remote_url, gestures)
+
+            return TurnTakingTextOutput(remote_url, gestures)
         else:
             return ConsoleOutput()
 
