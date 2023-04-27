@@ -18,6 +18,11 @@
     #submit{
         cursor: pointer;
         padding: 10px;
+        display: none;
+    }
+    #qualtrics{
+        cursor: pointer;
+        padding: 10px;
     }
 </style>
 <head>
@@ -37,17 +42,20 @@
 
     </p>
 <h2>
-    Je hebt het plaatje zo vaak opnieuw laten zien:
+    Hoe vaak heb je het plaatje laten zien?
 </h2>
 <p id="shown">
 
 </p>
     <h2>
-        Nu komen er eerst een paar vragen. Druk hieronder op de knop om naar de vragen te gaan:
+        Nu komen er eerst een paar vragen. Druk hieronder op de link om naar de vragen te gaan:
     </h2>
+    <button id="qualtrics">
+        <a href="https://nos.nl/" target="_blank">Ga naar de vragen</a>
+    </button>
     <form action="round_2.html">
 <!--        <input type="hidden" name="total_score" value="0" id="total_score">-->
-        <input type="submit" id="submit" value="Ga door">
+        <input type="submit" id="submit" value="Ga door naar de volgende ronde">
     </form>
 </div>
 </body>
@@ -64,5 +72,9 @@
         let shown = searchParams.get("shown");
         $('#shown').text(`${shown} keer`)
     }
+    $('#qualtrics').click(function (){
+        $('#qualtrics').hide();
+        $('#submit').show();
+    })
 </script>
 </html>
