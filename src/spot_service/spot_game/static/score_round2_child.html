@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<style>
+    body{
+        background-color: lightblue;
+    }
+    div{
+        padding: 10%;
+        text-align: center;
+    }
+    h2{
+        font-family: Arial, Helvetica, sans-serif;
+    }
+    p {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: large;
+    }
+    #submit{
+        cursor: pointer;
+        padding: 20px;
+        font-size: x-large;
+    }
+</style>
+<head>
+    <meta charset="UTF-8">
+    <title>Score Round 2</title>
+</head>
+<body>
+<div>
+    <h2>
+        Goed gedaan!
+    </h2>
+    <br>
+    <h2>
+        Je score voor deze ronde is:
+    </h2>
+    <p id="score">
+
+    </p>
+<h2>
+    Hoe vaak heb je het plaatje laten zien?
+</h2>
+<p id="shown">
+
+</p>
+    <h2>
+        Klik op 'Ga door' om door te gaan naar de volgende ronde van het spel:
+    </h2>
+    <form action="round_3_child.html">
+        <input type="hidden" name="total_score" value="0" id="total_score">
+        <input type="submit" id="submit" value="Ga door">
+    </form>
+</div>
+</body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<script>
+    const searchParams = new URLSearchParams(window.location.search);
+
+    if(searchParams.has("score")){
+        let score = searchParams.get("score");
+        $('#score').text(score)
+    }
+    if(searchParams.has("total_score")){
+        let total = searchParams.get("total_score");
+        $('#total_score').val(total);
+    }
+    if (searchParams.has("shown")){
+        let shown = searchParams.get("shown");
+        $('#shown').text(`${shown} keer`)
+    }
+</script>
+</html>

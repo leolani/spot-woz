@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="nl">
+<style>
+    body{
+        background-color: lightblue;
+    }
+    .image_container{
+        display: inline-block;
+        width: 85%;
+        position: relative;
+        float: left;
+    }
+    .discussed{
+        display: inline-block;
+        width: 15%;
+        float: left;
+    }
+    #scene_title{
+        font-family: Arial, Helvetica, sans-serif;
+    }
+    select{
+        -moz-appearance: none;
+        -webkit-appearance: none;
+        cursor: pointer;
+        border: transparent;
+        background-color: transparent;
+    }
+    #drop1{
+        top: 39%;
+        left: 10%;
+        width: 80px;
+        height: 200px;
+        position: absolute;
+
+    }
+    #drop2{
+        top: 39%;
+        left: 24%;
+        width: 80px;
+        height: 200px;
+        position: absolute;
+    }
+    #drop3{
+        top: 36%;
+        left: 35%;
+        width: 80px;
+        height: 200px;
+        position: absolute;
+    }
+    #drop4{
+        top: 39%;
+        left: 46.5%;
+        width: 80px;
+        height: 200px;
+        position: absolute;
+    }
+    #drop5{
+        top: 38%;
+        left: 59.5%;
+        width: 80px;
+        height: 200px;
+        position: absolute;
+    }
+    img{
+        width: 100%;
+        right: auto;
+    }
+    #scene_title{
+        text-align: center;
+        margin: auto;
+        width: 50%;
+    }
+    #char1{
+        width: 50%;
+        display: none;
+    }
+    #char2{
+        width: 50%;
+        display: none;
+    }
+    #char3{
+        width: 50%;
+        display: none;
+    }
+    #char4{
+        width: 50%;
+        display: none;
+    }
+    #char5{
+        width: 50%;
+        display: none;
+    }
+    #char6{
+        width: 50%;
+        display: none;
+    }
+    #char7{
+        width: 50%;
+        display: none;
+    }
+    #char8{
+        width: 50%;
+        display: none;
+    }
+    #char9{
+        width: 50%;
+        display: none;
+    }
+    #char10{
+        width: 50%;
+        display: none;
+    }
+    #char11{
+        width: 50%;
+        display: none;
+    }
+    #char12{
+        width: 50%;
+        display: none;
+    }
+    #submit{
+        top: 70%;
+        left: 104%;
+        padding: 20px;
+        margin-left: 5%;
+        font-size: larger;
+        position: absolute;
+        cursor: pointer;
+        background-color: snow;
+    }
+    #show{
+        display: none;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        padding: 50px;
+        font-size: x-large;
+        cursor: pointer;
+    }
+</style>
+<head>
+    <meta charset="UTF-8">
+    <title>"scene_3"</title>
+</head>
+<body>
+<div class='center' id="scene_title">
+    <h1>In het Park</h1>
+</div>
+
+<div>
+<div class="image_container">
+    <img src="images/scenes/Ronde_Park_Human_Adult.png" class="hide">
+    <form action="final_score_adult.html" id="selectform">
+        <select id="drop1" class="same" name="char12" required>
+            <option value=""></option>
+            <option value="same">zelfde plek</option>
+            <option value="diff">andere plek</option>
+        </select>
+        <select id="drop2" class="same" name="char3" required>
+            <option value=""></option>
+            <option value="same">zelfde plek</option>
+            <option value="diff">andere plek</option>
+        </select>
+        <select id="drop3" class="same" name="char5" required>
+            <option value=""></option>
+            <option value="same">zelfde plek</option>
+            <option value="diff">andere plek</option>
+        </select>
+        <select id="drop4" class="diff" name="char1" required>
+            <option value=""></option>
+            <option value="same">zelfde plek</option>
+            <option value="diff">andere plek</option>
+        </select>
+        <select id="drop5" class="diff" name="char2" required>
+            <option value=""></option>
+            <option value="same">zelfde plek</option>
+            <option value="diff">andere plek</option>
+        </select>
+        <input type="hidden" name="total_score" value="0" id="total">
+        <input type="hidden" name="shown" value="0" id="shown">
+        <input type="hidden" name="score" value="0" id="score">
+        <input type="submit" id="submit" value="Ga door">
+    </form>
+    <button id="show" class="show">
+        Laat het plaatje zien
+    </button>
+</div>
+
+<div class="discussed">
+<div class="head">
+    <img src="images/objects/Main1_v4_Hoofd.png" id="char1">
+</div>
+<div class="head">
+    <img src="images/objects/Main3_v4_Hoofd.png" id="char2">
+</div>
+<div class="head">
+    <img src="images/objects/Main4_v4_Hoofd.png" id="char3">
+</div>
+<div class="head">
+    <img src="images/objects/Zij1.png" id="char4">
+</div>
+    <div class="head">
+        <img src="images/objects/Zij2.png" id="char5">
+    </div>
+    <div class="head">
+        <img src="images/objects/Zij3.png" id="char6">
+    </div>
+    <div class="head">
+        <img src="images/objects/Zij4.png" id="char7">
+    </div>
+    <div class="head">
+        <img src="images/objects/Zij5.png" id="char8">
+    </div>
+    <div class="head">
+        <img src="images/objects/Zij6.png" id="char9">
+    </div>
+    <div class="head">
+        <img src="images/objects/Zij7.png" id="char10">
+    </div>
+    <div class="head">
+        <img src="images/objects/Zij8.png" id="char11">
+    </div>
+    <div class="head">
+        <img src="images/objects/Zij9.png" id="char12">
+    </div>
+</div>
+</div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<script>
+    let score = 0;
+    let shown = 0;
+    let total = 0;
+    const searchParams = new URLSearchParams(window.location.search);
+
+    if(searchParams.has('total_score')){
+        total = searchParams.get('total_score');
+        total = parseInt(total);
+    }
+
+    $(document).ready(function() {
+        function fadeOut(){
+            $('.hide').css('visibility','hidden')
+            $('.show').show()
+        }
+        setTimeout(fadeOut, 10000);
+        $('select').change(function() {
+            $(this).hide();
+            let character = $(this).attr('name');
+            $('#'+character).show();
+            let answer = $(this).val();
+            let trueAnswer = $(this).attr('class');
+            if(answer === trueAnswer) {
+                score += 1;
+                $('#score').val(score);
+                total += 1;
+                $('#total').val(total);
+                console.log(`score_round1.html?score=${score}`);
+            }
+        });
+        $('#show').click(function(){
+            $('.hide').css('visibility','visible');
+            $(this).hide();
+            shown += 1;
+            $('#shown').val(shown);
+            setTimeout(fadeOut, 10000);
+        });
+    });
+</script>
+
+
+
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<style>
+    body{
+        background-color: lightblue;
+    }
+    #body_text{
+        padding: 10%;
+        text-align: center;
+    }
+    h2{
+        font-family: Arial, Helvetica, sans-serif;
+    }
+    p {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: large;
+    }
+    #submit{
+        cursor: pointer;
+        padding: 20px;
+        font-size: x-large;
+    }
+    #next{
+        display: none;
+    }
+    #questions{
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: x-large;
+    }
+</style>
+<head>
+    <meta charset="UTF-8">
+    <title>Score Round 1</title>
+</head>
+<body>
+<div id="body_text">
+    <h2>
+        Goed gedaan!
+    </h2>
+    <br>
+    <h2>
+        Je score voor deze ronde is:
+    </h2>
+    <p id="score">
+
+    </p>
+<h2>
+    Hoe vaak heb je het plaatje laten zien?
+</h2>
+<p id="shown">
+
+</p>
+    <div id="qualtrics">
+    <h2>
+        Nu komen er eerst een paar vragen. Druk hieronder op de link om naar de vragen te gaan:
+    </h2>
+    <a href="https://vuamsterdam.eu.qualtrics.com/jfe/form/SV_5doz7ZVWXgOLSx8" target="_blank" id="questions">Ga naar de vragen</a>
+        </div>
+    <div id="next">
+        <h2>Wacht tot robot Robin begint met praten. Druk dan op de knop hieronder om door te gaan:</h2>
+    <form action="round_2_adult.html">
+        <input type="hidden" name="total_score" value="0" id="total_score">
+        <input type="submit" id="submit" value="Ga door">
+    </form>
+        </div>
+</div>
+</body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<script>
+    const searchParams = new URLSearchParams(window.location.search);
+
+    if(searchParams.has("score")){
+        let score = searchParams.get("score");
+        $('#score').text(score)
+        $('#total_score').val(score)
+    }
+    if (searchParams.has("shown")){
+        let shown = searchParams.get("shown");
+        $('#shown').text(`${shown} keer`)
+    }
+    $('#questions').click(function (){
+        $('#qualtrics').hide();
+        $('#next').show();
+    })
+</script>
+</html>
