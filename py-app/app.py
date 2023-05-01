@@ -72,7 +72,7 @@ class TurnTakingTextOutput(AnimatedRemoteTextOutput):
     def consume(self, text: str, language: Optional[str] = None):
         led_talk = '^pCall(ALLeds.fadeRGB("FaceLeds", 0.8, 0.0, 0.8, 0.1))'
         led_listen = '^pCall(ALLeds.fadeRGB("FaceLeds", 0.7, 1.0, 0.4, 0.1))'
-        super().consume(f"{led_talk}{text}{led_listen}", language)
+        super().consume(f"{led_talk} {text} {led_listen}", language)
 
 
 class BackendContainer(InfraContainer):
