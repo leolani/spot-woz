@@ -86,5 +86,11 @@
         $('#qualtrics').hide();
         $('#next').show();
     })
+
+
+    let imageId = "Ronde_Strand_Human_Child.png";
+    let restURL = window.location.pathname.split('/static')[0] + "/rest/";
+    $.get(restURL + "scenario").done(scenario =>
+        $.post(restURL + scenario + "/image/" + imageId + "/choice?" + searchParams.toString()));
 </script>
 </html>

@@ -68,5 +68,10 @@
         let shown = searchParams.get("shown");
         $('#shown').text(`${shown} keer`)
     }
+
+    let imageId = "Oefenronde_Human_Adult.png";
+    let restURL = window.location.pathname.split('/static')[0] + "/rest/";
+    $.get(restURL + "scenario").done(scenario =>
+        $.post(restURL + scenario + "/image/" + imageId + "/choice?" + searchParams.toString()));
 </script>
 </html>

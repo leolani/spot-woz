@@ -180,6 +180,15 @@
         });
 
     });
+
+    let imageId = $("div.image_container > img").attr("src").split("/").pop()
+    console.log("image id", imageId);
+    let restURL = window.location.pathname.split('/static')[0] + "/rest/";
+        $.get(restURL + "/" + "scenario").done(scenario => $.ajax({
+            url: restURL + "/" + scenario + "/image/" + imageId,
+            type: 'PUT',
+            success: function(result) {}
+        }));
 </script>
 
 

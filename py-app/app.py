@@ -354,11 +354,11 @@ class SpotGameContainer(InfraContainer):
     def start(self):
         logger.info("Start Chat UI")
         super().start()
-        self.chatui_service.start()
+        self.spot_game_service.start()
 
     def stop(self):
         logger.info("Stop Chat UI")
-        self.chatui_service.stop()
+        self.spot_game_service.stop()
         super().stop()
 
 
