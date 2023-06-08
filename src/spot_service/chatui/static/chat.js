@@ -129,7 +129,8 @@ $(document).ready(function() {
         let phrase = $(this).text();
         console.log("Clicked:", phrase);
 
-        $.post(restPath + "/chat/" + chatId, phrase);
+        $('textarea').val(phrase.trim());
+        $('textarea').focus();
 
         if ($(this).hasClass("single")) {
             $(this).prop("disabled", true);
