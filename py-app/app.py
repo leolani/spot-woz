@@ -64,14 +64,19 @@ class InfraContainer(SynchronousEventBusContainer, K8LocalConfigurationContainer
         pass
 
 
+
 class TurnTakingTextOutput(AnimatedRemoteTextOutput):
-    def __init__(self, remote_url: str, gestures: List[GestureType] = None):
+    GREEN = '^pCall(ALLeds.fadeRGB("FaceLeds", 0.8, 0.0, 0.8, 0.1))'
+    PINK = '^pCall(ALLeds.fadeRGB("FaceLeds", 0.7, 1.0, 0.4, 0.1))'
+
+    def __init__(self, remote_url: str, gestures: List[GestureType] = None, turn_taking: bool = True):
         super().__init__(remote_url, gestures)
+        self._turn_taking = turn_taking
         requests.delete(f"{remote_url}/behaviour/autonomous_visual_feedback")
 
     def consume(self, text: str, language: Optional[str] = None):
-        led_talk = '^pCall(ALLeds.fadeRGB("FaceLeds", 0.8, 0.0, 0.8, 0.1))'
-        led_listen = '^pCall(ALLeds.fadeRGB("FaceLeds", 0.7, 1.0, 0.4, 0.1))'
+        led_talk = TurnTakingTextOutput.GREEN if self._turn_taking else TurnTakingTextOutput.PINK
+        led_listen = TurnTakingTextOutput.PINK
         super().consume(f"{led_talk} {text} {led_listen}", language)
 
 
@@ -101,10 +106,12 @@ class BackendContainer(InfraContainer):
     def text_output(self) -> TextOutput:
         config = self.config_manager.get_config("cltl.backend.text_output")
         remote_url = config.get("remote_url")
+        turn_taking = config.get_boolean("turn_taking")
+
         if remote_url:
             gestures = config.get_enum("gestures", GestureType, multi=True) if "gestures" in config else None
 
-            return TurnTakingTextOutput(remote_url, gestures)
+            return TurnTakingTextOutput(remote_url, gestures, turn_taking)
         else:
             return ConsoleOutput()
 
