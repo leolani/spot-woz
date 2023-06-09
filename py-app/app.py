@@ -1,7 +1,7 @@
 import logging.config
 import os
 import time
-from typing import Optional, List
+from typing import Optional, List, Tuple
 
 import requests as requests
 from cltl.backend.api.backend import Backend
@@ -66,18 +66,21 @@ class InfraContainer(SynchronousEventBusContainer, K8LocalConfigurationContainer
 
 
 class TurnTakingTextOutput(AnimatedRemoteTextOutput):
-    GREEN = '^pCall(ALLeds.fadeRGB("FaceLeds", 0.8, 0.0, 0.8, 0.1))'
-    PINK = '^pCall(ALLeds.fadeRGB("FaceLeds", 0.7, 1.0, 0.4, 0.1))'
-
-    def __init__(self, remote_url: str, gestures: List[GestureType] = None, turn_taking: bool = True):
+    def __init__(self, remote_url: str, gestures: List[GestureType] = None,
+                 color_talk: Tuple[float, float, float] = (0.8, 0.0, 0.8),
+                 color_listen: Tuple[float, float, float] = (0.7, 1.0, 0.4)):
         super().__init__(remote_url, gestures)
-        self._turn_taking = turn_taking
+        self._led_talk = self._color_command(color_talk)
+        self._led_listen = self._color_command(color_listen)
+
         requests.delete(f"{remote_url}/behaviour/autonomous_visual_feedback")
 
     def consume(self, text: str, language: Optional[str] = None):
-        led_talk = TurnTakingTextOutput.GREEN if self._turn_taking else TurnTakingTextOutput.PINK
-        led_listen = TurnTakingTextOutput.PINK
-        super().consume(f"{led_talk} {text} {led_listen}", language)
+        super().consume(f"{self._led_talk} {text} {self._led_listen}", language)
+
+    @staticmethod
+    def _color_command(color: Tuple[float, float, float]):
+        return f"^pCall(ALLeds.fadeRGB(\"FaceLeds\", {color[0]}, {color[1]}, {color[2]}, 0.1))"
 
 
 class BackendContainer(InfraContainer):
@@ -106,12 +109,13 @@ class BackendContainer(InfraContainer):
     def text_output(self) -> TextOutput:
         config = self.config_manager.get_config("cltl.backend.text_output")
         remote_url = config.get("remote_url")
-        turn_taking = config.get_boolean("turn_taking")
 
         if remote_url:
             gestures = config.get_enum("gestures", GestureType, multi=True) if "gestures" in config else None
+            color_talk = tuple(float(col) for col  in config.get("color_talk", multi=True))
+            color_listen = tuple(float(col) for col  in config.get("color_listen", multi=True))
 
-            return TurnTakingTextOutput(remote_url, gestures, turn_taking)
+            return TurnTakingTextOutput(remote_url, gestures, color_talk, color_listen)
         else:
             return ConsoleOutput()
 
