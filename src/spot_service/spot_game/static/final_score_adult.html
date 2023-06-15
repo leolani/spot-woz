@@ -1,26 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
-<style>
-    body{
-        background-color: lightblue;
-    }
-    div{
-        padding: 10%;
-        text-align: center;
-    }
-    h2{
-        font-family: Arial, Helvetica, sans-serif;
-    }
-    p {
-        font-family: Arial, Helvetica, sans-serif;
-        font-size: large;
-    }
-    #questions{
-        font-family: Arial, Helvetica, sans-serif;
-        font-size: x-large;
-    }
-</style>
 <head>
+    <link rel="stylesheet" href="final_score.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <script src="final_score_adult.js"></script>
     <meta charset="UTF-8">
     <title>Final score</title>
 </head>
@@ -46,25 +29,7 @@
     <h2>
         Nu komen er nog een paar vragen. Tik hieronder op de link om naar de vragen te gaan:
     </h2>
-    <a href="https://vuamsterdam.eu.qualtrics.com/jfe/form/SV_cCrydO5w38evIVw" id="questions" target="_blank">Ga naar de vragen</a>
+    <a href="https://vuamsterdam.eu.qualtrics.com/jfe/form/SV_8dpxwWyiTSsL23Y" id="questions" target="_blank">Ga naar de vragen</a>
 </div>
 </body>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
-<script>
-    const searchParams = new URLSearchParams(window.location.search);
-
-    if(searchParams.has("total_score")){
-        let score = searchParams.get("total_score");
-        $('#score').text(score);
-    }
-    if (searchParams.has("shown")){
-        let shown = searchParams.get("shown");
-        $('#shown').text(`${shown} keer`)
-    }
-
-    let imageId = "Ronde_Park_Human_Adult.png";
-    let restURL = window.location.pathname.split('/static')[0] + "/rest/";
-    $.get(restURL + "scenario").done(scenario =>
-        $.post(restURL + scenario + "/image/" + imageId + "/choice?" + searchParams.toString()));
-</script>
 </html>

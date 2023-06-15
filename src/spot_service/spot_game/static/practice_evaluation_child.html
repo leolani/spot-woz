@@ -1,27 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
-<style>
-    body{
-        background-color: lightblue;
-    }
-    div{
-        padding: 10%;
-        text-align: center;
-    }
-    h2{
-        font-family: Arial, Helvetica, sans-serif;
-    }
-    p {
-        font-family: Arial, Helvetica, sans-serif;
-        font-size: large;
-    }
-    #submit{
-        cursor: pointer;
-        padding: 20px;
-        font-size: x-large;
-    }
-</style>
 <head>
+    <link rel="stylesheet" href="score_page.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <script src="practice_evaluation.js"></script>
     <meta charset="UTF-8">
     <title>Score Round 4</title>
 </head>
@@ -38,13 +20,13 @@
 
     </p>
 <h2>
-    Je hebt het plaatje zo vaak opnieuw laten zien:
+    Hoe vaak heb je het plaatje laten zien?
 </h2>
 <p id="shown">
 
 </p>
     <h2>
-        Nu begint het echte spel. Hierin zijn de vormpjes vervangen door meer poppetjes. Je moet van ze allemaal de positie vinden.
+        Nu begint het echte spel. Je moet van alle poppetjes de positie vinden.
     </h2>
     <h2>
         Klik op 'Ga door' om door te gaan naar de volgende ronde van het spel:
@@ -55,23 +37,4 @@
     </form>
 </div>
 </body>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
-<script>
-    const searchParams = new URLSearchParams(window.location.search);
-
-    if(searchParams.has("score")){
-        let score = searchParams.get("score");
-        $('#score').text(score)
-        $('#total_score').val(score)
-    }
-    if (searchParams.has("shown")){
-        let shown = searchParams.get("shown");
-        $('#shown').text(`${shown} keer`)
-    }
-
-    let imageId = "Oefenronde_Human_Child.png";
-    let restURL = window.location.pathname.split('/static')[0] + "/rest/";
-    $.get(restURL + "scenario").done(scenario =>
-        $.post(restURL + scenario + "/image/" + imageId + "/choice?" + searchParams.toString()));
-</script>
 </html>
