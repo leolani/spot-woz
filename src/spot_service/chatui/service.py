@@ -53,6 +53,7 @@ class ChatUiService:
         self._scenario_id = None
         self._agent = None
         self._speaker = None
+        self._introduction_finished = False
 
         self._event_bus = event_bus
         self._resource_manager = resource_manager
@@ -120,6 +121,9 @@ class ChatUiService:
             payload = self._create_payload(utterance)
             self._event_bus.publish(self._utterance_topic, Event.for_payload(payload))
 
+            if "Druk maar op de knop om door te gaan naar de oefenronde" in text:
+                self._introduction_finished = True
+
             return Response(utterance.id, status=200)
 
         @self._app.route('/chat/<chat_id>/participantid', methods=['POST'])
@@ -141,6 +145,13 @@ class ChatUiService:
             self._event_bus.publish(self._desire_topic, Event.for_payload(DesireEvent(['quit'])))
 
             return Response(status=200)
+
+        @self._app.route('/chat/introduction/continue', methods=['GET'])
+        def is_introduction_finished():
+            if self._introduction_finished:
+                return "true"
+            else:
+                return "false"
 
         @self._app.route('/urlmap')
         def url_map():
