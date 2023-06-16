@@ -9,6 +9,7 @@ let score = 0;
     }
 
     $(document).ready(function() {
+        $('#total').val(total);
         function fadeOut(){
             $('.hide').css('visibility','hidden')
             $('.show').show()

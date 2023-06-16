@@ -2,12 +2,12 @@
 <html lang="nl">
 <style>
     #pos1{
-        top: 20%;
+        top: 15%;
         left: 33%;
         position: absolute;
     }
     #pos2{
-        top: 20%;
+        top: 15%;
         left: 58%;
         position: absolute;
     }
@@ -17,6 +17,8 @@
 </style>
 <head>
     <link rel="stylesheet" href="game_round.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <script src="practice_round.js"></script>
     <meta charset="UTF-8">
     <title>"scene_1"</title>
 </head>
@@ -30,7 +32,7 @@
 <div>
 <div class="image_container">
     <img src="images/scenes/Oefenronde_Human_Adult.png" class="hide">
-    <form action="practice_evaluation_adult.html" id="selectform">
+    <form action="round_1_adult.html" id="selectform">
         <div id="pos1" class="positions">
         <span id="check1" style="display: none">&#10004</span>
         <label for="drop1">1</label>
@@ -51,18 +53,12 @@
         </div>
         <input type="hidden" name="shown" value="0" id="shown">
         <input type="hidden" name="score" value="0" id="score">
-        <input type="submit" id="submit" value="Ga door">
+        <input type="submit" id="submit" value="Ga door" style="display: none">
     </form>
     <button id="show" class="show">
         Laat het plaatje zien
     </button>
 </div>
 </div>
-
-
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
-<script src="round_1.js"></script>
-
-
 </body>
 </html>

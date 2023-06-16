@@ -2,12 +2,12 @@
 <html lang="nl">
 <style>
     #pos1{
-        top: 20%;
+        top: 15%;
         left: 33%;
         position: absolute;
     }
     #pos2{
-        top: 20%;
+        top: 15%;
         left: 58%;
         position: absolute;
     }
@@ -17,6 +17,9 @@
 </style>
 <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="game_round.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <script src="practice_round.js"></script>
     <title>"scene_1"</title>
 </head>
 <body>
@@ -50,17 +53,12 @@
         </div>
         <input type="hidden" name="shown" value="0" id="shown">
         <input type="hidden" name="score" value="0" id="score">
-        <input type="submit" id="submit" value="Ga door">
+        <input type="submit" id="submit" value="Ga door" style="display: none">
     </form>
     <button id="show" class="show">
         Laat het plaatje zien
     </button>
 </div>
 </div>
-
-
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
-<script src="round_1.js"></script>
-
 </body>
 </html>
