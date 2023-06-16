@@ -1,3 +1,4 @@
+import enum
 import logging
 import uuid
 
@@ -17,6 +18,10 @@ from spot.chatui.api import Chats, Utterance
 
 logger = logging.getLogger(__name__)
 
+
+class Part(enum.Enum):
+    INTRODUCTION = "Druk maar op de knop om door te gaan naar de oefenronde"
+    PRACTICE = "Oke. Het spel duurt in totaal 6 rondes. Je kunt elke keer naar beneden scrollen om het hele plaatje te zien. Klik maar op de knop Ga door op het scherm om te beginnen. Leuk hoor!"
 
 
 class ChatUiService:
@@ -53,7 +58,7 @@ class ChatUiService:
         self._scenario_id = None
         self._agent = None
         self._speaker = None
-        self._introduction_finished = False
+        self._finished_parts = []
 
         self._event_bus = event_bus
         self._resource_manager = resource_manager
@@ -121,8 +126,9 @@ class ChatUiService:
             payload = self._create_payload(utterance)
             self._event_bus.publish(self._utterance_topic, Event.for_payload(payload))
 
-            if "Druk maar op de knop om door te gaan naar de oefenronde" in text:
-                self._introduction_finished = True
+            for part in Part:
+                if part.value in text:
+                    self._finished_parts.append(part)
 
             return Response(utterance.id, status=200)
 
@@ -146,9 +152,9 @@ class ChatUiService:
 
             return Response(status=200)
 
-        @self._app.route('/chat/introduction/continue', methods=['GET'])
-        def is_introduction_finished():
-            if self._introduction_finished:
+        @self._app.route('/chat/<part>/continue', methods=['GET'])
+        def is_part_finished(part: str):
+            if Part[part.upper()] in self._finished_parts:
                 return "true"
             else:
                 return "false"
