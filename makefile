@@ -14,6 +14,10 @@ include util/make/makefile.py.base.mk
 include util/make/makefile.git.mk
 include util/make/makefile.component.mk
 
+empirica.lock:
+	curl https://install.empirica.dev | sh
+
+
 
 clean: py-clean
 	rm -rf src/spot_service/chatui/static/chat-bubble
