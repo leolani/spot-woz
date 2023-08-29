@@ -1,7 +1,8 @@
 {
   "dependencies": {
     "@empirica/core": "1.6.1",
-    "minimist": "1.2.6"
+    "minimist": "1.2.6",
+    "node-fetch": "3.3.2"
   },
   "devDependencies": {
     "esbuild": "0.14.47"
