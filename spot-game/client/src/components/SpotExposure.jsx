@@ -3,23 +3,16 @@ import React, {useState, useEffect} from "react";
 export function SpotExposure({duration, children}) {
     const [isVisible, setIsVisible] = useState(true);
 
-    const hideTimer = setTimeout(() => setIsVisible(false), duration);
-    const showContent = () => {
-        setIsVisible(true);
-        clearTimeout(hideTimer);
-    };
+    useEffect(() => {
+        let hideTimer = isVisible && setTimeout(() => setIsVisible(false), 5000);
+        return () => hideTimer && clearTimeout(hideTimer);
+    }, [isVisible]);
 
-    useEffect(() => clearTimeout(hideTimer), []);
-
-    const hidden = (
-        <div className="positions">
-            <button id="show" className="show" onClick={showContent}>
+    const hidden = (<div className="positions">
+            <button id="show" className="show" onClick={() => setIsVisible(true)}>
                 Laat het plaatje zien
             </button>
-        </div>
-    );
+        </div>);
 
-    return (
-        <div>{isVisible ? children : hidden}</div>
-    );
+    return (<div>{isVisible ? children : hidden}</div>);
 }

@@ -1,19 +1,158 @@
 factors:
-  - desc: playerCount determines the number of Players are in a Game.
-    name: playerCount
+  - name: playerCount
+    desc: playerCount determines the number of Players are in a Game.
     values:
       - value: 1
-      - value: 2
-      - value: 3
-      - value: 5
-      - value: 8
-      - value: 13
+  - name: scenes
+    desc: Scenes
+    values:
+      - value:
+          id: Oefenronde_Human_Adult
+          path: Oefenronde_Human_Adult.png
+          positions:
+            - id: 1
+              top: 15
+              left: 33
+            - id: 2
+              top: 15
+              left: 58
+      - value:
+          id: Ronde_Museum_Human_Adult
+          path: Ronde_Museum_Human_Adult.png
+          positions:
+            - id: 1
+              top: 20
+              left: 21
+            - id: 2
+              top: 20
+              left: 32
+            - id: 3
+              top: 20
+              left: 44
+            - id: 4
+              top: 20
+              left: 55
+            - id: 5
+              top: 20
+              left: 67
+      - value:
+          id: Ronde_Museum_Human_Child
+          path: Ronde_Museum_Human_Child.png
+          positions:
+            - top: 15
+              left: 10
+            - top: 15
+              left: 10
+      - value:
+          id: Ronde_Park_Human_Adult
+          path: Ronde_Park_Human_Adult.png
+          positions:
+            - top: 15
+              left: 10
+            - top: 15
+              left: 10
+      - value:
+          id: Ronde_Park_Human_Child
+          path: Ronde_Park_Human_Child.png
+          positions:
+            - top: 15
+              left: 10
+            - top: 15
+              left: 10
+      - value:
+          id: Ronde_Pretpark_Human_Adult
+          path: Ronde_Pretpark_Human_Adult.png
+          positions:
+            - top: 15
+              left: 10
+            - top: 15
+              left: 10
+      - value:
+          id: Ronde_Pretpark_Human_Child
+          path: Ronde_Pretpark_Human_Child.png
+          positions:
+            - top: 15
+              left: 10
+            - top: 15
+              left: 10
+      - value:
+          id: Ronde_Restaurant_Human_Adult
+          path: Ronde_Restaurant_Human_Adult.png
+          positions:
+            - top: 15
+              left: 10
+            - top: 15
+              left: 10
+      - value:
+          id: Ronde_Restaurant_Human_Child
+          path: Ronde_Restaurant_Human_Child.png
+          positions:
+            - top: 15
+              left: 10
+            - top: 15
+              left: 10
+      - value:
+          id: Ronde_Reunie_Human_Adult
+          path: Ronde_Reunie_Human_Adult.png
+          positions:
+            - top: 15
+              left: 10
+            - top: 15
+              left: 10
+      - value:
+          id: Ronde_Reunie_Human_Child
+          path: Ronde_Reunie_Human_Child.png
+          positions:
+            - top: 15
+              left: 10
+            - top: 15
+              left: 10
+      - value:
+          id: Ronde_Strand_Human_Adult
+          path: Ronde_Strand_Human_Adult.png
+          positions:
+            - top: 15
+              left: 10
+            - top: 15
+              left: 10
+      - value:
+          id: Ronde_Strand_Human_Child
+          path: Ronde_Strand_Human_Child.png
+          positions:
+            - top: 15
+              left: 10
+            - top: 15
+              left: 10
 treatments:
-  - desc: "Single-player Game"
+  - name: adult
+    desc: Adult Game
     factors:
       playerCount: 1
-    name: Solo
-  - desc: "Two-player Game"
-    factors:
-      playerCount: 2
-    name: Two Players
+      scenes:
+        - id: Oefenronde_Human_Adult
+          path: Oefenronde_Human_Adult.png
+          positions:
+            - id: 1
+              top: 15
+              left: 33
+            - id: 2
+              top: 15
+              left: 58
+        - id: Ronde_Museum_Human_Adult
+          path: Ronde_Museum_Human_Adult.png
+          positions:
+            - id: 1
+              top: 20
+              left: 21
+            - id: 2
+              top: 20
+              left: 32
+            - id: 3
+              top: 20
+              left: 44
+            - id: 4
+              top: 20
+              left: 55
+            - id: 5
+              top: 20
+              left: 67

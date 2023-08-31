@@ -1,25 +1,32 @@
-import { ClassicListenersCollector } from "@empirica/core/admin/classic";
+import {ClassicListenersCollector} from "@empirica/core/admin/classic";
 import {handleStages} from "./spot/stages";
 
 export const Empirica = new ClassicListenersCollector();
 
-Empirica.onGameStart(({ game }) => {
-  const round = game.addRound({
-    name: `Round`,
-  });
-  round.addStage({ name: "spot", duration: 10000 });
-  round.addStage({ name: "choice", duration: 10000 });
-  round.addStage({ name: "result", duration: 10000 });
+Empirica.onGameStart(({game}) => {
+    const {scenes} = game.get("treatment");
+    scenes.forEach((scene, idx, arr) => {
+        const round = game.addRound({
+            name: `Round` + idx
+        });
+
+        round.addStage({name: "spot", scene: scene, duration: 60});
+        round.addStage({name: "result", duration: 60});
+    });
 });
 
-Empirica.onRoundStart(({ round }) => {});
-
-Empirica.onStageStart(({ stage }) => {});
-
-Empirica.onStageEnded(({ stage }) => {
-  handleStages(stage);
+Empirica.onRoundStart(({round}) => {
 });
 
-Empirica.onRoundEnded(({ round }) => {});
+Empirica.onStageStart(({stage}) => {
+});
 
-Empirica.onGameEnded(({ game }) => {});
+Empirica.onStageEnded(({stage}) => {
+    handleStages(stage);
+});
+
+Empirica.onRoundEnded(({round}) => {
+});
+
+Empirica.onGameEnded(({game}) => {
+});

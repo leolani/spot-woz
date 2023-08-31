@@ -7,13 +7,11 @@ import {
 import { Loading } from "@empirica/core/player/react";
 import React from "react";
 import { Spot } from "./stages/Spot";
-import { Choice } from "./stages/Choice";
 import { Result } from "./stages/Result";
 
 export function Stage() {
   const player = usePlayer();
   const players = usePlayers();
-  const round = useRound();
   const stage = useStage();
 
   if (player.stage.get("submit")) {
@@ -30,9 +28,7 @@ export function Stage() {
 
   switch (stage.get("name")) {
     case "spot":
-      return <Spot />;
-    case "choice":
-      return <Choice />;
+      return <Spot scene={stage.get("scene")}/>;
     case "result":
       return <Result />;
     default:
