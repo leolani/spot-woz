@@ -7,7 +7,7 @@ Empirica.onGameStart(({game}) => {
     const {scenes} = game.get("treatment");
     scenes.forEach((scene, idx, arr) => {
         const round = game.addRound({
-            name: `Round` + idx
+            name: scene.id
         });
 
         round.addStage({name: "spot", scene: scene, duration: 60});

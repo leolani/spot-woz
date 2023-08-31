@@ -1,10 +1,10 @@
 import React, {useState} from "react";
 import Select from 'react-select'
-import { usePlayer } from "@empirica/core/player/classic/react";
+import {usePlayer} from "@empirica/core/player/classic/react";
 
-export function SpotSelection({id, label, options, placement}) {
+export function SpotSelection({id, label, options, placement, onSelection}) {
     const player = usePlayer();
-    const [selected, setSelected] = useState(player.get(id));
+    const [selected, setSelected] = useState(options.find(option => option.value === (player.get(id))));
 
     const style = {
         top: placement.top + '%',
@@ -12,9 +12,10 @@ export function SpotSelection({id, label, options, placement}) {
         position: "absolute"
     };
 
-    const updateSelection = (value) => {
-        player.set(id, value);
-        setSelected(value);
+    const updateSelection = (selection) => {
+        player.set(id, selection.value);
+        setSelected(selection);
+        onSelection && onSelection(id, selection.value);
     };
 
     return (

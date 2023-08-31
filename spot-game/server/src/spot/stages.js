@@ -2,8 +2,8 @@ import {Stage} from "@empirica/core";
 import fetch from "node-fetch";
 
 export function handleStages(stage) {
-    if (stage.get("name") !== "choice") return;
-    console.log("End of choice stage");
+    if (stage.get("name") !== "xxx") return;
+    console.log("End of spot stage");
 
     const players = stage.currentGame.players;
 
