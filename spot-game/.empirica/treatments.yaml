@@ -8,33 +8,43 @@ factors:
     values:
       - value:
           id: Oefenronde_Human_Adult
+          title: In het bos
           path: Oefenronde_Human_Adult.png
           positions:
             - id: 1
+              expected: 2
               top: 15
               left: 33
             - id: 2
+              expected: 1
               top: 15
               left: 58
       - value:
           id: Ronde_Museum_Human_Adult
+          title: In het Museum
           path: Ronde_Museum_Human_Adult.png
           positions:
             - id: 1
+              expected: 3
               top: 20
               left: 21
             - id: 2
+              expected: 2
               top: 20
               left: 32
             - id: 3
+              expected: 1
               top: 20
               left: 44
             - id: 4
+              expected: 5
               top: 20
               left: 55
             - id: 5
+              expected: 4
               top: 20
               left: 67
+      # TODO
       - value:
           id: Ronde_Museum_Human_Child
           path: Ronde_Museum_Human_Child.png
@@ -130,29 +140,38 @@ treatments:
       playerCount: 1
       scenes:
         - id: Oefenronde_Human_Adult
+          title: In het bos
           path: Oefenronde_Human_Adult.png
           positions:
             - id: 1
+              expected: 2
               top: 15
               left: 33
             - id: 2
+              expected: 1
               top: 15
               left: 58
         - id: Ronde_Museum_Human_Adult
+          title: In het Museum
           path: Ronde_Museum_Human_Adult.png
           positions:
             - id: 1
+              expected: 3
               top: 20
               left: 21
             - id: 2
+              expected: 2
               top: 20
               left: 32
             - id: 3
+              expected: 1
               top: 20
               left: 44
             - id: 4
+              expected: 5
               top: 20
               left: 55
             - id: 5
+              expected: 4
               top: 20
               left: 67
