@@ -1,20 +1,34 @@
 import React from "react";
-import { usePlayer, usePlayers } from "@empirica/core/player/classic/react";
-import { Button } from "../components/Button";
+import {usePlayer} from "@empirica/core/player/classic/react";
+import {Button} from "../components/Button";
 
 export function Result() {
-  const player = usePlayer();
-  const players = usePlayers();
+    const player = usePlayer();
 
-  return (
-    <div>
-      <p>You chose: {player.round.get("decision")}</p>
-      <br />
-      <p>You get {player.round.get("score") || "TBD"} months in jail!</p>
+    return (
+        <div>
+            <h2>
+                Goed gedaan!
+            </h2>
+            <br></br>
+                <h2>
+                    Je score voor deze ronde is:
+                </h2>
+                <p id="score">
+                    {player.round.get("score")}
+                </p>
+                <h2>
+                    Hoe vaak heb je het plaatje laten zien?
+                </h2>
+                <p id="shown">
 
-      <Button handleClick={() => player.stage.set("submit", true)}>
-        Continue
-      </Button>
-    </div>
-  );
+                </p>
+                <h2>
+                    Klik op 'Ga door' om door te gaan naar de volgende ronde van het spel:
+                </h2>
+                <Button handleClick={() => player.stage.set("submit", true)}>
+                    Ga door
+                </Button>
+        </div>
+    );
 }

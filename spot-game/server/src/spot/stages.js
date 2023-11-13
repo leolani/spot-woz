@@ -10,17 +10,11 @@ function handleSpotStage(stage) {
     const players = stage.currentGame.players;
 
     for (const player of players) {
-        console.log("computing score for player ", player.id);
         const scene = stage.get("scene");
-
-        console.log("scene", scene.positions
-            .map(pos => player.get(formatId(scene.id, pos.id)) + " " + formatId(scene.id, pos.expected)));
 
         let score = scene.positions
             .map(pos => player.get(formatId(scene.id, pos.id)) == formatId(scene.id, pos.expected))
             .reduce((a, b) => a + b, 0);
-
-        console.log("score", score);
 
         player.round.set("score", score);
 
