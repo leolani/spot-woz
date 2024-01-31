@@ -1,4 +1,4 @@
-import React from "react";
+ import React from "react";
 import {SpotSelection} from "./SpotSelection";
 import {usePlayer} from "@empirica/core/player/classic/react";
 

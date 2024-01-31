@@ -5,7 +5,7 @@ import React from "react";
 import { Game } from "./Game";
 import { ExitSurvey } from "./intro-exit/ExitSurvey";
 import { Introduction } from "./intro-exit/Introduction";
-import { SpotConsent } from "./SpotConsent.jsx";
+// import { SpotConsent } from "./SpotConsent.jsx";
 
 export default function App() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -27,9 +27,11 @@ export default function App() {
       <div className="h-screen relative">
         <EmpiricaMenu position="bottom-left" />
         <div className="h-full overflow-auto">
-          <EmpiricaContext consent={SpotConsent}
-                           introSteps={introSteps}
+          <EmpiricaContext introSteps={introSteps}
                            exitSteps={exitSteps}>
+          {/*<EmpiricaContext consent={SpotConsent}*/}
+          {/*                 introSteps={introSteps}*/}
+          {/*                 exitSteps={exitSteps}>*/}
             <Game />
           </EmpiricaContext>
         </div>
