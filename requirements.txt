@@ -5,6 +5,9 @@ cltl.vad[impl,service]
 cltl.emissor-data[impl,service,client]
 cltl.eliza
 
+spot.dialogmanagement[service]
+spot.disambiguation
+
 flask
 werkzeug
 

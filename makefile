@@ -1,7 +1,18 @@
 SHELL = /bin/bash
 
 
-project_dependencies ?= $(addprefix $(project_root)/, emissor cltl-combot)
+project_dependencies ?= $(addprefix $(project_root)/, \
+		emissor \
+		cltl-combot \
+		cltl-requirements \
+		cltl-backend \
+		cltl-vad \
+		cltl-asr \
+		cltl-emissor-data \
+		cltl-eliza \
+		spot_dialogmanagement \
+		spot_disambiguation_model \
+		cltl-chat-ui)
 
 git_remote ?= https://github.com/leolani
 
@@ -18,7 +29,13 @@ include util/make/makefile.component.mk
 clean: py-clean
 	rm -rf src/spot_service/chatui/static/chat-bubble
 
-build: src/spot_service/chatui/static/chat-bubble py-install
+build: src/spot_service/chatui/static/chat-bubble py-install spacy.lock
+
+spacy.lock: py-install
+	source venv/bin/activate; \
+	    python -m spacy download nl_core_news_lg; \
+		deactivate
+	touch spacy.lock
 
 src/spot_service/chatui/static/chat-bubble:
 	$(info Download $(chat_bubble))
