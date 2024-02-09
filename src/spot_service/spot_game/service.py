@@ -22,12 +22,14 @@ class SpotGameService:
         config = config_manager.get_config("cltl.spot-game.events")
         scenario_topic = config.get("topic_scenario")
         image_topic = config.get("topic_image")
+        game_topic = config.get("topic_game")
 
-        return cls(scenario_topic, image_topic, event_bus, resource_manager)
+        return cls(scenario_topic, image_topic, game_topic, event_bus, resource_manager)
 
-    def __init__(self, scenario_topic: str, image_topic: str, event_bus: EventBus, resource_manager: ResourceManager):
+    def __init__(self, scenario_topic: str, image_topic: str, game_topic: str, event_bus: EventBus, resource_manager: ResourceManager):
         self._scenario_topic = scenario_topic
         self._image_topic = image_topic
+        self._game_topic = game_topic
 
         self._scenario_id = None
 
@@ -66,11 +68,20 @@ class SpotGameService:
 
             return self._scenario_id
 
-        @self._app.route('/rest/<scenario_id>/image/<image_id>', methods=['PUT'])
+        @self._app.route('/rest/<scenario_id>/round/<round>', methods=['POST'])
+        def start_round(scenario_id: str, round: str):
+            signal = ImageSignal.for_scenario(scenario_id, timestamp_now(), timestamp_now(), None, (0, 0, 4000, 2500), signal_id=image_id)
+            signal_event = ImageSignalEvent.create(signal)
+            self._event_bus.publish(self._image_topic, Event.for_payload(signal_event))
+
+            return Response(status=200)
+
+        @self._app.route('/rest/<scenario_id>/image/<image_id>', methods=['POST'])
         def put_image(scenario_id: str, image_id: str):
             signal = ImageSignal.for_scenario(scenario_id, timestamp_now(), timestamp_now(), None, (0, 0, 4000, 2500), signal_id=image_id)
             signal_event = ImageSignalEvent.create(signal)
             self._event_bus.publish(self._image_topic, Event.for_payload(signal_event))
+            self._event_bus.publish(self._game_topic, Event.for_payload(image_id))
 
             return Response(status=200)
 
