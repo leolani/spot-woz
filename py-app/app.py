@@ -21,7 +21,7 @@ from cltl.backend.source.remote_tts import AnimatedRemoteTextOutput
 from cltl.backend.spi.audio import AudioSource
 from cltl.backend.spi.image import ImageSource
 from cltl.backend.spi.text import TextOutput
-from cltl.combot.event.bdi import IntentionEvent
+from cltl.combot.event.bdi import IntentionEvent, Intention
 from cltl.combot.infra.config.k8config import K8LocalConfigurationContainer
 from cltl.combot.infra.di_container import singleton
 from cltl.combot.infra.event import Event
@@ -50,6 +50,10 @@ from spot.chatui.memory import MemoryChats
 from spot_service.chatui.service import ChatUiService
 from spot_service.context.service import ContextService
 from spot_service.spot_game.service import SpotGameService
+from spot_service.dialog.service import SpotDialogService
+from spot.dialog.dialog_manager import DialogManager
+from spot.pragmatic_model.model_ambiguity import Disambiguator
+from spot.pragmatic_model.world_short_phrases_nl import ak_characters, ak_robot_scene
 
 logging.config.fileConfig(os.environ.get('CLTL_LOGGING_CONFIG', default='config/logging.config'),
                           disable_existing_loggers=False)
@@ -73,7 +77,10 @@ class TurnTakingTextOutput(AnimatedRemoteTextOutput):
         self._led_talk = self._color_command(color_talk)
         self._led_listen = self._color_command(color_listen)
 
-        requests.delete(f"{remote_url}/behaviour/autonomous_visual_feedback")
+        try:
+            requests.delete(f"{remote_url}/behaviour/autonomous_visual_feedback")
+        except:
+            logger.exception("Failed to set autonomous_visual_feedback behaviour")
 
     def consume(self, text: str, language: Optional[str] = None):
         super().consume(f"{self._led_talk} {text} {self._led_listen}", language)
@@ -373,7 +380,31 @@ class SpotGameContainer(InfraContainer):
         super().stop()
 
 
-class ApplicationContainer(ElizaComponentsContainer, ChatUIContainer, SpotGameContainer,
+class SpotDialogContainer(EmissorStorageContainer, InfraContainer):
+    @property
+    @singleton
+    def dialog_manager(self) -> DialogManager:
+        disambigutator = Disambiguator(ak_characters, ak_robot_scene)
+        return DialogManager(disambigutator)
+
+    @property
+    @singleton
+    def dialog_service(self) -> SpotDialogService:
+        return SpotDialogService.from_config(self.dialog_manager,self.emissor_data_client,
+                                             self.event_bus, self.resource_manager, self.config_manager)
+
+    def start(self):
+        logger.info("Start Dialog Service")
+        super().start()
+        self.dialog_service.start()
+
+    def stop(self):
+        logger.info("Stop Dialog Service")
+        self.dialog_service.stop()
+        super().stop()
+
+
+class ApplicationContainer(ElizaComponentsContainer, ChatUIContainer, SpotGameContainer, SpotDialogContainer,
                            ASRContainer, VADContainer,
                            EmissorStorageContainer, BackendContainer):
     @property
@@ -418,7 +449,7 @@ def main():
 
     with application as started_app:
         intention_topic = started_app.config_manager.get_config("cltl.bdi").get("topic_intention")
-        started_app.event_bus.publish(intention_topic, Event.for_payload(IntentionEvent(["init"])))
+        started_app.event_bus.publish(intention_topic, Event.for_payload(IntentionEvent([Intention("init", None)])))
 
         routes = {
             '/storage': started_app.storage_service.app,
@@ -434,7 +465,7 @@ def main():
         run_simple('0.0.0.0', 8000, web_app, threaded=True, use_reloader=False, use_debugger=False, use_evalex=True)
 
         intention_topic = started_app.config_manager.get_config("cltl.bdi").get("topic_intention")
-        started_app.event_bus.publish(intention_topic, Event.for_payload(IntentionEvent(["terminate"])))
+        started_app.event_bus.publish(intention_topic, Event.for_payload(IntentionEvent([Intention("terminate", None)])))
         time.sleep(1)
 
 
