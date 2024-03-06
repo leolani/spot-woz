@@ -42,6 +42,7 @@ from cltl_service.intentions.init import InitService
 from cltl_service.vad.service import VadService
 from emissor.representation.util import serializer as emissor_serializer
 from flask import Flask
+
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
 from werkzeug.serving import run_simple
 
@@ -254,10 +255,7 @@ class ASRContainer(EmissorStorageContainer, InfraContainer):
         config = self.config_manager.get_config("cltl.asr")
         sampling_rate = config.get_int("sampling_rate")
         implementation = config.get("implementation")
-
-        storage = None
-        # DEBUG
-        # storage = "/Users/tkb/automatic/workspaces/robo/eliza-parent/cltl-eliza-app/py-app/storage/audio/debug/asr"
+        storage = config.get("storage") if "storage" in config else None
 
         if implementation == "google":
             from cltl.asr.google_asr import GoogleASR
@@ -268,6 +266,10 @@ class ASRContainer(EmissorStorageContainer, InfraContainer):
             from cltl.asr.whisper_asr import WhisperASR
             impl_config = self.config_manager.get_config("cltl.asr.whisper")
             asr = WhisperASR(impl_config.get("model"), impl_config.get("language"), storage=storage)
+        elif implementation == "whisper_cpp":
+            from cltl.asr.whisper_cpp_asr import WhisperCppASR
+            impl_config = self.config_manager.get_config("cltl.asr.whisper_cpp")
+            asr = WhisperCppASR(impl_config.get("url"), impl_config.get("language"), storage=storage)
         elif implementation == "speechbrain":
             from cltl.asr.speechbrain_asr import SpeechbrainASR
             impl_config = self.config_manager.get_config("cltl.asr.speechbrain")
@@ -456,7 +458,7 @@ def main():
             '/emissor': started_app.emissor_data_service.app,
             '/chatui': started_app.chatui_service.app,
             '/spot': started_app.spot_game_service.app,
-        }
+        }q
         if started_app.server:
             routes['/host'] = started_app.server.app
 
