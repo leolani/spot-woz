@@ -458,7 +458,7 @@ def main():
             '/emissor': started_app.emissor_data_service.app,
             '/chatui': started_app.chatui_service.app,
             '/spot': started_app.spot_game_service.app,
-        }q
+        }
         if started_app.server:
             routes['/host'] = started_app.server.app
 
