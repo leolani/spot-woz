@@ -1,6 +1,6 @@
 .
 cltl.backend[impl,host,service]
-cltl.asr[impl,whisper,service]
+cltl.asr[impl,whisper,whispercpp,whisperapi,service]
 cltl.vad[impl,service]
 cltl.emissor-data[impl,service,client]
 cltl.eliza

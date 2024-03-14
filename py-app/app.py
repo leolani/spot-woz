@@ -270,6 +270,11 @@ class ASRContainer(EmissorStorageContainer, InfraContainer):
             from cltl.asr.whisper_cpp_asr import WhisperCppASR
             impl_config = self.config_manager.get_config("cltl.asr.whisper_cpp")
             asr = WhisperCppASR(impl_config.get("url"), impl_config.get("language"), storage=storage)
+        elif implementation == "whisper_api":
+            from cltl.asr.whisper_api_asr import WhisperApiASR
+            impl_config = self.config_manager.get_config("cltl.asr.whisper_api")
+            credentials_config = self.config_manager.get_config("cltl.asr.whisper_api.credentials")
+            asr = WhisperApiASR(credentials_config.get("api_key"), impl_config.get("model"), impl_config.get("language"), storage=storage)
         elif implementation == "speechbrain":
             from cltl.asr.speechbrain_asr import SpeechbrainASR
             impl_config = self.config_manager.get_config("cltl.asr.speechbrain")
