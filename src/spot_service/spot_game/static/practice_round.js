@@ -1,9 +1,18 @@
     // let score = 0;
     // let shown = 0;
 
-
 $(document).ready(function() {
+
     let restPath = window.location.pathname.split('/').slice(0, -2).join('/');
+    let imageId = $(".image_container > img").attr('src').split('/').slice(-1)[0].slice(0, -4);
+
+    var scenarioId;
+    $.get(restPath + "/rest/" + "scenario").then(scenario => {
+        scenarioId = scenario;
+        $.post(restPath + "/rest/" + scenarioId + "/image/" + imageId, {});
+        console.log("Put image", restPath + scenarioId + "/image/" + imageId);
+    });
+
     console.log(restPath);
 
     $('select').change(function() {
