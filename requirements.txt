@@ -1,5 +1,5 @@
 .
-cltl.backend[impl,host,service]
+cltl.backend[impl,local,host,service]
 cltl.asr[impl,whisper,whispercpp,whisperapi,service]
 cltl.vad[impl,service]
 cltl.emissor-data[impl,service,client]
@@ -11,3 +11,5 @@ spot.disambiguation
 flask
 werkzeug
 
+# playsound
+pyobjc==9.2

@@ -1,5 +1,6 @@
 import logging.config
 import os
+
 import time
 from typing import Optional, List, Tuple
 
@@ -69,7 +70,6 @@ class InfraContainer(SynchronousEventBusContainer, K8LocalConfigurationContainer
         pass
 
 
-
 class TurnTakingTextOutput(AnimatedRemoteTextOutput):
     def __init__(self, remote_url: str, gestures: List[GestureType] = None,
                  color_talk: Tuple[float, float, float] = (0.8, 0.0, 0.8),
@@ -125,7 +125,12 @@ class BackendContainer(InfraContainer):
 
             return TurnTakingTextOutput(remote_url, gestures, color_talk, color_listen)
         else:
-            return ConsoleOutput()
+            implementation = config.get("implementation")
+            if implementation == "console":
+                return ConsoleOutput()
+            elif implementation == "tts":
+                from cltl.backend.source.local_tts import LocalTTSOutput
+                return LocalTTSOutput()
 
     @property
     @singleton
@@ -201,11 +206,12 @@ class VADContainer(InfraContainer):
         activity_threshold = config.get_float("activity_threshold")
         allow_gap = config.get_int("allow_gap")
         padding = config.get_int("padding")
+        min_duration = config.get_int("min_duration")
         storage = None
         # DEBUG
-        # storage = "/Users/tkb/automatic/workspaces/robo/eliza-parent/cltl-eliza-app/py-app/storage/audio/debug/vad"
+        # storage = f"{os.getcwd()}/storage/audio/debug/vad"
 
-        vad = WebRtcVAD(activity_window, activity_threshold, allow_gap, padding, storage=storage)
+        vad = WebRtcVAD(activity_window, activity_threshold, allow_gap, padding, min_duration, mode=3, storage=storage)
 
         return VadService.from_config(vad, self.event_bus, self.resource_manager, self.config_manager)
 
