@@ -147,7 +147,10 @@ class BackendContainer(InfraContainer):
     @property
     @singleton
     def tts(self) -> TextToSpeech:
-        return SynchronizedTextToSpeech(TextOutputTTS(self.text_output), self.resource_manager)
+        config = self.config_manager.get_config("cltl.backend.tts")
+        language = config.get("language")
+
+        return SynchronizedTextToSpeech(TextOutputTTS(self.text_output, language), self.resource_manager)
 
     @property
     @singleton
