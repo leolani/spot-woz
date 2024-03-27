@@ -31,7 +31,7 @@ clean: py-clean
 
 build: src/spot_service/chatui/static/chat-bubble py-install spacy.lock
 
-spacy.lock: py-install
+spacy.lock: venv
 	source venv/bin/activate; \
 	    python -m spacy download nl_core_news_lg; \
 		deactivate
