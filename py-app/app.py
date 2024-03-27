@@ -47,6 +47,10 @@ from flask import Flask
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
 from werkzeug.serving import run_simple
 
+import cltl.chatui.api
+import cltl.chatui.memory
+import cltl_service.chatui.service
+
 from spot.chatui.api import Chats
 from spot.chatui.memory import MemoryChats
 from spot_service.chatui.service import ChatUiService
@@ -366,7 +370,7 @@ class ChatUIContainer(InfraContainer):
     @property
     @singleton
     def chatui_service(self) -> ChatUiService:
-        return ChatUiService.from_config(MemoryChats(), self.event_bus, self.resource_manager, self.config_manager)
+        return ChatUiService.from_config(self.chats, self.event_bus, self.resource_manager, self.config_manager)
 
     def start(self):
         logger.info("Start Chat UI")
@@ -376,6 +380,28 @@ class ChatUIContainer(InfraContainer):
     def stop(self):
         logger.info("Stop Chat UI")
         self.chatui_service.stop()
+        super().stop()
+
+
+class UserChatUIContainer(InfraContainer):
+    @property
+    @singleton
+    def user_chats(self) -> cltl.chatui.api.Chats:
+        return cltl.chatui.memory.MemoryChats()
+
+    @property
+    @singleton
+    def user_chatui_service(self) ->  cltl_service.chatui.service.ChatUiService:
+        return cltl_service.chatui.service.ChatUiService.from_config(self.user_chats, self.event_bus, self.resource_manager, self.config_manager)
+
+    def start(self):
+        logger.info("Start User Chat UI")
+        super().start()
+        self.user_chatui_service.start()
+
+    def stop(self):
+        logger.info("Stop User Chat UI")
+        self.user_chatui_service.stop()
         super().stop()
 
 
@@ -420,7 +446,8 @@ class SpotDialogContainer(EmissorStorageContainer, InfraContainer):
         super().stop()
 
 
-class ApplicationContainer(ElizaComponentsContainer, ChatUIContainer, SpotGameContainer, SpotDialogContainer,
+class ApplicationContainer(ElizaComponentsContainer, ChatUIContainer, UserChatUIContainer,
+                           SpotGameContainer, SpotDialogContainer,
                            ASRContainer, VADContainer,
                            EmissorStorageContainer, BackendContainer):
     @property
@@ -471,6 +498,7 @@ def main():
             '/storage': started_app.storage_service.app,
             '/emissor': started_app.emissor_data_service.app,
             '/chatui': started_app.chatui_service.app,
+            '/userchat': started_app.user_chatui_service.app,
             '/spot': started_app.spot_game_service.app,
         }
         if started_app.server:

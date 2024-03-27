@@ -1,4 +1,6 @@
 .
+
+cltl.chat-ui[service]
 cltl.backend[impl,local,host,service]
 cltl.asr[impl,whisper,whispercpp,whisperapi,service]
 cltl.vad[impl,service]

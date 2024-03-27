@@ -1,4 +1,3 @@
-import enum
 import logging
 import uuid
 
@@ -19,20 +18,15 @@ from spot.chatui.api import Chats, Utterance
 logger = logging.getLogger(__name__)
 
 
-class Part(enum.Enum):
-    INTRODUCTION = "Druk maar op de knop om door te gaan naar de oefenronde"
-    PRACTICE = "Oke. Het spel duurt in totaal 6 rondes. Je kunt elke keer naar beneden scrollen om het hele plaatje te zien. Klik maar op de knop Ga door op het scherm om te beginnen. Leuk hoor!"
-
-
 class ChatUiService:
     @classmethod
     def from_config(cls, chats: Chats, event_bus: EventBus,
                     resource_manager: ResourceManager, config_manager: ConfigurationManager):
-        config = config_manager.get_config("cltl.chat-ui")
+        config = config_manager.get_config("spot.chat-ui")
         name = config.get("name")
         external_input = config.get_boolean("external_input")
 
-        config = config_manager.get_config("cltl.chat-ui.events")
+        config = config_manager.get_config("spot.chat-ui.events")
         utterance_topic = config.get("topic_utterance")
         response_topic = config.get("topic_response")
         speaker_topic = config.get("topic_speaker")
@@ -58,7 +52,6 @@ class ChatUiService:
         self._scenario_id = None
         self._agent = None
         self._speaker = None
-        self._finished_parts = []
 
         self._event_bus = event_bus
         self._resource_manager = resource_manager
@@ -126,10 +119,6 @@ class ChatUiService:
             payload = self._create_payload(utterance)
             self._event_bus.publish(self._utterance_topic, Event.for_payload(payload))
 
-            for part in Part:
-                if part.value in text:
-                    self._finished_parts.append(part)
-
             return Response(utterance.id, status=200)
 
         @self._app.route('/chat/<chat_id>/participantid', methods=['POST'])
@@ -151,13 +140,6 @@ class ChatUiService:
             self._event_bus.publish(self._desire_topic, Event.for_payload(DesireEvent(['quit'])))
 
             return Response(status=200)
-
-        @self._app.route('/chat/<part>/continue', methods=['GET'])
-        def is_part_finished(part: str):
-            if Part[part.upper()] in self._finished_parts:
-                return "true"
-            else:
-                return "false"
 
         @self._app.route('/urlmap')
         def url_map():
