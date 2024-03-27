@@ -28,10 +28,11 @@ include util/make/makefile.component.mk
 
 clean: py-clean
 	rm -rf src/spot_service/chatui/static/chat-bubble
+	rm -rf spacy.lock
 
 build: src/spot_service/chatui/static/chat-bubble py-install spacy.lock
 
-spacy.lock: venv
+spacy.lock: | venv
 	source venv/bin/activate; \
 	    python -m spacy download nl_core_news_lg; \
 		deactivate
