@@ -15,6 +15,8 @@ from cltl.backend.api.camera import Bounds
 from emissor.representation.scenario import ImageSignal, Annotation, class_type, Mention, MultiIndex
 from flask import Response
 
+from spot_service.spot_game.event import GameEvent
+
 logger = logging.getLogger(__name__)
 
 
@@ -27,7 +29,7 @@ class SpotGameService:
     @classmethod
     def from_config(cls, event_bus: EventBus,
                     resource_manager: ResourceManager, config_manager: ConfigurationManager):
-        config = config_manager.get_config("cltl.spot-game.events")
+        config = config_manager.get_config("spot.game.events")
         scenario_topic = config.get("topic_scenario")
         image_topic = config.get("topic_image")
         game_topic = config.get("topic_game")
@@ -101,7 +103,7 @@ class SpotGameService:
             signal = ImageSignal.for_scenario(scenario_id, timestamp_now(), timestamp_now(), None, (0, 0, 4000, 2500), signal_id=image_id)
             signal_event = ImageSignalEvent.create(signal)
             self._event_bus.publish(self._image_topic, Event.for_payload(signal_event))
-            self._event_bus.publish(self._game_topic, Event.for_payload(image_id))
+            self._event_bus.publish(self._game_topic, Event.for_payload(GameEvent(round=image_id)))
 
             return Response(status=200)
 

@@ -14,6 +14,7 @@ from flask import Response
 from flask import jsonify
 
 from spot.chatui.api import Chats, Utterance
+from spot_service.spot_game.event import GameEvent
 
 logger = logging.getLogger(__name__)
 
@@ -30,14 +31,16 @@ class ChatUiService:
         utterance_topic = config.get("topic_utterance")
         response_topic = config.get("topic_response")
         speaker_topic = config.get("topic_speaker")
+        game_topic = config.get("topic_game")
         scenario_topic = config.get("topic_scenario")
         desire_topic = config.get("topic_desire")
 
-        return cls(name, external_input, utterance_topic, response_topic, speaker_topic, scenario_topic, desire_topic, chats,
+        return cls(name, external_input, utterance_topic, response_topic, speaker_topic,
+                   game_topic, scenario_topic, desire_topic, chats,
                    event_bus, resource_manager)
 
     def __init__(self, name: str, external_input: bool, utterance_topic: str, response_topic: str,
-                 speaker_topic: str, scenario_topic: str, desire_topic: str,
+                 speaker_topic: str, game_topic: str, scenario_topic: str, desire_topic: str,
                  chats: Chats, event_bus: EventBus, resource_manager: ResourceManager):
         self._name = name
         self._external_input = external_input
@@ -45,6 +48,7 @@ class ChatUiService:
         self._response_topic = response_topic
         self._utterance_topic = utterance_topic
         self._speaker_topic = speaker_topic
+        self._game_topic = game_topic
         self._scenario_topic = scenario_topic
         self._desire_topic = desire_topic
         self._chats = chats
@@ -129,6 +133,7 @@ class ChatUiService:
             id = flask.request.get_data(as_text=True)
             payload = self._create_participant_id_payload(id)
             self._event_bus.publish(self._speaker_topic, Event.for_payload(payload))
+            self._event_bus.publish(self._game_topic, Event.for_payload(GameEvent(participant_id=id)))
 
             return Response(status=200)
 
