@@ -22,7 +22,8 @@ $(document).ready(function() {
         checkStatus();
     });
 
-    function checkStatus() {$.get(restPath + "/rest/" + scenarioId + "/part/practice/continue").done(
+    function checkStatus() {
+        $.get(restPath + "/rest/" + scenarioId + "/part/practice/continue").done(
         function ( data ) {
             if(data === "true"){
                 $('#submit').show()}

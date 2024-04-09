@@ -5,17 +5,16 @@ from typing import Union
 
 import flask
 from cltl.combot.event.emissor import TextSignalEvent, ScenarioStopped, ImageSignalEvent, AnnotationEvent, \
-    ScenarioStarted, ScenarioEvent
+    ScenarioStarted, ScenarioEvent, SignalEvent
 from cltl.combot.infra.config import ConfigurationManager
 from cltl.combot.infra.event import Event, EventBus
 from cltl.combot.infra.resource import ResourceManager
-from cltl.combot.infra.topic_worker import TopicWorker
 from cltl.combot.infra.time_util import timestamp_now
-from cltl.backend.api.camera import Bounds
-from emissor.representation.scenario import ImageSignal, Annotation, class_type, Mention, MultiIndex
+from cltl.combot.infra.topic_worker import TopicWorker
+from emissor.representation.scenario import ImageSignal, Annotation, class_type, Mention, MultiIndex, Modality
 from flask import Response
 
-from spot_service.spot_game.event import GameEvent
+from spot_service.dialog.api import GameSignal, GameEvent
 
 logger = logging.getLogger(__name__)
 
@@ -23,6 +22,7 @@ logger = logging.getLogger(__name__)
 class Part(enum.Enum):
     INTRODUCTION = "Druk maar op de knop om door te gaan naar de oefenronde"
     PRACTICE = "Oke. Het spel duurt in totaal 6 rondes. Je kunt elke keer naar beneden scrollen om het hele plaatje te zien. Klik maar op de knop Ga door op het scherm om te beginnen. Leuk hoor!"
+    ROUND = None
 
 
 class SpotGameService:
@@ -33,15 +33,17 @@ class SpotGameService:
         scenario_topic = config.get("topic_scenario")
         image_topic = config.get("topic_image")
         game_topic = config.get("topic_game")
+        game_state_topic = config.get("topic_game_state")
         text_out_topic = config.get("topic_text_out")
 
-        return cls(scenario_topic, image_topic, game_topic, text_out_topic, event_bus, resource_manager)
+        return cls(scenario_topic, image_topic, game_topic, game_state_topic, text_out_topic, event_bus, resource_manager)
 
-    def __init__(self, scenario_topic: str, image_topic: str, game_topic: str, text_out_topic: str,
-                 event_bus: EventBus, resource_manager: ResourceManager):
+    def __init__(self, scenario_topic: str, image_topic: str, game_topic: str, game_state_topic: str,
+                 text_out_topic: str, event_bus: EventBus, resource_manager: ResourceManager):
         self._scenario_topic = scenario_topic
         self._image_topic = image_topic
         self._game_topic = game_topic
+        self._game_state_topic = game_state_topic
         self._text_out_topic = text_out_topic
 
         self._scenario_id = None
@@ -55,7 +57,7 @@ class SpotGameService:
         self._finished_parts = None
 
     def start(self, timeout=30):
-        self._topic_worker = TopicWorker([self._scenario_topic, self._text_out_topic],
+        self._topic_worker = TopicWorker([self._scenario_topic, self._game_state_topic, self._text_out_topic],
                                          self._event_bus, resource_manager=self._resource_manager,
                                          processor=self._process, buffer_size=256,
                                          name=self.__class__.__name__)
@@ -103,7 +105,13 @@ class SpotGameService:
             signal = ImageSignal.for_scenario(scenario_id, timestamp_now(), timestamp_now(), None, (0, 0, 4000, 2500), signal_id=image_id)
             signal_event = ImageSignalEvent.create(signal)
             self._event_bus.publish(self._image_topic, Event.for_payload(signal_event))
-            self._event_bus.publish(self._game_topic, Event.for_payload(GameEvent(round=image_id)))
+
+            event = GameEvent(round=image_id)
+            game_signal = GameSignal.for_scenario(scenario_id, timestamp_now(), event)
+            game_signal_event = SignalEvent(class_type(GameSignal), Modality.VIDEO, game_signal)
+            self._event_bus.publish(self._game_topic, Event.for_payload(game_signal_event))
+
+            self._finished_parts = [p for p in self._finished_parts if p != Part.ROUND]
 
             return Response(status=200)
 
@@ -131,7 +139,7 @@ class SpotGameService:
 
         return self._app
 
-    def _process(self, event: Event[Union[ScenarioEvent, TextSignalEvent]]) -> None:
+    def _process(self, event: Event[Union[ScenarioEvent, TextSignalEvent, SignalEvent[GameSignal]]]) -> None:
         if event.metadata.topic == self._scenario_topic:
             self._scenario_id = event.payload.scenario.id
 
@@ -144,7 +152,14 @@ class SpotGameService:
             logger.info("Updated spot game with scenario %s", self._scenario_id)
         elif event.metadata.topic == self._text_out_topic:
             if self._finished_parts is not None:
+                logger.debug("Handling text event %s", event.payload.signal.text)
                 text = event.payload.signal.text
                 for part in Part:
-                    if part.value in text:
+                    if part.value and part.value in text:
                         self._finished_parts.append(part)
+                        logger.info("Finished part %s", part)
+        elif event.metadata.topic == self._game_state_topic:
+            logger.debug("Handling game event %s", event.payload.signal.value)
+            if self._finished_parts is not None and event.payload.signal.value.state == "ROUND_FINISH":
+                self._finished_parts.append(Part.ROUND)
+                logger.info("Finished part %s", Part.ROUND)

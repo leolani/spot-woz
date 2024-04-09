@@ -3,18 +3,18 @@ import uuid
 
 import flask
 from cltl.combot.event.bdi import DesireEvent
-from cltl.combot.event.emissor import TextSignalEvent, ScenarioStopped
+from cltl.combot.event.emissor import TextSignalEvent, ScenarioStopped, SignalEvent
 from cltl.combot.infra.config import ConfigurationManager
 from cltl.combot.infra.event import Event, EventBus
 from cltl.combot.infra.resource import ResourceManager
 from cltl.combot.infra.time_util import timestamp_now
 from cltl.combot.infra.topic_worker import TopicWorker
-from emissor.representation.scenario import TextSignal, Annotation, Mention
+from emissor.representation.scenario import TextSignal, Annotation, Mention, class_type, Modality
 from flask import Response
 from flask import jsonify
 
 from spot.chatui.api import Chats, Utterance
-from spot_service.spot_game.event import GameEvent
+from spot_service.dialog.api import GameSignal, GameEvent
 
 logger = logging.getLogger(__name__)
 
@@ -133,7 +133,11 @@ class ChatUiService:
             id = flask.request.get_data(as_text=True)
             payload = self._create_participant_id_payload(id)
             self._event_bus.publish(self._speaker_topic, Event.for_payload(payload))
-            self._event_bus.publish(self._game_topic, Event.for_payload(GameEvent(participant_id=id)))
+
+            event = GameEvent(participant_id=id)
+            game_signal = GameSignal.for_scenario(self._scenario_id, timestamp_now(), event)
+            game_signal_event = SignalEvent(class_type(GameSignal), Modality.VIDEO, game_signal)
+            self._event_bus.publish(self._game_topic, Event.for_payload(game_signal_event))
 
             return Response(status=200)
 

@@ -32,6 +32,7 @@ from cltl.combot.infra.resource.threaded import ThreadedResourceContainer
 from cltl.emissordata.api import EmissorDataStorage
 from cltl.emissordata.file_storage import EmissorDataFileStorage
 from cltl.vad.webrtc_vad import WebRtcVAD
+from cltl.vad.controller_vad import ControllerVAD
 from cltl_service.asr.service import AsrService
 from cltl_service.backend.backend import BackendService
 from cltl_service.backend.storage import StorageService
@@ -40,6 +41,7 @@ from cltl_service.combot.event_log.service import EventLogService
 from cltl_service.emissordata.client import EmissorDataClient
 from cltl_service.emissordata.service import EmissorDataService
 from cltl_service.intentions.init import InitService
+from cltl_service.vad.controller_service import ControllerVadService
 from cltl_service.vad.service import VadService
 from emissor.representation.util import serializer as emissor_serializer
 from flask import Flask
@@ -53,6 +55,7 @@ import cltl_service.chatui.service
 
 from spot.chatui.api import Chats
 from spot.chatui.memory import MemoryChats
+from spot.emissor.storage import SpotterScenarioStorage
 from spot_service.chatui.service import ChatUiService
 from spot_service.context.service import ContextService
 from spot_service.spot_game.service import SpotGameService
@@ -208,36 +211,57 @@ class VADContainer(InfraContainer):
     @property
     @singleton
     def vad_service(self) -> VadService:
-        config = self.config_manager.get_config("cltl.vad.webrtc")
-        activity_window = config.get_int("activity_window")
-        activity_threshold = config.get_float("activity_threshold")
-        allow_gap = config.get_int("allow_gap")
-        padding = config.get_int("padding")
-        min_duration = config.get_int("min_duration")
-        storage = None
-        # DEBUG
-        # storage = f"{os.getcwd()}/storage/audio/debug/vad"
+        service_config = self.config_manager.get_config("cltl.vad")
+        if service_config.get('implementation') == 'webrtc':
+            config = self.config_manager.get_config("cltl.vad.webrtc")
+            activity_window = config.get_int("activity_window")
+            activity_threshold = config.get_float("activity_threshold")
+            allow_gap = config.get_int("allow_gap")
+            padding = config.get_int("padding")
+            min_duration = config.get_int("min_duration")
+            storage = None
+            # DEBUG
+            # storage = f"{os.getcwd()}/storage/audio/debug/vad"
 
-        vad = WebRtcVAD(activity_window, activity_threshold, allow_gap, padding, min_duration, mode=3, storage=storage)
+            vad = WebRtcVAD(activity_window, activity_threshold, allow_gap, padding, min_duration, mode=3, storage=storage)
 
-        return VadService.from_config(vad, self.event_bus, self.resource_manager, self.config_manager)
+            return VadService.from_config(vad, self.event_bus, self.resource_manager, self.config_manager)
+
+        if service_config.get('implementation') == 'controller':
+            config = self.config_manager.get_config("cltl.vad.controller")
+            padding = config.get_int("padding")
+            min_duration = config.get_int("min_duration")
+            storage = None
+            # DEBUG
+            # storage = f"{os.getcwd()}/storage/audio/debug/vad"
+
+            vad = ControllerVAD(padding, min_duration, storage=storage)
+
+            return ControllerVadService.from_config(vad, self.event_bus, self.resource_manager, self.config_manager)
+
+        return False
+
 
     def start(self):
-        logger.info("Start VAD")
         super().start()
-        self.vad_service.start()
+        if self.vad_service:
+            logger.info("Start VAD")
+            self.vad_service.start()
 
     def stop(self):
-        logger.info("Stop VAD")
-        self.vad_service.stop()
         super().stop()
+        if self.vad_service:
+            logger.info("Stop VAD")
+            self.vad_service.stop()
 
 
 class EmissorStorageContainer(InfraContainer):
     @property
     @singleton
     def emissor_storage(self) -> EmissorDataStorage:
-        return EmissorDataFileStorage.from_config(self.config_manager)
+        config = self.config_manager.get_config("cltl.emissor-data")
+
+        return EmissorDataFileStorage.from_config(self.config_manager, SpotterScenarioStorage(config.get("path")))
 
     @property
     @singleton

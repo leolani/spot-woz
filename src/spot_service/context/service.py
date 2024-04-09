@@ -90,6 +90,11 @@ class ContextService:
         self._scenario = scenario
         logger.info("Started scenario %s", scenario)
 
+        # TODO
+        # payload = self._create_participant_id_payload(id)
+        # self._event_bus.publish(self._speaker_topic, Event.for_payload(payload))
+        # self._event_bus.publish(self._game_topic, Event.for_payload(GameEvent(participant_id=id)))
+
     def _update_scenario_speaker(self, event):
         mention = event.payload.signal.mentions[0]
         id_annotation = next(iter(filter(lambda a: a.type == "ParticipantID", mention.annotations)))
@@ -110,7 +115,8 @@ class ContextService:
         signals = {
             Modality.IMAGE.name.lower(): "./image.json",
             Modality.TEXT.name.lower(): "./text.json",
-            Modality.AUDIO.name.lower(): "./audio.json"
+            Modality.AUDIO.name.lower(): "./audio.json",
+            Modality.VIDEO.name.lower(): "./game.json"
         }
 
         scenario_start = timestamp_now()

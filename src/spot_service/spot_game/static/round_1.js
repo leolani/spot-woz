@@ -10,7 +10,26 @@ $(document).ready(function() {
         scenarioId = scenario;
         $.post(restPath + scenarioId + "/image/" + imageId, {});
         console.log("Put image", restPath + scenarioId + "/image/" + imageId);
+
+        checkStatus();
     });
+
+    function checkStatus() {
+        $.get(restPath + scenarioId + "/part/round/continue").done(
+        function ( data ) {
+            if(data === "true"){
+                $('#submit').show()}
+            else{
+                setTimeout(checkStatus, 1000);
+            }
+        }
+    ).fail(
+        function ( data ) {
+            console.log("Failure", data );
+            $('#submit').show();
+        }
+    )}
+    $('#submit').hide();
 
     function fadeOut(){
         $('.hide').css('visibility','hidden')
