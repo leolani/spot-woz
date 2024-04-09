@@ -13,6 +13,7 @@ from cltl.combot.infra.time_util import timestamp_now
 from cltl.combot.infra.topic_worker import TopicWorker
 from emissor.representation.scenario import ImageSignal, Annotation, class_type, Mention, MultiIndex, Modality
 from flask import Response
+from spot.dialog.dialog_manager import ConvState
 
 from spot_service.dialog.api import GameSignal, GameEvent
 
@@ -87,18 +88,11 @@ class SpotGameService:
 
         @self._app.route('/rest/<scenario_id>/part/<part>/continue', methods=['GET'])
         def is_part_finished(scenario_id: str, part: str):
+            logger.debug("XXXX 2 %s - %s", part, self._finished_parts)
             if Part[part.upper()] in self._finished_parts:
                 return "true"
             else:
                 return "false"
-
-        @self._app.route('/rest/<scenario_id>/round/<round>', methods=['POST'])
-        def start_round(scenario_id: str, round: str):
-            signal = ImageSignal.for_scenario(scenario_id, timestamp_now(), timestamp_now(), None, (0, 0, 4000, 2500), signal_id=round)
-            signal_event = ImageSignalEvent.create(signal)
-            self._event_bus.publish(self._image_topic, Event.for_payload(signal_event))
-
-            return Response(status=200)
 
         @self._app.route('/rest/<scenario_id>/image/<image_id>', methods=['POST'])
         def put_image(scenario_id: str, image_id: str):
@@ -111,7 +105,8 @@ class SpotGameService:
             game_signal_event = SignalEvent(class_type(GameSignal), Modality.VIDEO, game_signal)
             self._event_bus.publish(self._game_topic, Event.for_payload(game_signal_event))
 
-            self._finished_parts = [p for p in self._finished_parts if p != Part.ROUND]
+            self._finished_parts = tuple(p for p in self._finished_parts if p != Part.ROUND)
+            logger.debug("XXX %s", self._finished_parts)
 
             return Response(status=200)
 
@@ -147,7 +142,7 @@ class SpotGameService:
                 self._scenario_id = None
                 self._finished_parts = None
             if event.payload.type == ScenarioStarted.__name__:
-                self._finished_parts = []
+                self._finished_parts = ()
 
             logger.info("Updated spot game with scenario %s", self._scenario_id)
         elif event.metadata.topic == self._text_out_topic:
@@ -156,10 +151,11 @@ class SpotGameService:
                 text = event.payload.signal.text
                 for part in Part:
                     if part.value and part.value in text:
-                        self._finished_parts.append(part)
+                        self._finished_parts += (part,)
                         logger.info("Finished part %s", part)
         elif event.metadata.topic == self._game_state_topic:
             logger.debug("Handling game event %s", event.payload.signal.value)
-            if self._finished_parts is not None and event.payload.signal.value.state == "ROUND_FINISH":
-                self._finished_parts.append(Part.ROUND)
+            if self._finished_parts is not None and event.payload.signal.value.state == ConvState.ROUND_FINISH.name:
+                self._finished_parts += (Part.ROUND,)
                 logger.info("Finished part %s", Part.ROUND)
+                logger.debug("XXX 3 %s", self._finished_parts)

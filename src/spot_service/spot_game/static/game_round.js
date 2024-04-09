@@ -1,55 +1,54 @@
 $(document).ready(function() {
     let score = 0;
     let shown = 0;
+
+    let restPath = window.location.pathname.split('/').slice(0, -2).join('/') + "/rest/";
+    let imageId = $(".image_container > img").attr('src').split('/').slice(-1)[0].slice(0, -4);
+
+    var scenarioId;
+    $.get(restPath + "scenario")
+        .then(scenario => {
+            scenarioId = scenario;
+            return $.post(restPath + scenarioId + "/image/" + imageId, {})
+        }).then(data => {
+            console.log("Put image", restPath + scenarioId + "/image/" + imageId);
+            $('#submit').hide();
+            checkStatus();
+        });
+
+    console.log("Rest path for ", imageId, ":", restPath);
+
     const searchParams = new URLSearchParams(window.location.search);
     let total = 0;
-    let restPath = window.location.pathname.split('/').slice(0, -2).join('/');
-
     if(searchParams.has('total_score')){
         total = searchParams.get('total_score');
         total = parseInt(total);
     }
-
-    let imageId = $(".image_container > img").attr('src').split('/').slice(-1)[0].slice(0, -4);
-
-    var scenarioId;
-    $.get(restPath + "/rest/" + "scenario").then(scenario => {
-        scenarioId = scenario;
-        $.post(restPath + "/rest/" + scenarioId + "/image/" + imageId, {});
-        console.log("Put image", restPath + scenarioId + "/image/" + imageId);
-    });
-
-    console.log("Rest path for ", imageId, ":", restPath);
+    $('#total').val(total);
 
     function checkStatus() {
-        $.get(restPath + "/rest/" + scenarioId + "/part/round/continue").done(
-        function ( data ) {
-            if(data === "true"){
-                $('#submit').show()}
-            else{
-                setTimeout(checkStatus, 1000);
-            }
-        }
-    ).fail(
-        function ( data ) {
-            console.log("Failure", data );
-            $('#submit').show();
-        }
-    )}
-
-    $('#total').val(total);
+        $.get(restPath + scenarioId + "/part/round/continue")
+            .done(data => {
+                if(data === "true"){
+                    $('#submit').show()}
+                else{
+                    setTimeout(checkStatus, 1000);
+                }
+            }).fail(data => {
+                console.log("Failure", data );
+                $('#submit').show();
+            });
+    }
 
     function fadeOut(){
         $('.hide').css('visibility','hidden')
         $('.show').show()
     }
-
     setTimeout(fadeOut, 10000);
-
     $('select').change(function() {
         $(this).hide();
         let checkmark = $(this).attr('name');
-        $('#'+checkmark).show();
+        $('#' + checkmark).show();
         let answer = $(this).val();
         let trueAnswer = $(this).attr('class');
         if(answer === trueAnswer) {
@@ -58,7 +57,8 @@ $(document).ready(function() {
             $('#score').val(score);
             $('#total').val(total)
         }
-        console.log("XXX game select", restPath, checkmark, answer);
+        $.post(restPath + scenarioId + "/image/" + imageId + "/choice?check=" + checkmark + "?choice=" + answer);
+        console.log("Game choice", restPath, checkmark, answer);
     });
 
     $('#show').click(function(){
@@ -68,7 +68,4 @@ $(document).ready(function() {
         $('#shown').val(shown);
         setTimeout(fadeOut, 10000);
     });
-
-    $('#submit').hide();
-    checkStatus();
 });
