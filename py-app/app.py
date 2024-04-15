@@ -450,8 +450,10 @@ class SpotDialogContainer(EmissorStorageContainer, InfraContainer):
     @property
     @singleton
     def dialog_manager(self) -> DialogManager:
+        config = self.config_manager.get_config("spot.dialog")
         disambigutator = Disambiguator(ak_characters, ak_robot_scene)
-        return DialogManager(disambigutator)
+
+        return DialogManager(disambigutator, config.get("storage"))
 
     @property
     @singleton
