@@ -31,6 +31,7 @@ from cltl.combot.infra.event_log import LogWriter
 from cltl.combot.infra.resource.threaded import ThreadedResourceContainer
 from cltl.emissordata.api import EmissorDataStorage
 from cltl.emissordata.file_storage import EmissorDataFileStorage
+from cltl.vad.api import VAD
 from cltl.vad.webrtc_vad import WebRtcVAD
 from cltl.vad.controller_vad import ControllerVAD
 from cltl_service.asr.service import AsrService
@@ -210,9 +211,11 @@ class BackendContainer(InfraContainer):
 class VADContainer(InfraContainer):
     @property
     @singleton
-    def vad_service(self) -> VadService:
+    def vad(self) -> VAD:
         service_config = self.config_manager.get_config("cltl.vad")
-        if service_config.get('implementation') == 'webrtc':
+
+        implementation = service_config.get('implementation', multi=True)
+        if 'webrtc' in implementation:
             config = self.config_manager.get_config("cltl.vad.webrtc")
             activity_window = config.get_int("activity_window")
             activity_threshold = config.get_float("activity_threshold")
@@ -223,21 +226,32 @@ class VADContainer(InfraContainer):
             # DEBUG
             # storage = f"{os.getcwd()}/storage/audio/debug/vad"
 
-            vad = WebRtcVAD(activity_window, activity_threshold, allow_gap, padding, min_duration, mode=3, storage=storage)
+            return WebRtcVAD(activity_window, activity_threshold, allow_gap, padding, min_duration, mode=3,
+                             storage=storage)
 
-            return VadService.from_config(vad, self.event_bus, self.resource_manager, self.config_manager)
+        return False
 
-        if service_config.get('implementation') == 'controller':
+    @property
+    @singleton
+    def vad_service(self) -> VadService:
+        service_config = self.config_manager.get_config("cltl.vad.service")
+
+        implementation = service_config.get('implementation')
+        if implementation == 'auto':
             config = self.config_manager.get_config("cltl.vad.controller")
             padding = config.get_int("padding")
             min_duration = config.get_int("min_duration")
-            storage = None
-            # DEBUG
-            # storage = f"{os.getcwd()}/storage/audio/debug/vad"
 
-            vad = ControllerVAD(padding, min_duration, storage=storage)
+            vad = ControllerVAD(self.vad, padding, min_duration)
+
+            logger.info("Controller VAD service configured (%s)", implementation)
 
             return ControllerVadService.from_config(vad, self.event_bus, self.resource_manager, self.config_manager)
+        elif implementation == 'controller':
+            logger.info("VAD service configured (%s)", implementation)
+            return VadService.from_config(self.vad, self.event_bus, self.resource_manager, self.config_manager)
+
+        logger.info("No VAD service configured (%s)", implementation)
 
         return False
 
