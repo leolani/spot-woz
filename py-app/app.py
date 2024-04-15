@@ -541,6 +541,10 @@ def main():
             '/userchat': started_app.user_chatui_service.app,
             '/spot': started_app.spot_game_service.app,
         }
+
+        if started_app.vad_service and started_app.vad_service.app:
+            routes['/vad'] = started_app.vad_service.app
+
         if started_app.server:
             routes['/host'] = started_app.server.app
 

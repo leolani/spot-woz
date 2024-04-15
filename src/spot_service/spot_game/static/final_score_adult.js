@@ -1,11 +1,17 @@
 const searchParams = new URLSearchParams(window.location.search);
 
 $(document).ready(function (){
-    if(searchParams.has("total_score")){
+    if(searchParams.has("total_score")) {
         let score = searchParams.get("total_score");
         $('#score').text(score);
     }
-    if (searchParams.has("shown")){
+    if (searchParams.has("shown")) {
         let shown = searchParams.get("shown");
-        $('#shown').text(`${shown} keer`)
-    }})
+        $('#shown').text(`${shown} keer`);
+    }
+
+    $('#questions').click(function (){
+        $('#qualtrics').hide();
+        $('#next').show();
+    });
+})

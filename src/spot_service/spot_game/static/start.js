@@ -28,6 +28,6 @@ $(document).ready(function () {
                 console.log("hello", data);
                 $('#continue').show();
             }
-        )
+        );
     }
 })

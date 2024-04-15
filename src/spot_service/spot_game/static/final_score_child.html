@@ -27,11 +27,19 @@
 <p id="shown">
 
 </p>
-    <h2>Dit was het spelletje! Leuk dat je mee hebt gespeeld!</h2>
-    <h2>
-        Nu komen er nog een paar vragen. Tik hieronder op de link om naar de vragen te gaan:
-    </h2>
-    <a href="https://vuamsterdam.eu.qualtrics.com/jfe/form/SV_d5rMvIW3SBBsRng" id="questions" target="_blank">Ga naar de vragen</a>
+    <div id="qualtrics">
+        <h2>Dit was het spelletje! Leuk dat je mee hebt gespeeld!</h2>
+        <h2>
+            Nu komen er nog een paar vragen. Tik hieronder op de link om naar de vragen te gaan:
+        </h2>
+        <a href="https://vuamsterdam.eu.qualtrics.com/jfe/form/SV_d5rMvIW3SBBsRng" id="questions" target="_blank">Ga naar de vragen</a>
+     </div>
+    <div id="next">
+        <form action="finish.html">
+            <input type="hidden" name="total_score" value="0" id="total_score">
+            <input type="submit" id="submit" value="Ga door">
+        </form>
+    </div>
 </div>
 </body>
 </html>
