@@ -65,6 +65,8 @@ from spot.dialog.dialog_manager import DialogManager
 from spot.pragmatic_model.model_ambiguity import Disambiguator
 from spot.pragmatic_model.world_short_phrases_nl import ak_characters, ak_robot_scene
 
+from spot_service.turntaking.service import SpotTurnTakingService
+
 logging.config.fileConfig(os.environ.get('CLTL_LOGGING_CONFIG', default='config/logging.config'),
                           disable_existing_loggers=False)
 logger = logging.getLogger(__name__)
@@ -208,6 +210,36 @@ class BackendContainer(InfraContainer):
         super().stop()
 
 
+class EmissorStorageContainer(InfraContainer):
+    @property
+    @singleton
+    def emissor_storage(self) -> EmissorDataStorage:
+        config = self.config_manager.get_config("cltl.emissor-data")
+
+        return EmissorDataFileStorage.from_config(self.config_manager, SpotterScenarioStorage(config.get("path")))
+
+    @property
+    @singleton
+    def emissor_data_service(self) -> EmissorDataService:
+        return EmissorDataService.from_config(self.emissor_storage,
+                                              self.event_bus, self.resource_manager, self.config_manager)
+
+    @property
+    @singleton
+    def emissor_data_client(self) -> EmissorDataClient:
+        return EmissorDataClient("http://0.0.0.0:8000/emissor")
+
+    def start(self):
+        logger.info("Start Emissor Data Storage")
+        super().start()
+        self.emissor_data_service.start()
+
+    def stop(self):
+        logger.info("Stop Emissor Data Storage")
+        self.emissor_data_service.stop()
+        super().stop()
+
+
 class VADContainer(InfraContainer):
     @property
     @singleton
@@ -246,7 +278,7 @@ class VADContainer(InfraContainer):
 
             logger.info("Controller VAD service configured (%s)", implementation)
 
-            return ControllerVadService.from_config(vad, self.event_bus, self.resource_manager, self.config_manager)
+            return ControllerVadService.from_ctrl_config(vad, self.event_bus, self.resource_manager, self.config_manager)
         elif implementation == 'controller':
             logger.info("VAD service configured (%s)", implementation)
             return VadService.from_config(self.vad, self.event_bus, self.resource_manager, self.config_manager)
@@ -267,36 +299,6 @@ class VADContainer(InfraContainer):
         if self.vad_service:
             logger.info("Stop VAD")
             self.vad_service.stop()
-
-
-class EmissorStorageContainer(InfraContainer):
-    @property
-    @singleton
-    def emissor_storage(self) -> EmissorDataStorage:
-        config = self.config_manager.get_config("cltl.emissor-data")
-
-        return EmissorDataFileStorage.from_config(self.config_manager, SpotterScenarioStorage(config.get("path")))
-
-    @property
-    @singleton
-    def emissor_data_service(self) -> EmissorDataService:
-        return EmissorDataService.from_config(self.emissor_storage,
-                                              self.event_bus, self.resource_manager, self.config_manager)
-
-    @property
-    @singleton
-    def emissor_data_client(self) -> EmissorDataClient:
-        return EmissorDataClient("http://0.0.0.0:8000/emissor")
-
-    def start(self):
-        logger.info("Start Emissor Data Storage")
-        super().start()
-        self.emissor_data_service.start()
-
-    def stop(self):
-        logger.info("Stop Emissor Data Storage")
-        self.emissor_data_service.stop()
-        super().stop()
 
 
 class ASRContainer(EmissorStorageContainer, InfraContainer):
@@ -486,8 +488,25 @@ class SpotDialogContainer(EmissorStorageContainer, InfraContainer):
         super().stop()
 
 
+class SpotTurnTakingContainer(InfraContainer):
+    @property
+    @singleton
+    def spot_turn_taking_service(self) -> SpotTurnTakingService:
+        return SpotTurnTakingService.from_config(self.event_bus, self.resource_manager, self.config_manager)
+
+    def start(self):
+        logger.info("Start Turn Taking Service")
+        super().start()
+        self.spot_turn_taking_service.start()
+
+    def stop(self):
+        logger.info("Stop Turn Taking Service")
+        self.spot_turn_taking_service.stop()
+        super().stop()
+
+
 class ApplicationContainer(ElizaComponentsContainer, ChatUIContainer, UserChatUIContainer,
-                           SpotGameContainer, SpotDialogContainer,
+                           SpotGameContainer, SpotDialogContainer, SpotTurnTakingContainer,
                            ASRContainer, VADContainer,
                            EmissorStorageContainer, BackendContainer):
     @property
@@ -543,9 +562,11 @@ def main():
         }
 
         if started_app.vad_service and started_app.vad_service.app:
+            logger.info("VAD endpoint added at /vad")
             routes['/vad'] = started_app.vad_service.app
 
         if started_app.server:
+            logger.info("Backend Server endpoint added at /host")
             routes['/host'] = started_app.server.app
 
         web_app = DispatcherMiddleware(Flask("Eliza app"), routes)

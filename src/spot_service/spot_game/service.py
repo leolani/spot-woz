@@ -88,7 +88,6 @@ class SpotGameService:
 
         @self._app.route('/rest/<scenario_id>/part/<part>/continue', methods=['GET'])
         def is_part_finished(scenario_id: str, part: str):
-            logger.debug("XXXX 2 %s - %s", part, self._finished_parts)
             if Part[part.upper()] in self._finished_parts:
                 return "true"
             else:
