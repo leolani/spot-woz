@@ -122,7 +122,7 @@ class TurnTakingTextOutput(AnimatedRemoteTextOutput):
                  color_listen: Tuple[float, float, float] = (0.7, 1.0, 0.4)):
         super().__init__(remote_url, gestures)
         self._led_talk = self._color_command(color_talk)
-        self._led_listen = self._color_command(color_listen)
+        self._led_listen = "^pCall(ALLeds.rotateEyes(11730790, 0.5, 0.5) " + self._color_command(color_listen)
 
         try:
             requests.delete(f"{remote_url}/behaviour/autonomous_visual_feedback")
