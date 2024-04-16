@@ -3,8 +3,11 @@ $(document).ready(function() {
     const animationTime = 0;
     let restPath = window.location.pathname.split('/').slice(0, -2).join('/');
 
-    var agentId = false;
     var chatId = false;
+    var agentId = false;
+    var participantId = false;
+    var participantName = false;
+
     var turn = 0;
     var chatSequence = Number.MIN_SAFE_INTEGER;
     var utteranceIds = new Set();
@@ -28,7 +31,12 @@ $(document).ready(function() {
             .done(data => {
                 chatId = data.id;
                 agentId = data.agent;
-                console.log("Retrieved chat ID:", chatId, agentId);
+                participantId = data.participantId;
+                participantName = data.participantName;
+                console.log("Retrieved chat ID:", chatId, agentId, participantId, participantName);
+
+                $("#participantId").val(participantId);
+                $("#participantName").val(participantName);
             })
             .fail(function () {
                 console.log("Waiting for chat ID");
@@ -109,11 +117,11 @@ $(document).ready(function() {
 
     $("button.phrase").prop("disabled", true);
 
-    $("#participantid").submit(function (e) {
+    $("#participantData").submit(function (e) {
         e.preventDefault();
 
-        let participant = ($("input[value='participant']", this).val());
-        $.post(restPath + "/chat/" + chatId + '/participantid', participant);
+        let participant = ($("#participantId", this).val());
+        $.post(restPath + "/chat/" + chatId + '/start', participant);
         $("input", this).prop("disabled", true);
         $("button.phrase").prop("disabled", false);
         console.log("Submit", participant);

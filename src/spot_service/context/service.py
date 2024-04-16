@@ -46,6 +46,7 @@ class ContextService:
 
         self.AGENT = AGENT
         self._scenario = None
+        self._participant = None
 
     @property
     def app(self):
@@ -90,20 +91,17 @@ class ContextService:
         self._scenario = scenario
         logger.info("Started scenario %s", scenario)
 
-        # TODO
-        # payload = self._create_participant_id_payload(id)
-        # self._event_bus.publish(self._speaker_topic, Event.for_payload(payload))
-        # self._event_bus.publish(self._game_topic, Event.for_payload(GameEvent(participant_id=id)))
-
     def _update_scenario_speaker(self, event):
-        mention = event.payload.signal.mentions[0]
-        id_annotation = next(iter(filter(lambda a: a.type == "ParticipantID", mention.annotations)))
+        if (not self._participant
+                and event.payload.signal.value.participant_id
+                and event.payload.signal.value.participant_name):
+            participant_id = event.payload.signal.value.participant_id
+            participant_name = event.payload.signal.value.participant_name
+            self._participant = Agent(participant_name, f"http://cltl.nl/spotter/world/participant/{participant_id}")
+            self._scenario.context.speaker = self._participant
 
-        participant_id = id_annotation.value
-        self._scenario.context.speaker = Agent(participant_id, )
-
-        self._event_bus.publish(self._scenario_topic, Event.for_payload(ScenarioEvent.create(self._scenario)))
-        logger.info("Updated scenario %s", self._scenario)
+            self._event_bus.publish(self._scenario_topic, Event.for_payload(ScenarioEvent.create(self._scenario)))
+            logger.info("Updated scenario %s", self._scenario)
 
     def _stop_scenario(self):
         self._scenario.ruler.end = timestamp_now()

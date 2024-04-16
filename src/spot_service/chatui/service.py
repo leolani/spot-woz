@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 class ChatUiService:
     @classmethod
-    def from_config(cls, chats: Chats, event_bus: EventBus,
+    def from_config(cls, chats: Chats, participant_id: str, participant_name: str, event_bus: EventBus,
                     resource_manager: ResourceManager, config_manager: ConfigurationManager):
         config = config_manager.get_config("spot.chat-ui")
         name = config.get("name")
@@ -35,13 +35,15 @@ class ChatUiService:
         scenario_topic = config.get("topic_scenario")
         desire_topic = config.get("topic_desire")
 
-        return cls(name, external_input, utterance_topic, response_topic, speaker_topic,
+        return cls(participant_id, participant_name, name, external_input, utterance_topic, response_topic, speaker_topic,
                    game_topic, scenario_topic, desire_topic, chats,
                    event_bus, resource_manager)
 
-    def __init__(self, name: str, external_input: bool, utterance_topic: str, response_topic: str,
+    def __init__(self, participant_id: str, participant_name: str, name: str, external_input: bool, utterance_topic: str, response_topic: str,
                  speaker_topic: str, game_topic: str, scenario_topic: str, desire_topic: str,
                  chats: Chats, event_bus: EventBus, resource_manager: ResourceManager):
+        self._participant_id = participant_id
+        self._participant_name = participant_name
         self._name = name
         self._external_input = external_input
 
@@ -90,8 +92,12 @@ class ChatUiService:
             if not self._scenario_id:
                 return Response(status=404)
 
-            agent_name = self._agent.name if self._agent and self._agent.name else "Leolani"
-            return {"id": self._scenario_id, "agent": agent_name}
+            return {
+                "id": self._scenario_id,
+                "agent": self._agent.name if self._agent and self._agent.name else "SpotteRobot",
+                "participantId": self._participant_id,
+                "participantName": self._participant_name
+            }
 
         @self._app.route('/chat/<chat_id>', methods=['GET', 'POST'])
         def utterances(chat_id: str):
@@ -125,19 +131,16 @@ class ChatUiService:
 
             return Response(utterance.id, status=200)
 
-        @self._app.route('/chat/<chat_id>/participantid', methods=['POST'])
-        def participant_id(chat_id: str):
+        @self._app.route('/chat/<chat_id>/start', methods=['POST'])
+        def start_game(chat_id: str):
             if not chat_id:
                 return Response("Missing chat id", status=400)
 
-            id = flask.request.get_data(as_text=True)
-            payload = self._create_participant_id_payload(id)
-            self._event_bus.publish(self._speaker_topic, Event.for_payload(payload))
-
-            event = GameEvent(participant_id=id)
+            event = GameEvent(participant_id=self._participant_id, participant_name=self._participant_name)
             game_signal = GameSignal.for_scenario(self._scenario_id, timestamp_now(), event)
             game_signal_event = SignalEvent(class_type(GameSignal), Modality.VIDEO, game_signal)
             self._event_bus.publish(self._game_topic, Event.for_payload(game_signal_event))
+            self._event_bus.publish(self._speaker_topic, Event.for_payload(game_signal_event))
 
             return Response(status=200)
 

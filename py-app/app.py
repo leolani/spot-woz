@@ -1,10 +1,14 @@
+import argparse
+import enum
 import logging.config
 import os
-
-import time
 from typing import Optional, List, Tuple
 
+import cltl.chatui.api
+import cltl.chatui.memory
+import cltl_service.chatui.service
 import requests as requests
+import time
 from cltl.backend.api.backend import Backend
 from cltl.backend.api.camera import CameraResolution, Camera
 from cltl.backend.api.gestures import GestureType
@@ -24,7 +28,7 @@ from cltl.backend.spi.image import ImageSource
 from cltl.backend.spi.text import TextOutput
 from cltl.combot.event.bdi import IntentionEvent, Intention
 from cltl.combot.infra.config.k8config import K8LocalConfigurationContainer
-from cltl.combot.infra.di_container import singleton
+from cltl.combot.infra.di_container import singleton, DIContainer
 from cltl.combot.infra.event import Event
 from cltl.combot.infra.event.memory import SynchronousEventBusContainer
 from cltl.combot.infra.event_log import LogWriter
@@ -32,8 +36,8 @@ from cltl.combot.infra.resource.threaded import ThreadedResourceContainer
 from cltl.emissordata.api import EmissorDataStorage
 from cltl.emissordata.file_storage import EmissorDataFileStorage
 from cltl.vad.api import VAD
-from cltl.vad.webrtc_vad import WebRtcVAD
 from cltl.vad.controller_vad import ControllerVAD
+from cltl.vad.webrtc_vad import WebRtcVAD
 from cltl_service.asr.service import AsrService
 from cltl_service.backend.backend import BackendService
 from cltl_service.backend.storage import StorageService
@@ -46,13 +50,12 @@ from cltl_service.vad.controller_service import ControllerVadService
 from cltl_service.vad.service import VadService
 from emissor.representation.util import serializer as emissor_serializer
 from flask import Flask
-
+from spot.dialog.dialog_manager import DialogManager
+from spot.pragmatic_model.model_ambiguity import Disambiguator
+from spot.pragmatic_model.world_short_phrases_nl import ak_characters, ak_robot_scene
+from spot_service.dialog.service import SpotDialogService
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
 from werkzeug.serving import run_simple
-
-import cltl.chatui.api
-import cltl.chatui.memory
-import cltl_service.chatui.service
 
 from spot.chatui.api import Chats
 from spot.chatui.memory import MemoryChats
@@ -60,16 +63,48 @@ from spot.emissor.storage import SpotterScenarioStorage
 from spot_service.chatui.service import ChatUiService
 from spot_service.context.service import ContextService
 from spot_service.spot_game.service import SpotGameService
-from spot_service.dialog.service import SpotDialogService
-from spot.dialog.dialog_manager import DialogManager
-from spot.pragmatic_model.model_ambiguity import Disambiguator
-from spot.pragmatic_model.world_short_phrases_nl import ak_characters, ak_robot_scene
-
 from spot_service.turntaking.service import SpotTurnTakingService
 
 logging.config.fileConfig(os.environ.get('CLTL_LOGGING_CONFIG', default='config/logging.config'),
                           disable_existing_loggers=False)
 logger = logging.getLogger(__name__)
+
+
+class DisambiguationCondition(enum.Enum):
+    HIGH = 'high'
+    LOW = 'low'
+
+    def __str__(self):
+        return self.value
+
+class TurnTakingCondition(enum.Enum):
+    AUTO = 'auto'
+    CONTROL = 'control'
+
+    def __str__(self):
+        return self.value
+
+class EnvironmentContainer(DIContainer):
+    def start(self):
+        pass
+
+    def stop(self):
+        pass
+
+    @property
+    def participant_id(self) -> str:
+        raise NotImplementedError()
+    @property
+    def participant_name(self) -> str:
+        raise NotImplementedError()
+
+    @property
+    def turn_taking_condition(self) -> TurnTakingCondition:
+        raise NotImplementedError()
+
+    @property
+    def disambiguation_level(self) -> DisambiguationCondition:
+        raise NotImplementedError()
 
 
 class InfraContainer(SynchronousEventBusContainer, K8LocalConfigurationContainer, ThreadedResourceContainer):
@@ -81,7 +116,8 @@ class InfraContainer(SynchronousEventBusContainer, K8LocalConfigurationContainer
 
 
 class TurnTakingTextOutput(AnimatedRemoteTextOutput):
-    def __init__(self, remote_url: str, gestures: List[GestureType] = None,
+    def __init__(self, remote_url: str,
+                 gestures: List[GestureType] = None,
                  color_talk: Tuple[float, float, float] = (0.8, 0.0, 0.8),
                  color_listen: Tuple[float, float, float] = (0.7, 1.0, 0.4)):
         super().__init__(remote_url, gestures)
@@ -240,7 +276,7 @@ class EmissorStorageContainer(InfraContainer):
         super().stop()
 
 
-class VADContainer(InfraContainer):
+class VADContainer(InfraContainer, EnvironmentContainer):
     @property
     @singleton
     def vad(self) -> VAD:
@@ -269,7 +305,8 @@ class VADContainer(InfraContainer):
         service_config = self.config_manager.get_config("cltl.vad.service")
 
         implementation = service_config.get('implementation')
-        if implementation == 'auto':
+        if (self.turn_taking_condition == TurnTakingCondition.CONTROL
+                or (not self.turn_taking_condition and implementation == 'controller')):
             config = self.config_manager.get_config("cltl.vad.controller")
             padding = config.get_int("padding")
             min_duration = config.get_int("min_duration")
@@ -279,7 +316,8 @@ class VADContainer(InfraContainer):
             logger.info("Controller VAD service configured (%s)", implementation)
 
             return ControllerVadService.from_ctrl_config(vad, self.event_bus, self.resource_manager, self.config_manager)
-        elif implementation == 'controller':
+        elif (self.turn_taking_condition == TurnTakingCondition.AUTO
+                or (not self.turn_taking_condition and implementation == 'auto')):
             logger.info("VAD service configured (%s)", implementation)
             return VadService.from_config(self.vad, self.event_bus, self.resource_manager, self.config_manager)
 
@@ -401,7 +439,7 @@ class ElizaComponentsContainer(EmissorStorageContainer, InfraContainer):
         super().stop()
 
 
-class ChatUIContainer(InfraContainer):
+class ChatUIContainer(InfraContainer, EnvironmentContainer):
     @property
     @singleton
     def chats(self) -> Chats:
@@ -410,7 +448,8 @@ class ChatUIContainer(InfraContainer):
     @property
     @singleton
     def chatui_service(self) -> ChatUiService:
-        return ChatUiService.from_config(self.chats, self.event_bus, self.resource_manager, self.config_manager)
+        return ChatUiService.from_config(self.chats, self.participant_id, self.participant_name,
+                                         self.event_bus, self.resource_manager, self.config_manager)
 
     def start(self):
         logger.info("Start Chat UI")
@@ -508,7 +547,29 @@ class SpotTurnTakingContainer(InfraContainer):
 class ApplicationContainer(ElizaComponentsContainer, ChatUIContainer, UserChatUIContainer,
                            SpotGameContainer, SpotDialogContainer, SpotTurnTakingContainer,
                            ASRContainer, VADContainer,
-                           EmissorStorageContainer, BackendContainer):
+                           EmissorStorageContainer, BackendContainer, EnvironmentContainer):
+    def __init__(self, participant_id: str, participant_name: str, turn_taking_condition: TurnTakingCondition, disambiguation_level: DisambiguationCondition):
+        self._participant_id = participant_id
+        self._participant_name = participant_name
+        self._turn_taking_condition = turn_taking_condition
+        self._disambiguation_level = disambiguation_level
+
+    @property
+    def participant_id(self) -> str:
+        return self._participant_id
+
+    @property
+    def participant_name(self) -> str:
+        return self._participant_name
+
+    @property
+    def turn_taking_condition(self) -> TurnTakingCondition:
+        return self._turn_taking_condition
+
+    @property
+    def disambiguation_level(self) -> DisambiguationCondition:
+        return self._disambiguation_level
+
     @property
     @singleton
     def log_writer(self):
@@ -544,10 +605,10 @@ def serializer(obj):
             return str(obj)
 
 
-def main():
+def main(participant: str, name: str, turntaking: TurnTakingCondition, disamb: DisambiguationCondition):
     ApplicationContainer.load_configuration()
     logger.info("Initialized Application")
-    application = ApplicationContainer()
+    application = ApplicationContainer(participant, name, turntaking, disamb)
 
     with application as started_app:
         intention_topic = started_app.config_manager.get_config("cltl.bdi").get("topic_intention")
@@ -579,4 +640,15 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser(description='Spotter game')
+    parser.add_argument('--participant', type=str, required=True,
+                        help="Participant ID")
+    parser.add_argument('--name', type=str, required=True,
+                        help="Participant name")
+    parser.add_argument('--turntaking', type=TurnTakingCondition, choices=list(TurnTakingCondition), required=False,
+                        help="Turn taking condition, either 'auto' or 'control'")
+    parser.add_argument('--disamb', type=DisambiguationCondition, choices=list(DisambiguationCondition), required=False,
+                        help="Disambiguation condition, either 'high' or 'low'")
+    args, _ = parser.parse_known_args()
+
+    main(args.participant, args.name, args.turntaking, args.disamb)
