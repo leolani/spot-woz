@@ -49,6 +49,7 @@ $(document).ready(function() {
         $(this).hide();
         let checkmark = $(this).attr('name');
         $('#' + checkmark).show();
+        $('label[for="' + $(this).attr('id') + '"]').hide();
         let answer = $(this).val();
         let trueAnswer = $(this).attr('class');
         if(answer === trueAnswer) {
