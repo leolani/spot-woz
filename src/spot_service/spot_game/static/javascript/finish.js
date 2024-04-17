@@ -1,5 +1,5 @@
 $(document).ready(function() {
-    let restPath = window.location.pathname.split('/').slice(0, -2).join('/') + "/rest/";
+    let restPath = window.location.pathname.split('/').slice(0, -3).join('/') + "/rest/";
 
     var scenarioId;
     $.get(restPath + "scenario")

@@ -3,6 +3,8 @@ $(document).ready(function () {
         $('.introduction').show();
         $('#continue').hide();
         $('#show').hide();
+        $('#continuebutton').hide();
+        setTimeout(showButton, 3000);
         checkStatus();
     })
 
@@ -12,6 +14,10 @@ $(document).ready(function () {
         scenarioId = scenario;
         console.log("Started scenario", scenarioId);
     });
+
+    function showButton() {
+        $('#continuebutton').show()
+    }
 
     function checkStatus() {
         $.get(restPath + "/rest/" + scenarioId + "/part/introduction/continue").done(

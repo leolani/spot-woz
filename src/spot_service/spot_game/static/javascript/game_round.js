@@ -2,7 +2,7 @@ $(document).ready(function() {
     let score = 0;
     let shown = 0;
 
-    let restPath = window.location.pathname.split('/').slice(0, -2).join('/') + "/rest/";
+    let restPath = window.location.pathname.split('/').slice(0, -3).join('/') + "/rest/";
     let imageId = $(".image_container > img").attr('src').split('/').slice(-1)[0].slice(0, -4);
 
     var scenarioId;

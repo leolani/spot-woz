@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="../css/score_round1.css">
+    <link rel="stylesheet" href="../css/turntaking.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <script src="../javascript/score_round1.js"></script>
+    <script src="../javascript/turntaking.js"></script>
+    <meta charset="UTF-8">
+    <title>Score Round 1</title>
+</head>
+<body>
+<div id="body_text">
+    <h2>
+        Goed gedaan!
+    </h2>
+    <br>
+    <h2>
+        Je score voor deze ronde is:
+    </h2>
+    <p id="score">
+    </p>
+<h2>
+    Hoe vaak heb je het plaatje laten zien?
+</h2>
+<p id="shown">
+
+</p>
+    <div id="qualtrics">
+    <h2>
+        Nu komen er eerst een paar vragen. Druk hieronder op de link om naar de vragen te gaan:
+    </h2>
+        <a href="https://vuamsterdam.eu.qualtrics.com/jfe/form/SV_3HFu8txENLyS15Y" target="_blank" id="questions">Ga naar de vragen</a>
+        </div>
+    <div id="next">
+        <h2>Wacht tot robot Robin begint met praten. Druk dan op de knop hieronder om door te gaan:</h2>
+    <form action="round_2_child.html">
+        <input type="hidden" name="total_score" value="0" id="total_score">
+        <input type="submit" id="submit" value="Ga door naar de volgende ronde">
+    </form>
+        </div>
+</div>
+</body>
+</html>
