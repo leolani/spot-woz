@@ -78,8 +78,9 @@ class DisambiguationCondition(enum.Enum):
         return self.value
 
 class TurnTakingCondition(enum.Enum):
-    AUTO = 'auto'
-    CONTROL = 'control'
+    NONE = 'none'
+    RO = 'ro' # robot
+    ROHU = 'rohu' # robot and human
 
     def __str__(self):
         return self.value
@@ -306,7 +307,7 @@ class VADContainer(InfraContainer, EnvironmentContainer):
         service_config = self.config_manager.get_config("cltl.vad.service")
 
         implementation = service_config.get('implementation')
-        if (self.turn_taking_condition == TurnTakingCondition.CONTROL
+        if (self.turn_taking_condition == TurnTakingCondition.ROHU
                 or (not self.turn_taking_condition and implementation == 'controller')):
             config = self.config_manager.get_config("cltl.vad.controller")
             padding = config.get_int("padding")
@@ -317,7 +318,7 @@ class VADContainer(InfraContainer, EnvironmentContainer):
             logger.info("Controller VAD service configured (%s)", implementation)
 
             return ControllerVadService.from_ctrl_config(vad, self.event_bus, self.resource_manager, self.config_manager)
-        elif (self.turn_taking_condition == TurnTakingCondition.AUTO
+        elif (self.turn_taking_condition != TurnTakingCondition.ROHU
                 or (not self.turn_taking_condition and implementation == 'auto')):
             logger.info("VAD service configured (%s)", implementation)
             return VadService.from_config(self.vad, self.event_bus, self.resource_manager, self.config_manager)
@@ -528,11 +529,13 @@ class SpotDialogContainer(EmissorStorageContainer, InfraContainer):
         super().stop()
 
 
-class SpotTurnTakingContainer(InfraContainer):
+class SpotTurnTakingContainer(EmissorStorageContainer, BackendContainer, InfraContainer, EnvironmentContainer):
     @property
     @singleton
     def spot_turn_taking_service(self) -> SpotTurnTakingService:
-        return SpotTurnTakingService.from_config(self.event_bus, self.resource_manager, self.config_manager)
+        visual_feedback = self.turn_taking_condition != TurnTakingCondition.NONE
+        return SpotTurnTakingService.from_config(visual_feedback, self.text_output, self.emissor_data_client,
+                                                 self.event_bus, self.resource_manager, self.config_manager)
 
     def start(self):
         logger.info("Start Turn Taking Service")
