@@ -60,6 +60,7 @@ from werkzeug.serving import run_simple
 from spot.chatui.api import Chats
 from spot.chatui.memory import MemoryChats
 from spot.emissor.storage import SpotterScenarioStorage
+from spot.turntaking.textout import TurnTakingTextOutput
 from spot_service.chatui.service import ChatUiService
 from spot_service.context.service import ContextService
 from spot_service.spot_game.service import SpotGameService
@@ -116,30 +117,7 @@ class InfraContainer(SynchronousEventBusContainer, K8LocalConfigurationContainer
         pass
 
 
-class TurnTakingTextOutput(AnimatedRemoteTextOutput):
-    def __init__(self, remote_url: str,
-                 gestures: List[GestureType] = None,
-                 color_talk: Tuple[float, float, float] = (0.8, 0.0, 0.8),
-                 color_listen: Tuple[float, float, float] = (0.7, 1.0, 0.4)):
-        super().__init__(remote_url, gestures)
-        self._led_talk = ("^mode(disabled) " if not gestures or gestures == [GestureType.DO_NOTHING] else "") + self._color_command(color_talk)
-        self._led_listen = " ^pCall(ALLeds.rotateEyes(11730790, 0.5, 0.5)) " + self._color_command(color_listen)
-
-
-        try:
-            requests.delete(f"{remote_url}/behaviour/autonomous_visual_feedback")
-        except:
-            logger.exception("Failed to set autonomous_visual_feedback behaviour")
-
-    def consume(self, text: str, language: Optional[str] = None):
-        super().consume(f"{self._led_talk} {text} {self._led_listen}", language)
-
-    @staticmethod
-    def _color_command(color: Tuple[float, float, float]):
-        return f"^pCall(ALLeds.fadeRGB(\"FaceLeds\", {color[0]}, {color[1]}, {color[2]}, 0.1))"
-
-
-class BackendContainer(InfraContainer):
+class BackendContainer(InfraContainer, EnvironmentContainer):
     @property
     @singleton
     def audio_storage(self) -> AudioStorage:
@@ -168,10 +146,15 @@ class BackendContainer(InfraContainer):
 
         if remote_url:
             gestures = config.get_enum("gestures", GestureType, multi=True) if "gestures" in config else None
+            color_base = tuple(float(col) for col  in config.get("color_base", multi=True))
             color_talk = tuple(float(col) for col  in config.get("color_talk", multi=True))
             color_listen = tuple(float(col) for col  in config.get("color_listen", multi=True))
 
-            return TurnTakingTextOutput(remote_url, gestures, color_talk, color_listen)
+            if self.turn_taking_condition == TurnTakingCondition.NONE:
+                color_talk = ()
+                color_listen = ()
+
+            return TurnTakingTextOutput(remote_url, gestures, color_base, color_talk, color_listen)
         else:
             implementation = config.get("implementation")
             if implementation == "console":

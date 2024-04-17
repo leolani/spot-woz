@@ -4,6 +4,7 @@ from concurrent.futures import ThreadPoolExecutor, Future
 
 import time
 from cltl.backend.source.remote_tts import AnimatedRemoteTextOutput
+from cltl.backend.spi.text import TextOutput
 from cltl.combot.event.emissor import AudioSignalStarted, TextSignalEvent
 from cltl.combot.infra.config import ConfigurationManager
 from cltl.combot.infra.event import Event, EventBus
@@ -26,7 +27,7 @@ class TurnState(enum.Enum):
 
 class SpotTurnTakingService:
     @classmethod
-    def from_config(cls, visual_feedback: bool, tts: AnimatedRemoteTextOutput, emissor_data: EmissorDataClient,
+    def from_config(cls, visual_feedback: bool, tts: TextOutput, emissor_data: EmissorDataClient,
                     event_bus: EventBus, resource_manager: ResourceManager, config_manager: ConfigurationManager):
         config = config_manager.get_config("spot.turntaking")
         vad_topic = config.get("topic_vad")
@@ -36,17 +37,20 @@ class SpotTurnTakingService:
         game_topic = config.get("topic_game")
         vad_control_topic = config.get("topic_vad_control")
         text_forward_topic = config.get("topic_text_forward")
-        rotate_color = config.get_int("rotate_color")
+        if visual_feedback:
+            rotate_color = int(sum(float(col) * 256**(3-idx) for idx, col in enumerate(config.get("color_rotate", multi=True))))
+        else:
+            rotate_color = None
 
         return cls(vad_topic, asr_topic, mic_topic, text_out_topic, game_topic, vad_control_topic, text_forward_topic,
                    rotate_color, tts, emissor_data, event_bus, resource_manager)
 
     def __init__(self, vad_topic: str, asr_topic: str, mic_topic: str, text_out_topic: str, game_topic: str,
                  vad_control_topic: str, text_forward_topic: str, rotate_color: int,
-                 tts: AnimatedRemoteTextOutput, emissor_data: EmissorDataClient, event_bus: EventBus, resource_manager: ResourceManager):
+                 tts: TextOutput, emissor_data: EmissorDataClient, event_bus: EventBus, resource_manager: ResourceManager):
         self._event_bus = event_bus
         self._resource_manager = resource_manager
-        self._tts = tts
+        self._tts = tts if isinstance(tts, AnimatedRemoteTextOutput) else None
         self._emissor_data = emissor_data
 
         self._vad_topic = vad_topic
@@ -106,7 +110,7 @@ class SpotTurnTakingService:
                     logger.debug("Received zero length VAD event (%s), turn state %s", segment, self._turn_state)
                 else:
                     self._turn_state = TurnState.AGENT_PENDING
-                    if self._rotate_color and not self._turn_signal:
+                    if (self._rotate_color is not None and self._tts and not self._turn_signal):
                         self._turn_signal = self._executor.submit(self._signal_turn)
                     logger.debug("Received VAD event (%s), turn state %s", segment, self._turn_state)
         elif event.metadata.topic == self._asr_topic:
@@ -141,4 +145,3 @@ class SpotTurnTakingService:
             time.sleep(0.5)
 
         logger.debug("Rotated eyes for %s ms", start - timestamp_now())
-
