@@ -12,7 +12,7 @@ from cltl.combot.infra.resource import ResourceManager
 from cltl.combot.infra.time_util import timestamp_now
 from cltl.combot.infra.topic_worker import TopicWorker
 from emissor.representation.scenario import ImageSignal, Annotation, class_type, Mention, MultiIndex, Modality
-from flask import Response
+from flask import Response, redirect, url_for
 from spot.dialog.dialog_manager import ConvState
 
 from spot_service.dialog.api import GameSignal, GameEvent
@@ -78,6 +78,10 @@ class SpotGameService:
             return self._app
 
         self._app = flask.Flask(__name__)
+
+        @self._app.route('/start', methods=['GET'])
+        def start_page():
+            return redirect(url_for('static', filename='first_interaction/start.html'))
 
         @self._app.route('/rest/scenario', methods=['GET'])
         def current_scenario():
