@@ -138,7 +138,7 @@ class SpotTurnTakingService:
         start = timestamp_now()
 
         while self._turn_state == TurnState.AGENT_PENDING:
-            self._tts.consume(f"^pCall(ALLeds.rotateEyes({self._rotate_color}, 0.5, 0.5) ", "nl")
+            self._tts.consume(f"^pCall(ALLeds.rotateEyes({self._rotate_color}, 0.5, 0.5)) ", "nl")
             time.sleep(0.5)
 
         logger.debug("Rotated eyes for %s ms", start - timestamp_now())
