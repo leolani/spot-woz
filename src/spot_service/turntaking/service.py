@@ -27,7 +27,7 @@ class TurnState(enum.Enum):
 
 class SpotTurnTakingService:
     @classmethod
-    def from_config(cls, visual_feedback: bool, tts: TextOutput, emissor_data: EmissorDataClient,
+    def from_config(cls, tts: TextOutput, emissor_data: EmissorDataClient,
                     event_bus: EventBus, resource_manager: ResourceManager, config_manager: ConfigurationManager):
         config = config_manager.get_config("spot.turntaking")
         vad_topic = config.get("topic_vad")
@@ -37,10 +37,7 @@ class SpotTurnTakingService:
         game_topic = config.get("topic_game")
         vad_control_topic = config.get("topic_vad_control")
         text_forward_topic = config.get("topic_text_forward")
-        if visual_feedback:
-            rotate_color = int(sum(float(col) * 256**(3-idx) for idx, col in enumerate(config.get("color_rotate", multi=True))))
-        else:
-            rotate_color = None
+        rotate_color = int(sum(float(col) * 256**(3-idx) for idx, col in enumerate(config.get("color_rotate", multi=True))))
 
         return cls(vad_topic, asr_topic, mic_topic, text_out_topic, game_topic, vad_control_topic, text_forward_topic,
                    rotate_color, tts, emissor_data, event_bus, resource_manager)
@@ -110,7 +107,7 @@ class SpotTurnTakingService:
                     logger.debug("Received zero length VAD event (%s), turn state %s", segment, self._turn_state)
                 else:
                     self._turn_state = TurnState.AGENT_PENDING
-                    if (self._rotate_color is not None and self._tts and not self._turn_signal):
+                    if (self._rotate_color and self._tts and not self._turn_signal):
                         self._turn_signal = self._executor.submit(self._signal_turn)
                     logger.debug("Received VAD event (%s), turn state %s", segment, self._turn_state)
         elif event.metadata.topic == self._asr_topic:
@@ -128,7 +125,7 @@ class SpotTurnTakingService:
             activate = self._turn_state == TurnState.PARTICIPANT
             logger.debug("Received audio signal started event (%s), turn state %s", event.id, self._turn_state)
 
-        if activate:
+        if self._vad_control_topic and activate:
             logger.info("Activated controller VAD: %s", event.id)
             self._event_bus.publish(self._vad_control_topic, Event.for_payload(True))
 

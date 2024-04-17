@@ -1,13 +1,12 @@
 import argparse
 import enum
+import json
 import logging.config
 import os
-from typing import Optional, List, Tuple
 
 import cltl.chatui.api
 import cltl.chatui.memory
 import cltl_service.chatui.service
-import requests as requests
 import time
 from cltl.backend.api.backend import Backend
 from cltl.backend.api.camera import CameraResolution, Camera
@@ -22,12 +21,12 @@ from cltl.backend.impl.sync_tts import SynchronizedTextToSpeech, TextOutputTTS
 from cltl.backend.server import BackendServer
 from cltl.backend.source.client_source import ClientAudioSource, ClientImageSource
 from cltl.backend.source.console_source import ConsoleOutput
-from cltl.backend.source.remote_tts import AnimatedRemoteTextOutput
 from cltl.backend.spi.audio import AudioSource
 from cltl.backend.spi.image import ImageSource
 from cltl.backend.spi.text import TextOutput
 from cltl.combot.event.bdi import IntentionEvent, Intention
 from cltl.combot.infra.config.k8config import K8LocalConfigurationContainer
+from cltl.combot.infra.config.local import ADDITIONAL_CONFIGS
 from cltl.combot.infra.di_container import singleton, DIContainer
 from cltl.combot.infra.event import Event
 from cltl.combot.infra.event.memory import SynchronousEventBusContainer
@@ -71,9 +70,9 @@ logging.config.fileConfig(os.environ.get('CLTL_LOGGING_CONFIG', default='config/
 logger = logging.getLogger(__name__)
 
 
-class DisambiguationCondition(enum.Enum):
-    HIGH = 'high'
-    LOW = 'low'
+class ConventionsCondition(enum.Enum):
+    YES = 'yes'
+    NO = 'no'
 
     def __str__(self):
         return self.value
@@ -100,14 +99,6 @@ class EnvironmentContainer(DIContainer):
     def participant_name(self) -> str:
         raise NotImplementedError()
 
-    @property
-    def turn_taking_condition(self) -> TurnTakingCondition:
-        raise NotImplementedError()
-
-    @property
-    def disambiguation_level(self) -> DisambiguationCondition:
-        raise NotImplementedError()
-
 
 class InfraContainer(SynchronousEventBusContainer, K8LocalConfigurationContainer, ThreadedResourceContainer):
     def start(self):
@@ -117,7 +108,7 @@ class InfraContainer(SynchronousEventBusContainer, K8LocalConfigurationContainer
         pass
 
 
-class BackendContainer(InfraContainer, EnvironmentContainer):
+class BackendContainer(InfraContainer):
     @property
     @singleton
     def audio_storage(self) -> AudioStorage:
@@ -146,15 +137,10 @@ class BackendContainer(InfraContainer, EnvironmentContainer):
 
         if remote_url:
             gestures = config.get_enum("gestures", GestureType, multi=True) if "gestures" in config else None
-            color_base = tuple(float(col) for col  in config.get("color_base", multi=True))
             color_talk = tuple(float(col) for col  in config.get("color_talk", multi=True))
             color_listen = tuple(float(col) for col  in config.get("color_listen", multi=True))
 
-            if self.turn_taking_condition == TurnTakingCondition.NONE:
-                color_talk = ()
-                color_listen = ()
-
-            return TurnTakingTextOutput(remote_url, gestures, color_base, color_talk, color_listen)
+            return TurnTakingTextOutput(remote_url, gestures, color_talk, color_listen)
         else:
             implementation = config.get("implementation")
             if implementation == "console":
@@ -261,7 +247,7 @@ class EmissorStorageContainer(InfraContainer):
         super().stop()
 
 
-class VADContainer(InfraContainer, EnvironmentContainer):
+class VADContainer(InfraContainer):
     @property
     @singleton
     def vad(self) -> VAD:
@@ -290,8 +276,7 @@ class VADContainer(InfraContainer, EnvironmentContainer):
         service_config = self.config_manager.get_config("cltl.vad.service")
 
         implementation = service_config.get('implementation')
-        if (self.turn_taking_condition == TurnTakingCondition.ROHU
-                or (not self.turn_taking_condition and implementation == 'controller')):
+        if implementation == 'controller':
             config = self.config_manager.get_config("cltl.vad.controller")
             padding = config.get_int("padding")
             min_duration = config.get_int("min_duration")
@@ -301,8 +286,7 @@ class VADContainer(InfraContainer, EnvironmentContainer):
             logger.info("Controller VAD service configured (%s)", implementation)
 
             return ControllerVadService.from_ctrl_config(vad, self.event_bus, self.resource_manager, self.config_manager)
-        elif (self.turn_taking_condition != TurnTakingCondition.ROHU
-                or (not self.turn_taking_condition and implementation == 'auto')):
+        elif implementation == 'auto':
             logger.info("VAD service configured (%s)", implementation)
             return VadService.from_config(self.vad, self.event_bus, self.resource_manager, self.config_manager)
 
@@ -491,7 +475,7 @@ class SpotDialogContainer(EmissorStorageContainer, InfraContainer):
     @singleton
     def dialog_manager(self) -> DialogManager:
         config = self.config_manager.get_config("spot.dialog")
-        disambigutator = Disambiguator(ak_characters, ak_robot_scene)
+        disambigutator = Disambiguator(ak_characters, ak_robot_scene, high_engagement=config.get_boolean("conventions"))
 
         return DialogManager(disambigutator, config.get("storage"))
 
@@ -512,12 +496,11 @@ class SpotDialogContainer(EmissorStorageContainer, InfraContainer):
         super().stop()
 
 
-class SpotTurnTakingContainer(EmissorStorageContainer, BackendContainer, InfraContainer, EnvironmentContainer):
+class SpotTurnTakingContainer(EmissorStorageContainer, BackendContainer, InfraContainer):
     @property
     @singleton
     def spot_turn_taking_service(self) -> SpotTurnTakingService:
-        visual_feedback = self.turn_taking_condition != TurnTakingCondition.NONE
-        return SpotTurnTakingService.from_config(visual_feedback, self.text_output, self.emissor_data_client,
+        return SpotTurnTakingService.from_config(self.text_output, self.emissor_data_client,
                                                  self.event_bus, self.resource_manager, self.config_manager)
 
     def start(self):
@@ -535,11 +518,9 @@ class ApplicationContainer(ElizaComponentsContainer, ChatUIContainer, UserChatUI
                            SpotGameContainer, SpotDialogContainer, SpotTurnTakingContainer,
                            ASRContainer, VADContainer,
                            EmissorStorageContainer, BackendContainer, EnvironmentContainer):
-    def __init__(self, participant_id: str, participant_name: str, turn_taking_condition: TurnTakingCondition, disambiguation_level: DisambiguationCondition):
+    def __init__(self, participant_id: str, participant_name: str):
         self._participant_id = participant_id
         self._participant_name = participant_name
-        self._turn_taking_condition = turn_taking_condition
-        self._disambiguation_level = disambiguation_level
 
     @property
     def participant_id(self) -> str:
@@ -548,14 +529,6 @@ class ApplicationContainer(ElizaComponentsContainer, ChatUIContainer, UserChatUI
     @property
     def participant_name(self) -> str:
         return self._participant_name
-
-    @property
-    def turn_taking_condition(self) -> TurnTakingCondition:
-        return self._turn_taking_condition
-
-    @property
-    def disambiguation_level(self) -> DisambiguationCondition:
-        return self._disambiguation_level
 
     @property
     @singleton
@@ -581,6 +554,23 @@ class ApplicationContainer(ElizaComponentsContainer, ChatUIContainer, UserChatUI
         finally:
             super().stop()
 
+    def store_config(self, additional_configs):
+        config = self.config_manager._config
+        config_dict = {section: dict(config[section])
+                       for section in config.sections() + ["DEFAULT"]
+                       if section not in ["cltl.asr.whisper_api.credentials"]}
+        config_dict["additional_config_files"] = additional_configs
+
+        interaction = 1
+
+        storage_path = self.config_manager.get_config("spot.dialog").get("storage")
+        storage_dir = os.path.join(storage_path, "configurations")
+        os.makedirs(storage_dir, exist_ok=True)
+        config_file = os.path.join(storage_dir, f"pp_{self.participant_id}_int{interaction}_config.json")
+        with open(config_file, 'w') as file:
+            json.dump(config_dict, file, indent=4)
+            logger.info("Stored configuration to %s", config_file)
+
 
 def serializer(obj):
     try:
@@ -592,10 +582,13 @@ def serializer(obj):
             return str(obj)
 
 
-def main(participant: str, name: str, turntaking: TurnTakingCondition, disamb: DisambiguationCondition):
-    ApplicationContainer.load_configuration()
-    logger.info("Initialized Application")
-    application = ApplicationContainer(participant, name, turntaking, disamb)
+def main(participant: str, name: str, turntaking: TurnTakingCondition, conventions: ConventionsCondition):
+    additional_configs = ADDITIONAL_CONFIGS + [f"config/condition_conv_{conventions.name.lower()}.config",
+                                               f"config/condition_turn_{turntaking.name.lower()}.config"]
+    ApplicationContainer.load_configuration(additional_config_files=additional_configs)
+    logger.info("Initialized Application with configs: %s", additional_configs)
+    application = ApplicationContainer(participant, name)
+    application.store_config(additional_configs)
 
     with application as started_app:
         intention_topic = started_app.config_manager.get_config("cltl.bdi").get("topic_intention")
@@ -633,9 +626,9 @@ if __name__ == '__main__':
     parser.add_argument('--name', type=str, required=True,
                         help="Participant name")
     parser.add_argument('--turntaking', type=TurnTakingCondition, choices=list(TurnTakingCondition), required=False,
-                        help="Turn taking condition, either 'auto' or 'control'")
-    parser.add_argument('--disamb', type=DisambiguationCondition, choices=list(DisambiguationCondition), required=False,
-                        help="Disambiguation condition, either 'high' or 'low'")
+                        help="Turn taking condition")
+    parser.add_argument('--conventions', type=ConventionsCondition, choices=list(ConventionsCondition), required=False,
+                        help="Convention forming condition")
     args, _ = parser.parse_known_args()
 
-    main(args.participant, args.name, args.turntaking, args.disamb)
+    main(args.participant, args.name, args.turntaking, args.conventions)
