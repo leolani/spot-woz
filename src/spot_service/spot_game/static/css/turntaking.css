@@ -1,16 +1,28 @@
 #turn_button {
     position: absolute;
-    top: 25px;
-    right: 25px;
+    top: 0px;
+    right: 0px;
     text-align:center;
-    padding: 0px;
-    background: transparent;
+    font-size: x-large;
+    width: 150px;
+    height: 120px;
+}
+
+#turn_button:disabled {
+    background: url(../images/objects/stop.svg);
+    background-repeat: repeat;
+    background-size: auto;
+    background-repeat: no-repeat;
+    background-size: 100px;
+    background-position: center;
+    background-color: rgba(255, 255, 255, 0.6);
+    background-blend-mode: difference;
 }
 
 #turn_button > img {
     width: 50px;
     height: 50px;
-    content: url(../images/objects/record.svg);
+    content: url(../images/objects/stop.svg);
     background: rgba(255,255,255,0.8);
     vertical-align:middle;
     padding: 5px;
@@ -21,3 +33,4 @@
     background: rgba(255,255,255,0.1);
     padding: 5px;
 }
+q

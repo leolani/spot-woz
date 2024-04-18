@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    let turn_button = $('<button id="turn_button"><img/></button>');
+    let turn_button = $('<button id="turn_button"><span>KLAAR</span></button>');
 
     function checkTurn() {
         $.get('/vad/rest/active').done(data => {

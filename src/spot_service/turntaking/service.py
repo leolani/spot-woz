@@ -101,11 +101,7 @@ class SpotTurnTakingService:
                 logger.debug("Received empty VAD event, turn state %s", self._turn_state)
             else:
                 segment: Index = payload.mentions[0].segment[0]
-                if segment.stop == segment.start:
-                    self._turn_state = TurnState.PARTICIPANT
-                    activate = True
-                    logger.debug("Received zero length VAD event (%s), turn state %s", segment, self._turn_state)
-                else:
+                if segment.stop != segment.start:
                     self._turn_state = TurnState.AGENT_PENDING
                     if (self._rotate_color and self._tts and not self._turn_signal):
                         self._turn_signal = self._executor.submit(self._signal_turn)
@@ -126,13 +122,14 @@ class SpotTurnTakingService:
             logger.debug("Received audio signal started event (%s), turn state %s", event.id, self._turn_state)
 
         if self._vad_control_topic and activate:
-            logger.info("Activated controller VAD: %s", event.id)
-            self._event_bus.publish(self._vad_control_topic, Event.for_payload(True))
-
             if previous not in [TurnState.AGENT, TurnState.PARTICIPANT_PENDING]:
+                self._turn_state = TurnState.PARTICIPANT_PENDING
                 scenario_id = self._emissor_data.get_current_scenario_id()
                 text_signal = TextSignal.for_scenario(scenario_id, timestamp_now(), timestamp_now(), None, "Ik heb dat niet goed gehoord")
-                self._event_bus.publish(self._text_forward_topic, Event.for_payload(TextSignalEvent.for_agent(text_signal)))
+                self._event_bus.publish(self._text_out_topic, Event.for_payload(TextSignalEvent.for_agent(text_signal)))
+            else:
+                logger.info("Activated controller VAD: %s", event.id)
+                self._event_bus.publish(self._vad_control_topic, Event.for_payload(True))
 
     def _signal_turn(self):
         start = timestamp_now()
