@@ -26,8 +26,7 @@ class TurnTakingTextOutput(AnimatedRemoteTextOutput):
         super().consume(f"{self._led_talk} {text} {self._led_listen}", language)
 
     @staticmethod
-    def _color_command(color: Tuple[float, float, float], color_base: Tuple[float, float, float]):
-        color = color if color else color_base
+    def _color_command(color: Tuple[float, float, float]):
         return f"^pCall(ALLeds.fadeRGB(\"FaceLeds\", {color[0]}, {color[1]}, {color[2]}, 0.1))"
 
     @staticmethod
