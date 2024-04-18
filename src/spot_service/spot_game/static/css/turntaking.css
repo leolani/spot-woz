@@ -10,8 +10,6 @@
 
 #turn_button:disabled {
     background: url(../images/objects/stop.svg);
-    background-repeat: repeat;
-    background-size: auto;
     background-repeat: no-repeat;
     background-size: 100px;
     background-position: center;
