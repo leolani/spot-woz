@@ -158,7 +158,7 @@ class SpotGameService:
                         logger.info("Finished part %s", part)
         elif event.metadata.topic == self._game_state_topic:
             logger.debug("Handling game event %s", event.payload.signal.value)
-            if self._finished_parts is not None and event.payload.signal.value.state == ConvState.ROUND_FINISH.name:
+            if self._finished_parts is not None and event.payload.signal.value.state == ConvState.QUESTIONNAIRE.name:
                 self._finished_parts += (Part.ROUND,)
                 logger.info("Finished part %s", Part.ROUND)
                 logger.debug("XXX 3 %s", self._finished_parts)
