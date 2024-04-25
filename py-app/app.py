@@ -95,8 +95,13 @@ class EnvironmentContainer(DIContainer):
     @property
     def participant_id(self) -> str:
         raise NotImplementedError()
+
     @property
     def participant_name(self) -> str:
+        raise NotImplementedError()
+
+    @property
+    def session(self) -> int:
         raise NotImplementedError()
 
 
@@ -470,14 +475,16 @@ class SpotGameContainer(InfraContainer):
         super().stop()
 
 
-class SpotDialogContainer(EmissorStorageContainer, InfraContainer):
+class SpotDialogContainer(EmissorStorageContainer, InfraContainer, EnvironmentContainer):
     @property
     @singleton
     def dialog_manager(self) -> DialogManager:
         config = self.config_manager.get_config("spot.dialog")
         disambigutator = Disambiguator(ak_characters, ak_robot_scene, high_engagement=config.get_boolean("conventions"))
+        with open(config.get("phrases"), 'r') as phrase_file:
+            phrases = json.load(phrase_file)
 
-        return DialogManager(disambigutator, config.get("storage"))
+        return DialogManager(disambigutator, phrases, self.session, config.get("storage"))
 
     @property
     @singleton
@@ -518,9 +525,10 @@ class ApplicationContainer(ElizaComponentsContainer, ChatUIContainer, UserChatUI
                            SpotGameContainer, SpotDialogContainer, SpotTurnTakingContainer,
                            ASRContainer, VADContainer,
                            EmissorStorageContainer, BackendContainer, EnvironmentContainer):
-    def __init__(self, participant_id: str, participant_name: str):
+    def __init__(self, participant_id: str, participant_name: str, session: int):
         self._participant_id = participant_id
         self._participant_name = participant_name
+        self._session = session
 
     @property
     def participant_id(self) -> str:
@@ -529,6 +537,10 @@ class ApplicationContainer(ElizaComponentsContainer, ChatUIContainer, UserChatUI
     @property
     def participant_name(self) -> str:
         return self._participant_name
+
+    @property
+    def session(self) -> int:
+        return self._session
 
     @property
     @singleton
@@ -561,12 +573,10 @@ class ApplicationContainer(ElizaComponentsContainer, ChatUIContainer, UserChatUI
                        if section not in ["cltl.asr.whisper_api.credentials"]}
         config_dict["additional_config_files"] = additional_configs
 
-        interaction = 1
-
         storage_path = self.config_manager.get_config("spot.dialog").get("storage")
         storage_dir = os.path.join(storage_path, "configurations")
         os.makedirs(storage_dir, exist_ok=True)
-        config_file = os.path.join(storage_dir, f"pp_{self.participant_id}_int{interaction}_config.json")
+        config_file = os.path.join(storage_dir, f"pp_{self.participant_id}_int{self.session}_config.json")
         with open(config_file, 'w') as file:
             json.dump(config_dict, file, indent=4)
             logger.info("Stored configuration to %s", config_file)
@@ -582,12 +592,12 @@ def serializer(obj):
             return str(obj)
 
 
-def main(participant: str, name: str, turntaking: TurnTakingCondition, conventions: ConventionsCondition):
+def main(participant: str, name: str, session: int, turntaking: TurnTakingCondition, conventions: ConventionsCondition):
     additional_configs = ADDITIONAL_CONFIGS + [f"config/condition_conv_{conventions.name.lower()}.config",
                                                f"config/condition_turn_{turntaking.name.lower()}.config"]
     ApplicationContainer.load_configuration(additional_config_files=additional_configs)
     logger.info("Initialized Application with configs: %s", additional_configs)
-    application = ApplicationContainer(participant, name)
+    application = ApplicationContainer(participant, name, session)
     application.store_config(additional_configs)
 
     with application as started_app:
@@ -625,10 +635,12 @@ if __name__ == '__main__':
                         help="Participant ID")
     parser.add_argument('--name', type=str, required=True,
                         help="Participant name")
+    parser.add_argument('--session', type=int, required=True,
+                        help="Session")
     parser.add_argument('--turntaking', type=TurnTakingCondition, choices=list(TurnTakingCondition), required=False,
                         help="Turn taking condition")
     parser.add_argument('--conventions', type=ConventionsCondition, choices=list(ConventionsCondition), required=False,
                         help="Convention forming condition")
     args, _ = parser.parse_known_args()
 
-    main(args.participant, args.name, args.turntaking, args.conventions)
+    main(args.participant, args.name, args.session, args.turntaking, args.conventions)
