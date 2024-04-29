@@ -3,7 +3,7 @@ import logging
 from concurrent.futures import ThreadPoolExecutor, Future
 
 import time
-from cltl.backend.source.remote_tts import AnimatedRemoteTextOutput
+from cltl.backend.source.remote_tts import RemoteTextOutput
 from cltl.backend.spi.text import TextOutput
 from cltl.combot.event.emissor import AudioSignalStarted, TextSignalEvent
 from cltl.combot.infra.config import ConfigurationManager
@@ -47,7 +47,7 @@ class SpotTurnTakingService:
                  tts: TextOutput, emissor_data: EmissorDataClient, event_bus: EventBus, resource_manager: ResourceManager):
         self._event_bus = event_bus
         self._resource_manager = resource_manager
-        self._tts = tts if isinstance(tts, AnimatedRemoteTextOutput) else None
+        self._tts = tts if isinstance(tts, RemoteTextOutput) else None
         self._emissor_data = emissor_data
 
         self._vad_topic = vad_topic

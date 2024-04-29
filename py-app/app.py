@@ -21,6 +21,7 @@ from cltl.backend.impl.sync_tts import SynchronizedTextToSpeech, TextOutputTTS
 from cltl.backend.server import BackendServer
 from cltl.backend.source.client_source import ClientAudioSource, ClientImageSource
 from cltl.backend.source.console_source import ConsoleOutput
+from cltl.backend.source.remote_tts import RemoteTextOutput
 from cltl.backend.spi.audio import AudioSource
 from cltl.backend.spi.image import ImageSource
 from cltl.backend.spi.text import TextOutput
@@ -153,6 +154,17 @@ class BackendContainer(InfraContainer):
             elif implementation == "tts":
                 from cltl.backend.source.local_tts import LocalTTSOutput
                 return LocalTTSOutput()
+
+    @property
+    @singleton
+    def text_output_plain(self) -> TextOutput:
+        config = self.config_manager.get_config("cltl.backend.text_output")
+        remote_url = config.get("remote_url")
+
+        if remote_url:
+            return RemoteTextOutput(remote_url)
+        else:
+            return ConsoleOutput()
 
     @property
     @singleton
@@ -507,7 +519,7 @@ class SpotTurnTakingContainer(EmissorStorageContainer, BackendContainer, InfraCo
     @property
     @singleton
     def spot_turn_taking_service(self) -> SpotTurnTakingService:
-        return SpotTurnTakingService.from_config(self.text_output, self.emissor_data_client,
+        return SpotTurnTakingService.from_config(self.text_output_plain, self.emissor_data_client,
                                                  self.event_bus, self.resource_manager, self.config_manager)
 
     def start(self):
