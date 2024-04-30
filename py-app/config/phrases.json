@@ -26,10 +26,8 @@
       ]
     ]
   },
-  "NO_MATCH_PHRASES": [
-    "Ik begrijp niet zo goed wie je bedoelt. Kan je het nog een keer omschrijven?",
-    "Ik snap niet zo goed wat je zei. Kan je het iets \\vct=85\\ anders \\vct=100\\ formuleren?"
-  ],
+  "START_ROUND_1_PHRASES": "Laten we beginnen!",
+  "START_ROUND_PHRASES": "Laten we verder gaan!",
   "ACKNOWLEDGE_PHRASES": [
     "Oh, die staat bij mij op plek %s"
   ],
@@ -43,6 +41,7 @@
     "Oke, we hebben ze allemaal gehad. Laten we doorgaan naar de volgende ronde. Druk maar op de knop Ga Door.",
     "\\pau=10\\ Deze ronde is klaar. Druk op de knop Ga Door om naar de volgende ronde te gaan."
   ],
+  "QUERY_NEXT_POS_1_PHRASES": "Wie staat er bij jou op plek 1?",
   "QUERY_NEXT_PHRASES": [
     "En de volgende?",
     "Oke, we gaan door met de volgende.",
@@ -51,6 +50,9 @@
     "En die daarnaast staat?",
     "Oké, en die daarnaast staat?"
   ],
+  "QUERY_NEXT_REPAIR_PHRASES": "Wie staat er bij jou op plek {position}?",
+  "ACKNOWLEDGE_NEE_PHRASES": ["Oke, we proberen het opnieuw"],
+  "ACKNOWLEDGE_FAILED_PHRASES": ["Ik snap het niet, ja of nee?"],
   "ACKNOWLEDGE_SAME_POSITION_PHRASES": [
     "Oh ja, %s staat bij mij ook op plek {position}.",
     "%s staat bij mij ook op die plek.",
@@ -64,8 +66,17 @@
     "Oh, %s staat bij mij op plek {position}.",
     "Even kijken, nee, bij mij staat %s op plek {position}."
   ],
+  "ACKNOWLEDGE_HINT_ROUND_1_PHRASES": "Vul dat maar in op de \\pau=10\\ theblet",
+  "NO_MATCH_PHRASES": [
+    "Ik begrijp niet zo goed wie je bedoelt. Kan je het nog een keer omschrijven?",
+    "Ik snap niet zo goed wat je zei. Kan je het iets \\vct=85\\ anders \\vct=100\\ formuleren?"
+  ],
   "MATCH_PREVIOUS_PHRASES": [
     "Wacht even, volgens mij hebben we deze al gehad. Wil je het \\vct=110\\ nog \\vct=100\\ een keer omschrijven?",
     "Even kijken hoor, ik dacht dat we deze al hadden gehad. Laten we even een stap terug.  Kan je iets noemen wat specifiek is voor die figuur?"
-  ]
+  ],
+  "REPAIR_NEG_RESPONSE_PHRASES": ["Oke, kun je het op een andere manier omschrijven?"],
+  "FINISH_ROUND_1_PHRASES": "We hebben ze allemaal gehad. Druk maar op de knop Ga Door. Voordat we doorgaan naar de volgende ronde, wil ik je vragen om eerst een paar vragen te beantwoorden. Ik ga stil zijn \\pau=50\\ terwijl jij de vragen beantwoord. Tik op het \\pau=5\\ \\vct=95\\ scherm \\pau=5\\ \\vct=100\\ op de knop, om door te gaan naar de vragen. Na de vragen gaan we weer door met het spel.",
+  "FINISH_ROUND_PHRASES": "We hebben ze allemaal gehad. Druk maar op de knop Ga Door. Goed gedaan! Het spel is nu afgelopen. Maar \\pau=70\\ ik wil je nog wel vragen om wat vragen te beantwoorden. Ik ga stil zijn \\pau=50\\ terwijl jij de vragen beantwoord. Hierna zijn we klaar voor vandaag. Tik op het \\pau=5\\ \\vct=95\\scherm op de knop, om naar de vragen te gaan.",
+  "FINISH_GAME_PHRASES": "Tot ziens!"
 }
