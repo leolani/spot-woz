@@ -1,0 +1,129 @@
+{
+  "1": {
+    "start": [
+      "Hoi, mijn naam is Robin. Hoe heet jij?!",
+      "Oke, leuk dat je meedoet met dit spelletje! Het gaat over mijn drie vrienden. Ik zal ze aan je voorstellen. \\pau=700\\  Zie je, de theblet, op die standaard naast mij?",
+      "Als je op de knop op het scherm drukt, dan zie je mijn vrienden. Kijk goed naar hun gezichten. Die moet je een beetje onthouden.",
+      "Deze vrienden gaan overal naar toe, en maken dan een footo. Soms staan ze ook op de footo met anderen. Maar, op jouw footo staan mijn vrienden op een andere plek, dan bij mij. Daar maken we een leuk spelletje van. Wij gaan elke ronde samen uitzoeken, wie waar staat, goed?",
+      "Het werkt als volgt. We gaan de vrienden 1 voor 1 langs. Jij vertelt wie je op \\pau=100\\ elke plek ziet, en dan vertel ik, of dat bij mij het zelfde is, of anders. Als we goed overleggen, vinden we samen de verschillen! Leuk toch?",
+      "Laten we dit even oefenen. Druk maar op de knop om door te gaan naar de oefenronde."
+    ],
+    "intro": [
+      "Beschrijf nu maar aan mij, wie er bij jou, op de eerste plek staat, zodat ik begrijp wie je bedoelt. Je kunt bijvoorbeeld aan mij vertellen \\pau=20\\ hoe hun gezicht er \\pau=20\\ uit ziet, of iets anders \\pau=25\\ dat opvalt",
+      "Oh ja, die staat bij mij op de tweede plek. Je kan nu op het cijfer 1 tikken. Er opent dan een menuutje. Daarin kan je het cijfer 2 invullen, om aan te geven dat die op de tweede plek staat bij mij. Als je dat gedaan hebt, verschijnt er een vinkje om aan te geven dat je het hebt ingevuld. Klopt dat?",
+      "Mooi! In het echte spel moeten we samen de antwoorden vinden voor alle vrienden. Voor we doorgaan naar het echte spel \\pau=20\\ nog even een paar spelregels. Je krijgt het plaatje maar een paar seconden te zien. \\pau=15\\ Onthoud dus goed wie waar staat, en hoe die persoon er uit ziet. Daarna kun je vertellen wat je zag, en gaan wij overleggen wie \\pau=10\\ waar staat \\pau=5\\ op jouw plaatje, \\pau=15\\ en op de mijne. Is dat goed?",
+      "Top. Als je bent vergeten wie je zag, kan je op het \\pau=5\\ scherm tikken \\pau=10\\ op de knop \\pau=250\\ Laat het plaatje zien. Maar, je moet ook goed naar mij kijken. Dat praat wat makkelijker, toch? Ben je klaar voor het echte spel?",
+      "Oke. Het spel duurt in totaal 6 rondes. Je kunt elke keer naar beneden scrollen om het hele plaatje te zien. Klik maar op de knop Ga door op het scherm om te beginnen. Ik heb er zin in!"
+    ],
+    "outro": [
+      [
+        "Dankjewel voor het invullen van de vragenlijst! Ik ben nog benieuwd naar iets: wat is eigenlijk jouw lievelings vakantiebestemming? Ga je liever naar de bergen? naar een stad? of naar het strand.",
+        true
+      ],
+      [
+        "Leuk om te horen. Dat ga ik onthouden. Tot volgende week.",
+        false
+      ]
+    ],
+    "ENCOURAGEMENT_PHRASES": [
+      "Het gaat prima.",
+      "Goed zo."
+    ]
+  },
+  "2": {
+    "start": [
+      "Hoi {name}, leuk dat je er weer bent. Weet je nog dat je mij de vorige keer vertelde over je lievelings vakantiebestemming? Het grappige is, mijn vrienden zijn daar ook geweest en hebben daar ook een footo gemaakt. Weet je nog hoe het spelletje werkt? Als je op de knop op het scherm drukt, dan zie je mijn vrienden. We vertellen elkaar in elke ronde wie er op welke plek staat. Zullen we beginnen met de eerste ronde?",
+      "Leuk, ik heb er weer zin in. Druk maar op de knop om naar de eerste ronde te gaan."
+    ],
+    "intro": [],
+    "outro": [
+      ["Dankjewel voor het invullen van de vragenlijst! Even een gekke vraag nog: wat lijkt jou nou een leuke plek om mij \\pau=50\\ eens te zien? Op de maan? Op duik vakantie? Of in de woestijn.",
+        true
+      ],
+      ["Leuk antwoord. Ik zie je graag volgende week weer te rug voor de derde en laatste keer. Tot dan.",
+        false
+      ]
+    ],
+    "FINISH_ROUND_PHRASES": "\\vct=99\\ {name} \\vct=100\\ \\pau=50\\ dit was de laatste ronde. Het spelletje is klaar voor vandaag. Net als vorige week komen er eerst nog wat vragen.",
+    "ENCOURAGEMENT_PHRASES": [
+      "Geweldig gedaan.",
+      "Goed gedaan.",
+      "Dat gaat goed.",
+      "Je doet het goed.",
+      "Goed bezig."
+    ]
+  },
+  "3": {
+    "start": [
+      "Hoi {name}, leuk dat je er weer bent. Ik heb je tip opgevolgd en heb speciaal voor jou een footo gemaakt. Druk maar op de knop om de footo te zien. \\pau=1000\\ Na een paar seconden verschijnt er een knop waar je op moet drukken, en dan gaan we weer beginnen met ons spel."
+    ],
+    "intro": [],
+    "outro": [
+      ["Het spelletje is nu helemaal klaar. Dankjewel dat je mee hebt gedaan aan dit experiment! Een hele fijne dag nog.",
+      false]
+    ],
+    "FINISH_ROUND_PHRASES": "\\vct=99\\ {name} \\vct=100\\ \\pau=50\\ dit was de laatste ronde. Net als vorige week komen er eerst nog wat vragen.",
+    "ENCOURAGEMENT_PHRASES": [
+      "Wauw, geweldig.",
+      "Lekker bezig.",
+      "Goed hee.",
+      "Fantastisch.",
+      "Top gedaan.",
+      "Dat gaat lekker.",
+      "Jaaa, geweldig."
+    ]
+  },
+  "START_ROUND_1_PHRASES": "Laten we beginnen!",
+  "START_ROUND_PHRASES": "Laten we verder gaan!",
+  "ACKNOWLEDGE_PHRASES": [
+    "Oh, die staat bij mij op plek %s"
+  ],
+  "QUESTIONAIRE_PHRASES": [
+    "We hebben ze allemaal gehad. Druk maar op de knop Ga Door. Op het scherm zie je nu onze score voor deze ronde. Voordat we doorgaan naar de volgende ronde, wil ik je eerst vragen de vragenlijst in te vullen. Druk maar op de link op het scherm om naar de vragen te gaan. Ik ben stil terwijl jij de vragen invult. Daarna gaan we weer verder."
+  ],
+  "ROUND_FINISH_PHRASES": [
+    "We hebben ze allemaal gehad. We kunnen nu door naar de volgende ronde. Druk maar op de knop Ga Door.",
+    "Dit was het voor \\vct=102\\deze \\vct=100\\ ronde. Laten we naar de volgende ronde gaan. Druk maar op de knop Ga Door.",
+    "Oke. We gaan door naar de volgende ronde. Druk maar weer op de knop Ga Door.",
+    "Oke, we hebben ze allemaal gehad. Laten we doorgaan naar de volgende ronde. Druk maar op de knop Ga Door.",
+    "\\pau=10\\ Deze ronde is klaar. Druk op de knop Ga Door om naar de volgende ronde te gaan."
+  ],
+  "QUERY_NEXT_POS_1_PHRASES": "Wie staat er bij jou op plek 1?",
+  "QUERY_NEXT_PHRASES": [
+    "En de volgende?",
+    "Oke, we gaan door met de volgende.",
+    "Oke, en de volgende?",
+    "En de figuur die daarnaast staat?",
+    "En die daarnaast staat?",
+    "Oké, en die daarnaast staat?"
+  ],
+  "QUERY_NEXT_REPAIR_PHRASES": "Wie staat er bij jou op plek {position}?",
+  "ACKNOWLEDGE_NEE_PHRASES": ["Oke, we proberen het opnieuw"],
+  "ACKNOWLEDGE_FAILED_PHRASES": ["Ik snap het niet, bedoel je nu ja of nee?"],
+  "ACKNOWLEDGE_SAME_POSITION_PHRASES": [
+    "Oh ja, %s staat bij mij ook op plek {position}.",
+    "%s staat bij mij ook op die plek.",
+    "He, %s staat bij mij ook op die plek.",
+    "Ja, %s staat bij mij op dezelfde plek.",
+    "Oh ja, %s staat bij mij op dezelfde plek."
+  ],
+  "ACKNOWLEDGE_DIFFERENT_POSITION_PHRASES": [
+    "Bij mij staat %s op plek {position}.",
+    "%s staat bij mij ergens anders, namelijk op plek {position}.",
+    "Oh, %s staat bij mij op plek {position}.",
+    "Even kijken, nee, bij mij staat %s op plek {position}."
+  ],
+  "ACKNOWLEDGE_HINT_ROUND_1_PHRASES": "Vul dat maar in op de \\pau=10\\ theblet",
+  "NO_MATCH_PHRASES": [
+    "Ik begrijp niet zo goed wie je bedoelt. Kan je het nog een keer omschrijven?",
+    "Ik snap niet zo goed wat je zei. Kan je het iets \\vct=85\\ anders \\vct=100\\ formuleren?"
+  ],
+  "MATCH_PREVIOUS_PHRASES": [
+    "Wacht even, volgens mij hebben we deze al gehad. Wil je het \\vct=110\\ nog \\vct=100\\ een keer omschrijven?",
+    "Even kijken hoor, ik dacht dat we deze al hadden gehad. Laten we even een stap terug.  Kan je iets noemen wat specifiek is voor die figuur?"
+  ],
+  "REPAIR_NEG_RESPONSE_PHRASES": ["Oke, kun je het op een andere manier omschrijven?"],
+  "FINISH_ROUND_1_PHRASES": "We hebben ze allemaal gehad. Druk maar op de knop Ga Door. Voordat we doorgaan naar de volgende ronde, wil ik je vragen om eerst een paar vragen te beantwoorden. Ik ga stil zijn \\pau=50\\ terwijl jij de vragen beantwoord. Tik op het \\pau=5\\ \\vct=95\\ scherm \\pau=5\\ \\vct=100\\ op de knop, om door te gaan naar de vragen. Na de vragen gaan we weer door met het spel.",
+  "FINISH_ROUND_PHRASES": "We hebben ze allemaal gehad. Druk maar op de knop Ga Door. Goed gedaan! Het spel is nu afgelopen. Maar \\pau=70\\ ik wil je nog wel vragen om wat vragen te beantwoorden. Ik ga stil zijn \\pau=50\\ terwijl jij de vragen beantwoord. Hierna zijn we klaar voor vandaag. Tik op het \\pau=5\\ \\vct=95\\scherm op de knop, om naar de vragen te gaan.",
+  "FINISH_GAME_PHRASES": "Tot ziens!"
+}
