@@ -37,7 +37,8 @@ class SpotTurnTakingService:
         game_topic = config.get("topic_game")
         vad_control_topic = config.get("topic_vad_control")
         text_forward_topic = config.get("topic_text_forward")
-        rotate_color = int(sum(float(col) * 256**(3-idx) for idx, col in enumerate(config.get("color_rotate", multi=True))))
+        rotate_color_rgb = config.get("color_rotate", multi=True)
+        rotate_color = int(65536 * 255 * rotate_color_rgb[0] + 256 * 255 * rotate_color_rgb[1] + 255 * rotate_color_rgb[2])
 
         return cls(vad_topic, asr_topic, mic_topic, text_out_topic, game_topic, vad_control_topic, text_forward_topic,
                    rotate_color, tts, emissor_data, event_bus, resource_manager)
@@ -48,6 +49,7 @@ class SpotTurnTakingService:
         self._event_bus = event_bus
         self._resource_manager = resource_manager
         self._tts = tts if isinstance(tts, RemoteTextOutput) else None
+        logger.debug("Set tts %s", self._tts)
         self._emissor_data = emissor_data
 
         self._vad_topic = vad_topic
