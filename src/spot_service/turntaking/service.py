@@ -109,10 +109,17 @@ class SpotTurnTakingService:
                         self._turn_signal = self._executor.submit(self._signal_turn)
                     logger.debug("Received VAD event (%s), turn state %s", segment, self._turn_state)
         elif event.metadata.topic == self._asr_topic:
-            self._turn_state = TurnState.PARTICIPANT if not event.payload.signal.text else TurnState.AGENT_PENDING
+            if event.payload.signal.text:
+                self._turn_state = TurnState.AGENT_PENDING
+            else:
+                self._turn_state = TurnState.PARTICIPANT
+                if self._turn_signal:
+                    self._turn_signal.cancel()
+                    self._turn_signal = None
             activate = self._turn_state == TurnState.PARTICIPANT
             logger.debug("Received text input (%s), turn state %s", event.payload.signal.text, self._turn_state)
         elif event.metadata.topic == self._text_out_topic:
+            self._turn_state = TurnState.PARTICIPANT_PENDING
             if self._turn_signal:
                 self._turn_signal.cancel()
                 self._turn_signal = None
@@ -135,9 +142,14 @@ class SpotTurnTakingService:
 
     def _signal_turn(self):
         start = timestamp_now()
+        logger.debug("Start Rotating eyes")
 
         while self._turn_state == TurnState.AGENT_PENDING:
-            self._tts.consume(f"^pCall(ALLeds.rotateEyes({self._rotate_color}, 0.5, 0.5)) ", "nl")
+            self._tts.consume(f"^mode(disabled) ^pCall(ALLeds.rotateEyes({self._rotate_color}, 0.5, 0.5)) ", "nl")
             time.sleep(0.5)
 
-        logger.debug("Rotated eyes for %s ms", start - timestamp_now())
+        if self._turn_state == TurnState.PARTICIPANT:
+            self._tts.consume(f"^mode(disabled) ^pCall(ALLeds.fadeRGB(\"FaceLeds\", 0.7, 1.0, 0.4, 0.1)) ", "nl")
+
+
+        logger.debug("Rotated eyes for %s ms", timestamp_now() - start)

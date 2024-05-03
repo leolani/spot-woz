@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 class Part(enum.Enum):
     INTRODUCTION = "Druk maar op de knop om door te gaan naar de oefenronde"
-    PRACTICE = "Oke. Het spel duurt in totaal 6 rondes. Je kunt elke keer naar beneden scrollen om het hele plaatje te zien. Klik maar op de knop Ga door op het scherm om te beginnen. Leuk hoor!"
+    PRACTICE = "Oke. Het spel duurt in totaal 6 rondes."
     ROUND = None
 
 
@@ -109,7 +109,6 @@ class SpotGameService:
             self._event_bus.publish(self._game_topic, Event.for_payload(game_signal_event))
 
             self._finished_parts = tuple(p for p in self._finished_parts if p != Part.ROUND)
-            logger.debug("XXX %s", self._finished_parts)
 
             return Response(status=200)
 
@@ -161,4 +160,3 @@ class SpotGameService:
             if self._finished_parts is not None and event.payload.signal.value.state == ConvState.QUESTIONNAIRE.name:
                 self._finished_parts += (Part.ROUND,)
                 logger.info("Finished part %s", Part.ROUND)
-                logger.debug("XXX 3 %s", self._finished_parts)
