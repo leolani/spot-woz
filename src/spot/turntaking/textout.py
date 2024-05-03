@@ -15,7 +15,7 @@ class TurnTakingTextOutput(AnimatedRemoteTextOutput):
                  color_listen: Tuple[float, float, float] = (0.7, 1.0, 0.4)):
         super().__init__(remote_url, gestures)
         self._led_talk = self._gesture_command(gestures) + self._color_command(color_talk)
-        self._led_listen = f"{self._rotate_command(color_listen, color_talk)} {self._color_command(color_listen)}"
+        self._led_listen = f"{self._rotate_command(color_listen, color_talk)} \\pau=300\\ {self._color_command(color_listen)}"
 
         try:
             requests.delete(f"{remote_url}/behaviour/autonomous_visual_feedback")
@@ -34,9 +34,9 @@ class TurnTakingTextOutput(AnimatedRemoteTextOutput):
         if color_listen == color_talk:
             return ""
 
-        int_color = int(color_listen[0] * 256 ** 3 + color_listen[1] * 256 ** 2 + color_listen[2] * 256)
+        int_color = int(65536 * 255 * color_listen[0] + 256 * 255 * color_listen[1] + 255 * color_listen[2])
 
-        return f"^pCall(ALLeds.rotateEyes({int_color}, 0.5, 0.5))"
+        return f"^pCall(ALLeds.rotateEyes({int_color}, 0.3, 0.3))"
 
     @staticmethod
     def _gesture_command(gestures):

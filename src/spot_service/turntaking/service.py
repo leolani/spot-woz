@@ -1,6 +1,7 @@
 import enum
 import logging
 from concurrent.futures import ThreadPoolExecutor, Future
+from typing import Tuple
 
 import time
 from cltl.backend.source.remote_tts import RemoteTextOutput
@@ -37,14 +38,17 @@ class SpotTurnTakingService:
         game_topic = config.get("topic_game")
         vad_control_topic = config.get("topic_vad_control")
         text_forward_topic = config.get("topic_text_forward")
+        listen_color = tuple(float(c) for c in config.get("color_listen", multi=True))
         rotate_color_rgb = [float(c) for c in config.get("color_rotate", multi=True)]
         rotate_color = int(65536 * 255 * rotate_color_rgb[0] + 256 * 255 * rotate_color_rgb[1] + 255 * rotate_color_rgb[2])
+        min_samples = config.get_int("min_samples")
 
         return cls(vad_topic, asr_topic, mic_topic, text_out_topic, game_topic, vad_control_topic, text_forward_topic,
-                   rotate_color, tts, emissor_data, event_bus, resource_manager)
+                   listen_color, rotate_color, min_samples, tts, emissor_data, event_bus, resource_manager)
 
     def __init__(self, vad_topic: str, asr_topic: str, mic_topic: str, text_out_topic: str, game_topic: str,
-                 vad_control_topic: str, text_forward_topic: str, rotate_color: int,
+                 vad_control_topic: str, text_forward_topic: str,
+                 listen_color: Tuple[float, float, float], rotate_color: int, min_samples: int,
                  tts: TextOutput, emissor_data: EmissorDataClient, event_bus: EventBus, resource_manager: ResourceManager):
         self._event_bus = event_bus
         self._resource_manager = resource_manager
@@ -60,7 +64,9 @@ class SpotTurnTakingService:
         self._game_topic = game_topic
         self._vad_control_topic = vad_control_topic
 
+        self._listen_color = ", ".join(str(c) for c in listen_color)
         self._rotate_color = str(rotate_color)
+        self._min_samples = min_samples
 
         self._topic_worker = None
         self._executor = None
@@ -103,11 +109,13 @@ class SpotTurnTakingService:
                 logger.debug("Received empty VAD event, turn state %s", self._turn_state)
             else:
                 segment: Index = payload.mentions[0].segment[0]
-                if segment.stop != segment.start:
+                if segment.stop - segment.start > self._min_samples:
                     self._turn_state = TurnState.AGENT_PENDING
                     if (self._rotate_color and self._tts and not self._turn_signal):
                         self._turn_signal = self._executor.submit(self._signal_turn)
                     logger.debug("Received VAD event (%s), turn state %s", segment, self._turn_state)
+                else:
+                    logger.debug("Received too short VAD event (%s), turn state %s", segment, self._turn_state)
         elif event.metadata.topic == self._asr_topic:
             if event.payload.signal.text:
                 self._turn_state = TurnState.AGENT_PENDING
@@ -148,8 +156,8 @@ class SpotTurnTakingService:
             self._tts.consume(f"^mode(disabled) ^pCall(ALLeds.rotateEyes({self._rotate_color}, 0.5, 0.5)) ", "nl")
             time.sleep(0.5)
 
-        if self._turn_state == TurnState.PARTICIPANT:
-            self._tts.consume(f"^mode(disabled) ^pCall(ALLeds.fadeRGB(\"FaceLeds\", 0.7, 1.0, 0.4, 0.1)) ", "nl")
+        if self._turn_state != TurnState.PARTICIPANT:
+            self._tts.consume(f"^mode(disabled) ^pCall(ALLeds.fadeRGB(\"FaceLeds\", {self._listen_color}, 0.1)) ", "nl")
 
 
         logger.debug("Rotated eyes for %s ms", timestamp_now() - start)
