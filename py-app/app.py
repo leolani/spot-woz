@@ -399,7 +399,7 @@ class ElizaComponentsContainer(EmissorStorageContainer, InfraContainer):
         bdi_model = {"init":
                          {"initialized": ["spot"]},
                      "spot":
-                         {"quit": ["init"]}
+                         {"quit": ["terminate"]}
                      }
 
         return BDIService.from_config(bdi_model, self.event_bus, self.resource_manager, self.config_manager)

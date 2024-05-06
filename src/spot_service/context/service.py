@@ -1,4 +1,8 @@
 import logging
+import os
+import signal
+
+import flask
 import time
 import uuid
 from datetime import datetime
@@ -11,6 +15,7 @@ from cltl.combot.infra.resource import ResourceManager
 from cltl.combot.infra.time_util import timestamp_now
 from cltl.combot.infra.topic_worker import TopicWorker
 from emissor.representation.scenario import Modality, Scenario
+from flask import request, url_for
 
 logger = logging.getLogger(__name__)
 
@@ -74,11 +79,17 @@ class ContextService:
             if "init" in intentions:
                 self._start_scenario()
             if "terminate" in intentions:
-                self._stop_scenario()
+                if not self._scenario.ruler.end:
+                    self._stop_scenario()
         elif event.metadata.topic == self._desire_topic:
             achieved = event.payload.achieved
             if "quit" in achieved:
                 self._stop_scenario()
+                # Shutdown the application
+                logger.info("Preparing for application shutdown")
+                time.sleep(5)
+                logger.info("Shutting down the application")
+                os.kill(os.getpid(), signal.SIGINT)
         elif event.metadata.topic == self._speaker_topic:
             self._update_scenario_speaker(event)
         else:
