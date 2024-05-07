@@ -9,7 +9,7 @@
       "Laten we dit even oefenen. Druk maar op de knop om door te gaan naar de oefenronde."
     ],
     "intro": [
-      "Beschrijf nu maar aan mij, wie er bij jou, op de eerste plek staat, zodat ik begrijp wie je bedoelt. Je kunt bijvoorbeeld aan mij vertellen \\pau=20\\ hoe hun gezicht er \\pau=20\\ uit ziet, of iets anders \\pau=25\\ dat opvalt",
+      "Beschrijf nu maar aan mij, wie er bij jou, op de eerste plek staat, zodat ik begrijp wie je bedoelt, dus je kunt bijvoorbeeld aan mij vertellen \\pau=20\\ hoe hun gezicht er \\pau=20\\ uit ziet, of iets anders \\pau=25\\ dat opvalt",
       "Oh ja, die staat bij mij op de tweede plek. Je kan nu op het cijfer 1 tikken. Er opent dan een menuutje. Daarin kan je het cijfer 2 invullen, om aan te geven dat die op de tweede plek staat bij mij. Als je dat gedaan hebt, verschijnt er een vinkje om aan te geven dat je het hebt ingevuld. Klopt dat?",
       "Mooi! In het echte spel moeten we samen de antwoorden vinden voor alle vrienden. Voor we doorgaan naar het echte spel \\pau=20\\ nog even een paar spelregels. Je krijgt het plaatje maar een paar seconden te zien. \\pau=15\\ Onthoud dus goed wie waar staat, en hoe die persoon er uit ziet. Daarna kun je vertellen wat je zag, en gaan wij overleggen wie \\pau=10\\ waar staat \\pau=5\\ op jouw plaatje, \\pau=15\\ en op de mijne. Is dat goed?",
       "Top. Als je bent vergeten wie je zag, kan je op het \\pau=5\\ scherm tikken \\pau=10\\ op de knop \\pau=250\\ Laat het plaatje zien. Maar, je moet ook goed naar mij kijken. Mijn ogen krijgen namelijk een paarse kleur als ik praat. Als ik luister dan zijn mijn ogen groen. Zo kunnen we nog makkelijker met elkaar praten. Ben je klaar voor het echte spel?",
@@ -113,7 +113,7 @@
     "Oh, %s staat bij mij op plek {position}.",
     "Even kijken, nee, bij mij staat %s op plek {position}."
   ],
-  "ACKNOWLEDGE_HINT_ROUND_1_PHRASES": "Vul dat maar in op de \\pau=10\\ theblet",
+  "ACKNOWLEDGE_HINT_ROUND_1_PHRASES": "Vul dat maar in op de \\pau=10\\ theblet.",
   "NO_MATCH_PHRASES": [
     "Ik begrijp niet zo goed wie je bedoelt. Kan je het nog een keer omschrijven?",
     "Ik snap niet zo goed wat je zei. Kan je het iets \\vct=85\\ anders \\vct=100\\ formuleren?"
