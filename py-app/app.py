@@ -470,11 +470,15 @@ class UserChatUIContainer(InfraContainer):
         super().stop()
 
 
-class SpotGameContainer(InfraContainer):
+class SpotGameContainer(InfraContainer, EnvironmentContainer):
     @property
     @singleton
     def spot_game_service(self) -> ChatUiService:
-        return SpotGameService.from_config(self.event_bus, self.resource_manager, self.config_manager)
+        storage_path = self.config_manager.get_config("spot.dialog").get("storage")
+        preference = DialogManager.load_preferences(self.participant_id, self.session, storage_path)
+
+        return SpotGameService.from_config(self.session, preference,
+                                           self.event_bus, self.resource_manager, self.config_manager)
 
     def start(self):
         logger.info("Start Chat UI")
@@ -593,6 +597,17 @@ class ApplicationContainer(ElizaComponentsContainer, ChatUIContainer, UserChatUI
             json.dump(config_dict, file, indent=4)
             logger.info("Stored configuration to %s", config_file)
 
+    @staticmethod
+    def load_additional_configs(participant_id: str, storage_path: str):
+        storage_dir = os.path.join(storage_path, "configurations")
+        config_file = os.path.join(storage_dir, f"pp_{participant_id}_int1_config.json")
+        with open(config_file, 'r') as file:
+            config_dict = json.load(file)
+
+        additional_configs = config_dict["additional_config_files"]
+        logger.info("Found additional configurations %s in %s",  additional_configs, config_file)
+
+        return additional_configs
 
 def serializer(obj):
     try:
@@ -604,9 +619,15 @@ def serializer(obj):
             return str(obj)
 
 
-def main(participant: str, name: str, session: int, turntaking: TurnTakingCondition, conventions: ConventionsCondition):
-    additional_configs = ADDITIONAL_CONFIGS + [f"config/condition_conv_{conventions.name.lower()}.config",
-                                               f"config/condition_turn_{turntaking.name.lower()}.config"]
+def main(participant: str, name: str, session: int,
+         turntaking: TurnTakingCondition, conventions: ConventionsCondition,
+         storage_path: str):
+    if session == 1:
+        additional_configs = ADDITIONAL_CONFIGS + [f"config/condition_conv_{conventions.name.lower()}.config",
+                                                   f"config/condition_turn_{turntaking.name.lower()}.config"]
+    else:
+        additional_configs = ApplicationContainer.load_additional_configs(participant, storage_path)
+
     ApplicationContainer.load_configuration(additional_config_files=additional_configs)
     logger.info("Initialized Application with configs: %s", additional_configs)
     application = ApplicationContainer(participant, name, session)
@@ -650,9 +671,14 @@ if __name__ == '__main__':
     parser.add_argument('--session', type=int, required=True,
                         help="Session")
     parser.add_argument('--turntaking', type=TurnTakingCondition, choices=list(TurnTakingCondition), required=False,
-                        help="Turn taking condition")
+                        help="Turn taking condition, only specify for session 1")
     parser.add_argument('--conventions', type=ConventionsCondition, choices=list(ConventionsCondition), required=False,
-                        help="Convention forming condition")
+                        help="Convention forming condition, only specify for session 1")
+    parser.add_argument('--storage', type=str, required=False, default="storage/spotter",
+                        help="Storage folder to load previous configurations, should not be needed.")
     args, _ = parser.parse_known_args()
+
+    if args.session > 1 and (args.turntaking or args.conventions):
+        raise ValueError("Conditions are loaded from disk as defined for session 1")
 
     main(args.participant, args.name, args.session, args.turntaking, args.conventions)
