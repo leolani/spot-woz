@@ -21,3 +21,5 @@ rm -rf storage/emissor/**/*
 rmdir storage/emissor/*
 
 rm -rf storage/vector_id/*
+
+rm -rf storage/spotter/**/*
