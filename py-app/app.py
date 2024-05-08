@@ -496,11 +496,12 @@ class SpotDialogContainer(EmissorStorageContainer, InfraContainer, EnvironmentCo
     @singleton
     def dialog_manager(self) -> DialogManager:
         config = self.config_manager.get_config("spot.dialog")
+        preferences = json.loads(config.get("preferences"))
         disambigutator = Disambiguator(ak_characters, ak_robot_scene, high_engagement=config.get_boolean("conventions"))
         with open(config.get("phrases"), 'r') as phrase_file:
             phrases = json.load(phrase_file)
 
-        return DialogManager(disambigutator, phrases, self.session, config.get("storage"))
+        return DialogManager(disambigutator, phrases, preferences, self.session, config.get("storage"))
 
     @property
     @singleton
@@ -681,4 +682,4 @@ if __name__ == '__main__':
     if args.session > 1 and (args.turntaking or args.conventions):
         raise ValueError("Conditions are loaded from disk as defined for session 1")
 
-    main(args.participant, args.name, args.session, args.turntaking, args.conventions)
+    main(args.participant, args.name, args.session, args.turntaking, args.conventions, args.storage)
