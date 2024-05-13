@@ -115,8 +115,9 @@
   ],
   "ACKNOWLEDGE_HINT_ROUND_1_PHRASES": "Vul dat maar in op de \\pau=10\\ theblet.",
   "NO_MATCH_PHRASES": [
-    "Ik begrijp niet zo goed wie je bedoelt. Kan je het nog een keer omschrijven?",
-    "Ik snap niet zo goed wat je zei. Kan je het iets \\vct=85\\ anders \\vct=100\\ formuleren?"
+    "Sorry, ik heb je niet zo goed gehoord. Kan je het nog een keer zeggen?",
+    "Ik heb je niet goed verstaan. Kan je het herhalen?",
+    "Sorry, ik heb je niet zo goed begrepen. Kan je het herhalen?"
   ],
   "MATCH_PREVIOUS_PHRASES": [
     "Wacht even, volgens mij hebben we deze al gehad. Wil je het \\vct=110\\ nog \\vct=100\\ een keer omschrijven?",
