@@ -496,8 +496,10 @@ class SpotDialogContainer(EmissorStorageContainer, InfraContainer, EnvironmentCo
     @singleton
     def dialog_manager(self) -> DialogManager:
         config = self.config_manager.get_config("spot.dialog")
+        allow_continuation = "gap_timeout" in config and config.get_int("gap_timeout") > 0
         preferences = json.loads(config.get("preferences"))
-        disambigutator = Disambiguator(ak_characters, ak_robot_scene, high_engagement=config.get_boolean("conventions"))
+        disambigutator = Disambiguator(ak_characters, ak_robot_scene, high_engagement=config.get_boolean("conventions"),
+                                       force_commit=not allow_continuation)
         with open(config.get("phrases"), 'r') as phrase_file:
             phrases = json.load(phrase_file)
 
