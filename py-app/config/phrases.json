@@ -1,12 +1,12 @@
 {
   "1": {
     "start": [
-      "Hoi, mijn naam is Robin. Hoe heet jij?!",
+      "Hoi, mijn naam is Robin. Leuk dat je er bent. Ik ben nog aan het leren om goed met mensen te communiceren. Om dit makkelijker te maken, krijgen mijn ogen een roze kleur als ik praat. Als ik luister dan zijn mijn ogen groen. Ik heet dus Robin, hoe heet jij?!",
       "Oke, leuk dat je meedoet met dit spelletje! Het gaat over mijn drie vrienden. Ik zal ze aan je voorstellen. \\pau=700\\  Zie je, de theblet, op die standaard naast mij?",
       "Als je op de knop op het scherm drukt, dan zie je mijn vrienden. Kijk goed naar hun gezichten. Die moet je een beetje onthouden.",
       "Deze vrienden gaan overal naar toe, en maken dan een footo. Soms staan ze ook op de footo met anderen. Maar, op jouw footo staan mijn vrienden op een andere plek, dan bij mij. Daar maken we een leuk spelletje van. Het zijn in totaal 6 rondes. Wij gaan elke ronde samen uitzoeken, wie waar staat, goed?",
-      "Het werkt als volgt. We gaan de vrienden 1 voor 1 langs. Jij vertelt wie je op \\pau=100\\ elke plek ziet, en dan vertel ik, of dat bij mij het zelfde is, of anders. Als we goed overleggen, vinden we samen de verschillen! Daar bij moet je goed naar mij kijken. Mijn ogen krijgen namelijk een roze kleur als ik praat. Als ik luister dan zijn mijn ogen groen. Zo kunnen we nog makkelijker met elkaar praten. Dat is wel zo handig, toch?",
-      "Laten we dit even oefenen. Je kunt elke keer naar beneden scrollen om het hele plaatje te zien. Druk maar op de knop om door te gaan naar de oefenronde."
+      "Het werkt als volgt. We gaan de vrienden 1 voor 1 langs. Jij vertelt wie je op \\pau=100\\ elke plek ziet, en dan vertel ik, of dat bij mij het zelfde is, of anders. Als we goed overleggen, vinden we samen de verschillen! Leuk, toch?",
+      "Laten we dit even oefenen. Druk maar op de knop om door te gaan naar de oefenronde. Je kunt het plaatje omhoog bewegen om het hele plaatje te zien."
     ],
     "intro": [
       "Beschrijf nu maar aan mij, wie er bij jou, op de eerste plek staat, zodat ik begrijp wie je bedoelt, dus je kunt bijvoorbeeld aan mij vertellen \\pau=20\\ hoe hun gezicht er \\pau=20\\ uit ziet, of iets anders \\pau=25\\ dat opvalt.",
@@ -90,12 +90,12 @@
   ],
   "QUERY_NEXT_POS_1_PHRASES": "Wie staat er bij jou op plek 1?",
   "QUERY_NEXT_PHRASES": [
-    "En de volgende?",
-    "Oke, we gaan door met de volgende.",
-    "Oke, en de volgende?",
-    "En de figuur die daarnaast staat?",
-    "En die daarnaast staat?",
-    "Oké, en die daarnaast staat?"
+    "En op plek {position}?",
+    "Oke, we gaan door met plek {position}.",
+    "Oke, en plek {position}?",
+    "En de figuur op plek {position}?",
+    "En die op plek {position}?",
+    "Oké, en die op plek {position}?"
   ],
   "QUERY_NEXT_REPAIR_PHRASES": "Wie staat er bij jou op plek {position}?",
   "ACKNOWLEDGE_NEE_PHRASES": ["Oke, we proberen het opnieuw"],
