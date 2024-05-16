@@ -34,7 +34,7 @@ PREFERENCE_MAP = {
 
 class Part(enum.Enum):
     INTRODUCTION = "Druk maar op de knop om door te gaan naar de oefenronde"
-    PRACTICE = "Oke. Het spel duurt in totaal 6 rondes."
+    PRACTICE = "Klik maar op de knop Ga door op het scherm om te beginnen."
     ROUND = None
 
 
