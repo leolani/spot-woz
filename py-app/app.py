@@ -503,7 +503,8 @@ class SpotDialogContainer(EmissorStorageContainer, InfraContainer, EnvironmentCo
         with open(config.get("phrases"), 'r') as phrase_file:
             phrases = json.load(phrase_file)
 
-        return DialogManager(disambigutator, phrases, preferences, self.session, config.get("storage"))
+        return DialogManager(disambigutator, phrases, preferences, self.session, config.get("storage"),
+                             high_engagement=config.get_boolean("conventions"))
 
     @property
     @singleton
