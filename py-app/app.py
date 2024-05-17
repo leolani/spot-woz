@@ -52,7 +52,7 @@ from emissor.representation.util import serializer as emissor_serializer
 from flask import Flask
 from spot.dialog.dialog_manager import DialogManager
 from spot.pragmatic_model.model_ambiguity import Disambiguator
-from spot.pragmatic_model.world_short_phrases_nl import ak_characters, ak_robot_scene
+from spot.pragmatic_model.world_short_phrases_nl import sp_characters, sp_robot_scene
 from spot_service.dialog.service import SpotDialogService
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
 from werkzeug.serving import run_simple
@@ -498,7 +498,7 @@ class SpotDialogContainer(EmissorStorageContainer, InfraContainer, EnvironmentCo
         config = self.config_manager.get_config("spot.dialog")
         allow_continuation = "gap_timeout" in config and config.get_int("gap_timeout") > 0
         preferences = json.loads(config.get("preferences"))
-        disambigutator = Disambiguator(ak_characters, ak_robot_scene, high_engagement=config.get_boolean("conventions"),
+        disambigutator = Disambiguator(sp_characters, sp_robot_scene[self.session], high_engagement=config.get_boolean("conventions"),
                                        force_commit=not allow_continuation)
         with open(config.get("phrases"), 'r') as phrase_file:
             phrases = json.load(phrase_file)

@@ -33,8 +33,9 @@ PREFERENCE_MAP = {
 
 
 class Part(enum.Enum):
-    INTRODUCTION = "Druk maar op de knop om door te gaan naar de oefenronde"
-    PRACTICE = "Klik maar op de knop Ga door op het scherm om te beginnen."
+    INTRODUCTION = ["Druk maar op de knop om door te gaan naar de oefenronde", "Druk maar op de knop om naar de eerste ronde te gaan.",
+                    "Na een paar seconden verschijnt er een knop waar je op moet drukken, en dan gaan we weer beginnen met ons spel."]
+    PRACTICE = ["Klik maar op de knop Ga door op het scherm om te beginnen."]
     ROUND = None
 
 
@@ -174,7 +175,7 @@ class SpotGameService:
                 logger.debug("Handling text event %s", event.payload.signal.text)
                 text = event.payload.signal.text
                 for part in Part:
-                    if part.value and part.value in text:
+                    if part.value and any(phrase in text for phrase in part.value):
                         self._finished_parts += (part,)
                         logger.info("Finished part %s", part)
         elif event.metadata.topic == self._game_state_topic:

@@ -3,7 +3,7 @@
 <style>
     #pos1{
         top: 20%;
-        left: 21%;
+        left: 20%;
         position: absolute;
     }
     #pos2{
@@ -18,12 +18,12 @@
     }
     #pos4{
         top: 20%;
-        left: 55%;
+        left: 56%;
         position: absolute;
     }
     #pos5{
         top: 20%;
-        left: 67%;
+        left: 68%;
         position: absolute;
     }
 </style>
@@ -34,18 +34,18 @@
     <script src="../javascript/game_round.js"></script>
     <script src="../javascript/turntaking.js"></script>
     <meta charset="UTF-8">
-    <title>"scene_4"</title>
+    <title>"scene_2"</title>
 </head>
 <body>
 <div class='center' id="scene_title">
-    <h1>In de Disco</h1>
+    <h1>In het Pretpark</h1>
 </div>
 
 <div>
 <div class="image_container">
-    <img src="../images/scenes/Ronde_Disco_Human_Adult.png" class="hide">
-    <form action="score_round4.html" id="selectform">
-        <div id="pos1" class="positions">
+    <img src="../images/scenes/Pretpark_Human_Int3.png" class="hide">
+    <form action="round_5.html" id="selectform">
+    <div id="pos1" class="positions">
         <span id="check1" style="display: none">&#10004</span>
         <label for="drop1">1</label>
         <select id="drop1" class="3" name="check1" required>
@@ -55,7 +55,7 @@
             <option value="3">3</option>
             <option value="4">4</option>
             <option value="5">5</option>
-            <option value="Niet gevonden"></option>
+            <option value="0">Niet gevonden</option>
         </select>
         </div>
         <div id="pos2" class="positions">
@@ -68,7 +68,7 @@
             <option value="3">3</option>
             <option value="4">4</option>
             <option value="5">5</option>
-            <option value="Niet gevonden"></option>
+            <option value="0">Niet gevonden</option>
         </select>
         </div>
         <div id="pos3" class="positions">
@@ -81,33 +81,33 @@
             <option value="3">3</option>
             <option value="4">4</option>
             <option value="5">5</option>
-            <option value="Niet gevonden"></option>
+            <option value="0">Niet gevonden</option>
         </select>
         </div>
         <div id="pos4" class="positions">
             <span id="check4" style="display: none">&#10004</span>
         <label for="drop4">4</label>
-        <select id="drop4" class="5" name="check4" required>
+        <select id="drop4" class="4" name="check4" required>
             <option value=""></option>
             <option value="1">1</option>
             <option value="2">2</option>
             <option value="3">3</option>
             <option value="4">4</option>
             <option value="5">5</option>
-            <option value="Niet gevonden"></option>
+            <option value="0">Niet gevonden</option>
         </select>
         </div>
         <div id="pos5" class="positions">
             <span id="check5" style="display: none">&#10004</span>
         <label for="drop5">5</label>
-        <select id="drop5" class="4" name="check5" required>
+        <select id="drop5" class="5" name="check5" required>
             <option value=""></option>
             <option value="1">1</option>
             <option value="2">2</option>
             <option value="3">3</option>
             <option value="4">4</option>
             <option value="5">5</option>
-            <option value="Niet gevonden"></option>
+            <option value="0">Niet gevonden</option>
         </select>
         </div>
         <input type="hidden" name="total_score" value="0" id="total">
