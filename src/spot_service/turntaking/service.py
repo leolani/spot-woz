@@ -39,8 +39,11 @@ class SpotTurnTakingService:
         vad_control_topic = config.get("topic_vad_control")
         text_forward_topic = config.get("topic_text_forward")
         listen_color = tuple(float(c) for c in config.get("color_listen", multi=True))
-        rotate_color_rgb = [float(c) for c in config.get("color_rotate", multi=True)]
-        rotate_color = int(65536 * 255 * rotate_color_rgb[0] + 256 * 255 * rotate_color_rgb[1] + 255 * rotate_color_rgb[2])
+        rotate_color_rgb = [float(c) for c in config.get("color_rotate", multi=True)] if "color_rotate" in config else None
+        if rotate_color_rgb:
+            rotate_color = int(65536 * 255 * rotate_color_rgb[0] + 256 * 255 * rotate_color_rgb[1] + 255 * rotate_color_rgb[2])
+        else:
+            rotate_color = None
         min_samples = config.get_int("min_samples")
 
         return cls(vad_topic, asr_topic, mic_topic, text_out_topic, game_topic, vad_control_topic, text_forward_topic,
