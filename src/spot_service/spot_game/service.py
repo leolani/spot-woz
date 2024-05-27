@@ -26,7 +26,7 @@ PREFERENCE_MAP = {
     2: {'berg': 'start_berg.html',
         'stad': 'start_stad.html',
         'strand': 'start_strand.html'},
-    3: {'duik': 'start_duik.html',
+    3: {'disco': 'start_duik.html',
         'maan': 'start_maan.html',
         'woestijn': 'start_woestijn.html'}
 }
