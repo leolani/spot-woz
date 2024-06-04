@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 FOLDER_MAP = {1: 'first_interaction', 2: 'second_interaction', 3: 'third_interaction'}
 PREFERENCE_MAP = {
     1: {},
-    2: {'berg': 'start_berg.html',
+    2: {'bergen': 'start_berg.html',
         'stad': 'start_stad.html',
         'strand': 'start_strand.html'},
     3: {'disco': 'start_duik.html',
