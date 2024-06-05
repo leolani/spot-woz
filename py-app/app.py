@@ -434,7 +434,7 @@ class ChatUIContainer(InfraContainer, EnvironmentContainer):
     @property
     @singleton
     def chatui_service(self) -> ChatUiService:
-        return ChatUiService.from_config(self.chats, self.participant_id, self.participant_name,
+        return ChatUiService.from_config(self.chats, self.participant_id, self.participant_name, self.session,
                                          self.event_bus, self.resource_manager, self.config_manager)
 
     def start(self):

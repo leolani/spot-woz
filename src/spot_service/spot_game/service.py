@@ -126,7 +126,7 @@ class SpotGameService:
             signal_event = ImageSignalEvent.create(signal)
             self._event_bus.publish(self._image_topic, Event.for_payload(signal_event))
 
-            event = GameEvent(round=image_id)
+            event = GameEvent(round=image_id, interaction=self._session)
             game_signal = GameSignal.for_scenario(scenario_id, timestamp_now(), event)
             game_signal_event = SignalEvent(class_type(GameSignal), Modality.VIDEO, game_signal)
             self._event_bus.publish(self._game_topic, Event.for_payload(game_signal_event))

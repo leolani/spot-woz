@@ -21,8 +21,8 @@ logger = logging.getLogger(__name__)
 
 class ChatUiService:
     @classmethod
-    def from_config(cls, chats: Chats, participant_id: str, participant_name: str, event_bus: EventBus,
-                    resource_manager: ResourceManager, config_manager: ConfigurationManager):
+    def from_config(cls, chats: Chats, participant_id: str, participant_name: str, interaction: int,
+                    event_bus: EventBus, resource_manager: ResourceManager, config_manager: ConfigurationManager):
         config = config_manager.get_config("spot.chat-ui")
         name = config.get("name")
         external_input = config.get_boolean("external_input")
@@ -35,15 +35,16 @@ class ChatUiService:
         scenario_topic = config.get("topic_scenario")
         desire_topic = config.get("topic_desire")
 
-        return cls(participant_id, participant_name, name, external_input, utterance_topic, response_topic, speaker_topic,
+        return cls(participant_id, participant_name, interaction, name, external_input, utterance_topic, response_topic, speaker_topic,
                    game_topic, scenario_topic, desire_topic, chats,
                    event_bus, resource_manager)
 
-    def __init__(self, participant_id: str, participant_name: str, name: str, external_input: bool, utterance_topic: str, response_topic: str,
+    def __init__(self, participant_id: str, participant_name: str, interaction: int, name: str, external_input: bool, utterance_topic: str, response_topic: str,
                  speaker_topic: str, game_topic: str, scenario_topic: str, desire_topic: str,
                  chats: Chats, event_bus: EventBus, resource_manager: ResourceManager):
         self._participant_id = participant_id
         self._participant_name = participant_name
+        self._interaction = interaction
         self._name = name
         self._external_input = external_input
 
@@ -136,7 +137,7 @@ class ChatUiService:
             if not chat_id:
                 return Response("Missing chat id", status=400)
 
-            event = GameEvent(participant_id=self._participant_id, participant_name=self._participant_name)
+            event = GameEvent(participant_id=self._participant_id, participant_name=self._participant_name, interaction=self._interaction)
             game_signal = GameSignal.for_scenario(self._scenario_id, timestamp_now(), event)
             game_signal_event = SignalEvent(class_type(GameSignal), Modality.VIDEO, game_signal)
             self._event_bus.publish(self._game_topic, Event.for_payload(game_signal_event))
