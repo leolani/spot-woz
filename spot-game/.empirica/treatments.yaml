@@ -3,6 +3,10 @@ factors:
     desc: playerCount determines the number of Players are in a Game.
     values:
       - value: 1
+  - name: image
+    desc: Docker image name
+    values:
+      - value: spot-game:latest
   - name: condition
     desc: condition of the participant
     values:
@@ -16,3 +20,4 @@ treatments:
     factors:
       playerCount: 1
       condition: ro
+      image: spot-game:latest

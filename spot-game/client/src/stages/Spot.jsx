@@ -11,7 +11,7 @@ export function Spot() {
     return (
         <div>
             <IFrame src="http://localhost:8000/spot/start" height="500" width="500"/>
-            <IFrame src="http://localhost:8000/chatui/static/chat2.html" height="500" width="500"
+            <IFrame src="http://localhost:8000/userchat/static/chat.html" height="500" width="500"
                     onLoad="alert(this.contentWindow.location);"/>
         </div>
     );
