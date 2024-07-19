@@ -1,0 +1,9 @@
+name = "spot-game"
+
+[tajriba.auth]
+srtoken = "WMitjJPWXVdFDsyK"
+
+[[tajriba.auth.users]]
+name = "Admin"
+username = "admin"
+password = "ysxQsUvq"

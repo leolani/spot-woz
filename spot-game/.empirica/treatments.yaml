@@ -1,0 +1,18 @@
+factors:
+  - name: playerCount
+    desc: playerCount determines the number of Players are in a Game.
+    values:
+      - value: 1
+  - name: condition
+    desc: condition of the participant
+    values:
+      - value: none
+      - value: rohu
+      - value: ro
+
+treatments:
+  - name: adult
+    desc: Adult Game
+    factors:
+      playerCount: 1
+      condition: ro
