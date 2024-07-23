@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 FOLDER_MAP = {1: 'first_interaction', 2: 'second_interaction', 3: 'third_interaction'}
 PREFERENCE_MAP = {
     1: {},
-    2: {'berg': 'start_berg.html',
+    2: {'bergen': 'start_berg.html',
         'stad': 'start_stad.html',
         'strand': 'start_strand.html'},
     3: {'disco': 'start_duik.html',
@@ -126,7 +126,7 @@ class SpotGameService:
             signal_event = ImageSignalEvent.create(signal)
             self._event_bus.publish(self._image_topic, Event.for_payload(signal_event))
 
-            event = GameEvent(round=image_id)
+            event = GameEvent(round=image_id, interaction=self._session)
             game_signal = GameSignal.for_scenario(scenario_id, timestamp_now(), event)
             game_signal_event = SignalEvent(class_type(GameSignal), Modality.VIDEO, game_signal)
             self._event_bus.publish(self._game_topic, Event.for_payload(game_signal_event))

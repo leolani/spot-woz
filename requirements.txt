@@ -12,6 +12,3 @@ spot.disambiguation
 
 flask
 werkzeug
-
-# playsound
-pyobjc==9.2
