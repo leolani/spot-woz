@@ -1,8 +1,10 @@
 import {ClassicListenersCollector} from "@empirica/core/admin/classic";
 import {exec, execSync} from "child_process";
-import { info, warn, error } from "@empirica/core/console";
+import {info, warn, error, debug} from "@empirica/core/console";
 
 export const Empirica = new ClassicListenersCollector();
+
+const docker_timeout = 7200 // 2h
 
 
 function getFreePortFromDocker(gameId) {
@@ -17,8 +19,8 @@ function getFreePortFromDocker(gameId) {
         })
         .filter(port => port != null));  // Remove nulls if no match was found
 
-    info("Used ports: ", ports);
-    const available = [...Array(100).keys()].map(i => 8000 + i).filter(i => !ports.has(i));
+    debug("Used ports: ", ports);
+    const available = [...Array(1000).keys()].map(i => 8000 + i).filter(i => !ports.has(i));
 
     if (!available) {
         throw new Error(`No free port available for ${gameId}`);
@@ -32,9 +34,8 @@ function startContainer(port, participantId) {
     let output = "";
     for (i of Array(10).keys()) {
         try {
-            // output = execSync(`timeout -s 9 7200 docker run -d -p ${port}:8000 --name app_${participantId} spot-game`);
-            // output = execSync(`timeout -s 9 7200 docker run -d -p ${port}:8000 spot-game`);
-            output = execSync(`timeout -s 9 7200 docker run -d -p 8000:8000 spot-game`);
+            const cmd_args = `--participant ${participantId} --name participant --session 1 --turntaking rohu --conventions yes`
+            output = execSync(`timeout -s 9 ${docker_timeout} docker run -d -p ${port}:8000 --name app_${participantId} spot-game ${cmd_args}`);
             break;
         } catch (error_) {
             warn(`Error launching Docker container for participant ${participantId} on port ${port}: ${error_}, retrying (${i})`);
@@ -48,18 +49,19 @@ function startContainer(port, participantId) {
     return output.toString().trim();  // Docker returns the new container ID in stdout
 }
 
-Empirica.onGameStart(({game}) => {
+Empirica.onGameStart(async ({game}) => {
     const participantId = game.players[0].id;
 
-    const port = 2;
-    // const port = getFreePortFromDocker(game.id);
+    const port = getFreePortFromDocker(game.id);
 
     info(`Starting a new container for participant ${participantId} on port ${port}...`);
 
-    // let containerId = startContainer(port, participantId);
-    let containerId = "123"
+    let containerId = startContainer(port, participantId);
     info(`Container with ID: ${containerId} for participant ${participantId} started.`);
     game.set("containerId", containerId);
+    game.set("containerPort", port);
+
+    await new Promise(resolve => setTimeout(resolve, 60000));
 
     const round = game.addRound({
         name: "Round Spotter",

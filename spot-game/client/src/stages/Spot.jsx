@@ -1,5 +1,7 @@
+
 import React from "react";
 import {IFrame} from "../components/IFrame";
+import {useGame} from "@empirica/core/player/classic/react";
 
 export function Spot() {
     const checkGameEnd = (location) => {
@@ -8,11 +10,15 @@ export function Spot() {
         }
     }
 
+    const game = useGame();
+    const port = game.get("containerPort");
+
+    console.log("XXX", port);
+
     return (
         <div>
-            <IFrame src="http://localhost:8000/spot/start" height="500" width="500"/>
-            <IFrame src="http://localhost:8000/userchat/static/chat.html" height="500" width="500"
-                    onLoad="alert(this.contentWindow.location);"/>
+            <IFrame id="1" src={"http://localhost:" + port + "/spot/start"} height="500" width="500"/>
+            <IFrame id="2" src={"http://localhost:" + port + "/userchat/static/chat.html"} height="500" width="500"/>
         </div>
     );
 }
