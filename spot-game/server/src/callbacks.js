@@ -61,7 +61,7 @@ Empirica.onGameStart(async ({game}) => {
     game.set("containerId", containerId);
     game.set("containerPort", port);
 
-    await new Promise(resolve => setTimeout(resolve, 60000));
+    await new Promise(resolve => setTimeout(resolve, 10000));
 
     const round = game.addRound({
         name: "Round Spotter",
