@@ -1,14 +1,15 @@
 import React from "react";
 import {IFrame} from "../components/IFrame";
 import {useGame, usePlayer} from "@empirica/core/player/classic/react";
+import {info} from "@empirica/core/console";
 
 export function Spot() {
     const player = usePlayer();
 
     const checkGameEnd = (location) => {
-        console.log("Current game location",  location.target.src, location)
+        info("Current game location", location.target.src)
         if (location.target.src.toString().includes("gameEnd")) {
-            console.log("Submit Game End",  location)
+            info("Submit Game End", location.target.src)
             player.stage.set("submit", true);
         }
     };
