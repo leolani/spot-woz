@@ -63,7 +63,7 @@ function getScenario(port, startTime) {
             if (Date.now() - startTime > 120000) {
                 throw new Error('Timeout exceeded while waiting for Scenario');
             } else {
-                debug("Await scenario");
+                debug("Await scenario", port);
                 return new Promise((resolve) => {
                     setTimeout(() => resolve(getScenario(port, startTime)), 1000);
                 });
