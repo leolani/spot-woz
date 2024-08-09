@@ -1,4 +1,10 @@
 $(document).ready(function() {
+    $(window).on("message onmessage", function(event) {
+        if (event.originalEvent.data === "requestHref") {
+            event.originalEvent.source.postMessage($(location).attr("href"), event.originalEvent.origin);
+        }
+    });
+
     let restPath = window.location.pathname.split('/').slice(0, -3).join('/') + "/rest/";
 
     var scenarioId;

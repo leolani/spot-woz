@@ -2,6 +2,12 @@
     // let shown = 0;
 
 $(document).ready(function() {
+    $(window).on("message onmessage", function(event) {
+        if (event.originalEvent.data === "requestHref") {
+            event.originalEvent.source.postMessage($(location).attr("href"), event.originalEvent.origin);
+        }
+    });
+
     let restPath = window.location.pathname.split('/').slice(0, -3).join('/');
     let imageId = $(".image_container > img").attr('src').split('/').slice(-1)[0].slice(0, -4);
 

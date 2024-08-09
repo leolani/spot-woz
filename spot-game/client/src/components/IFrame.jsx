@@ -1,9 +1,9 @@
 import React from "react";
 
-export function IFrame({src, height, width, onLoad}) {
+export function IFrame({id, src, height, width, onLoad}) {
     return  (
       <div>
-        <iframe src={src} height={height} width={width} onLoad={onLoad} />
+        <iframe id={id} src={src} height={height} width={width} onLoad={onLoad} />
       </div>
     );
 }

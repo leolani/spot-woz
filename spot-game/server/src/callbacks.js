@@ -89,7 +89,11 @@ Empirica.onGameStart(async ({game}) => {
         name: "Round Spotter",
         task: "spotter",
     });
-    round.addStage({name: "spotter", duration: 60});
+    round.addStage({
+        name: "spotter",
+        duration: 600,
+        gameLocation: `http://localhost:${port}/spot/start`
+    });
 });
 
 Empirica.onRoundStart(({round}) => {
