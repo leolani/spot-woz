@@ -1,7 +1,7 @@
 import {ClassicListenersCollector} from "@empirica/core/admin/classic";
 import {exec, execSync} from "child_process";
-import {debug, error, info, warn} from "@empirica/core/console";
-import http from "http";
+import {debug, error, info, warn} from "@empirica/core";
+import axios from "axios";
 
 export const Empirica = new ClassicListenersCollector();
 
@@ -50,24 +50,23 @@ function startContainer(port, participantId) {
     return output.toString().trim();  // Docker returns the new container ID in stdout
 }
 
-function getScenario(port) {
-    return new Promise((resolve, reject) => {
-        http.get(`http://localhost:{port}/spot/rest/scenario`, (resp) => {
-            resolve(resp.body);
-        }).on('error', (err) => {
-            debug("No scenario yet", err.statusCode);
-            throw new Error(`Received status code ${err.statusCode}`);
-        });
-    });
-}
+function getScenario(port, startTime) {
+    return axios.get(`http://localhost:${port}/spot/rest/scenario`)
+        .then(response => {
+            if (!response.data) {
+                throw new Error(`No scenario yet ${response.status}`);
+            }
 
-function checkScenario(port, startTime) {
-    return getScenario(port)
+            return response.data.toString();
+        })
         .catch(error => {
             if (Date.now() - startTime > 120000) {
                 throw new Error('Timeout exceeded while waiting for Scenario');
             } else {
-                setTimeout(() => checkScenario(port), 1000);
+                debug("Await scenario");
+                return new Promise((resolve) => {
+                    setTimeout(() => resolve(getScenario(port, startTime)), 1000);
+                });
             }
         });
 }
@@ -84,9 +83,7 @@ Empirica.onGameStart(async ({game}) => {
     game.set("containerId", containerId);
     game.set("containerPort", port);
 
-    await checkScenario(port,  Date.now()).then((scenarioId) => info("Started scenario " + scenarioId));
-
-    // await new Promise(resolve => setTimeout(resolve, 10000));
+    await getScenario(port, Date.now()).then((scenarioId) => info("Started scenario " + scenarioId));
 
     const round = game.addRound({
         name: "Round Spotter",

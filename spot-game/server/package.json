@@ -2,7 +2,8 @@
   "dependencies": {
     "@empirica/core": "1.11.4",
     "minimist": "1.2.6",
-    "node-fetch": "3.3.2"
+    "node-fetch": "3.3.2",
+    "axios": "1.7.3"
   },
   "devDependencies": {
     "esbuild": "0.14.47"
