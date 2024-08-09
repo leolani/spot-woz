@@ -51,13 +51,13 @@ function startContainer(port, participantId) {
 }
 
 function getScenario(port, startTime) {
-    return axios.get(`http://localhost:${port}/spot/rest/scenario`)
+    return axios.get(`http://localhost:${port}/chatui/chat/current`)
         .then(response => {
             if (!response.data) {
                 throw new Error(`No scenario yet ${response.status}`);
             }
 
-            return response.data.toString();
+            return response.data.id;
         })
         .catch(error => {
             if (Date.now() - startTime > 120000) {
@@ -69,6 +69,10 @@ function getScenario(port, startTime) {
                 });
             }
         });
+}
+
+function startGame(port, scenarioId) {
+    return axios.post(`http://localhost:${port}/chatui/chat/${scenarioId}/start`);
 }
 
 Empirica.onGameStart(async ({game}) => {
@@ -83,7 +87,14 @@ Empirica.onGameStart(async ({game}) => {
     game.set("containerId", containerId);
     game.set("containerPort", port);
 
-    await getScenario(port, Date.now()).then((scenarioId) => info("Started scenario " + scenarioId));
+    await getScenario(port, Date.now())
+        .then((scenarioId) => {
+            info("Started scenario " + scenarioId);
+            return new Promise((resolve) => {
+                setTimeout(() => resolve(startGame(port, scenarioId)), 1000);
+            });
+        })
+        .then(() => info("Started Game"));
 
     const round = game.addRound({
         name: "Round Spotter",
