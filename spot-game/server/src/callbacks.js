@@ -1,6 +1,7 @@
 import {ClassicListenersCollector} from "@empirica/core/admin/classic";
 import {exec, execSync} from "child_process";
-import {info, warn, error, debug} from "@empirica/core/console";
+import {debug, error, info, warn} from "@empirica/core/console";
+import http from "http";
 
 export const Empirica = new ClassicListenersCollector();
 
@@ -49,6 +50,28 @@ function startContainer(port, participantId) {
     return output.toString().trim();  // Docker returns the new container ID in stdout
 }
 
+function getScenario(port) {
+    return new Promise((resolve, reject) => {
+        http.get(`http://localhost:{port}/spot/rest/scenario`, (resp) => {
+            resolve(resp.body);
+        }).on('error', (err) => {
+            debug("No scenario yet", err.statusCode);
+            throw new Error(`Received status code ${err.statusCode}`);
+        });
+    });
+}
+
+function checkScenario(port, startTime) {
+    return getScenario(port)
+        .catch(error => {
+            if (Date.now() - startTime > 120000) {
+                throw new Error('Timeout exceeded while waiting for Scenario');
+            } else {
+                setTimeout(() => checkScenario(port), 1000);
+            }
+        });
+}
+
 Empirica.onGameStart(async ({game}) => {
     const participantId = game.players[0].id;
 
@@ -61,7 +84,9 @@ Empirica.onGameStart(async ({game}) => {
     game.set("containerId", containerId);
     game.set("containerPort", port);
 
-    await new Promise(resolve => setTimeout(resolve, 10000));
+    await checkScenario(port,  Date.now()).then((scenarioId) => info("Started scenario " + scenarioId));
+
+    // await new Promise(resolve => setTimeout(resolve, 10000));
 
     const round = game.addRound({
         name: "Round Spotter",
