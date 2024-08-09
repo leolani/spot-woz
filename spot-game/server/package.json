@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@empirica/core": "1.11.2",
+    "@empirica/core": "1.11.4",
     "minimist": "1.2.6",
     "node-fetch": "3.3.2"
   },
