@@ -92,7 +92,8 @@ Empirica.onGameStart(async ({game}) => {
     round.addStage({
         name: "spotter",
         duration: 600,
-        gameLocation: `http://localhost:${port}/spot/start`
+        gameLocation: `http://localhost:${port}/spot/start`,
+        chatLocation: `http://localhost:${port}/userchat/static/chat.html`
     });
 });
 
