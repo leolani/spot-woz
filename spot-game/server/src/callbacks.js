@@ -2,6 +2,8 @@ import {ClassicListenersCollector} from "@empirica/core/admin/classic";
 import {exec, execSync} from "child_process";
 import {debug, error, info, warn} from "@empirica/core";
 import axios from "axios";
+import fs from "fs";
+import path from "path";
 
 export const Empirica = new ClassicListenersCollector();
 
@@ -30,13 +32,18 @@ function getFreePortFromDocker(gameId) {
     return available[Math.floor(Math.random() * available.length)];
 }
 
+function startContainer(image, port, storage, participantId, conventions) {
+    const storagePath = path.resolve(path.join(storage, participantId));
+    fs.mkdirSync(storagePath, { recursive: true });
 
-function startContainer(port, participantId) {
+    info("Created storage", storagePath);
+
     let output = "";
     for (i of Array(10).keys()) {
         try {
-            const cmd_args = `--participant ${participantId} --name participant --session 1 --turntaking rohu --conventions yes`
-            output = execSync(`timeout -s 9 ${docker_timeout} docker run -d -p ${port}:8000 --name app_${participantId} spot-game ${cmd_args}`);
+            const cmd_args = `--participant ${participantId} --name participant --session 1 --turntaking none --conventions ${conventions}`;
+            const storage_mount = `--mount type=bind,source=${storagePath},target=/spot-woz/spot-woz/py-app/storage`;
+            output = execSync(`timeout -s 9 ${docker_timeout} docker run -d -p ${port}:8000 ${storage_mount} --name app_${participantId} spot-game ${cmd_args}`);
             break;
         } catch (error_) {
             warn(`Error launching Docker container for participant ${participantId} on port ${port}: ${error_}, retrying (${i})`);
@@ -82,8 +89,9 @@ Empirica.onGameStart(async ({game}) => {
 
     info(`Starting a new container for participant ${participantId} on port ${port}...`);
 
-    let containerId = startContainer(port, participantId);
-    info(`Container with ID: ${containerId} for participant ${participantId} started.`);
+    let { image, storage, conventions } = game.get("treatment");
+    let containerId = startContainer(image, port, storage, participantId, conventions);
+    info(`Container (${image}) with ID: ${containerId} for participant ${participantId} started`);
     game.set("containerId", containerId);
     game.set("containerPort", port);
 
@@ -91,7 +99,7 @@ Empirica.onGameStart(async ({game}) => {
         .then((scenarioId) => {
             info("Started scenario " + scenarioId);
             return new Promise((resolve) => {
-                setTimeout(() => resolve(startGame(port, scenarioId)), 1000);
+                setTimeout(() => resolve(startGame(port, scenarioId)), 5000);
             });
         })
         .then(() => info("Started Game"));

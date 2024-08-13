@@ -6,18 +6,29 @@ factors:
   - name: image
     desc: Docker image name
     values:
-      - value: spot-game:latest
-  - name: condition
-    desc: condition of the participant
+      - value: numblr/spotter-empirica:latest
+  - name: storage
+    desc: Storage location
     values:
-      - value: none
-      - value: rohu
-      - value: ro
+      - value: ./storage/
+  - name: conventions
+    desc: conventions condition of the participant
+    values:
+      - value: yes
+      - value: no
 
 treatments:
-  - name: adult
-    desc: Adult Game
+  - name: conventions
+    desc: Game using conventions
     factors:
       playerCount: 1
-      condition: ro
-      image: spot-game:latest
+      conventions: yes
+      image: numblr/spotter-empirica:latest
+      storage: ./storage/
+  - name: noConventions
+    desc: Game not using conventions
+    factors:
+      playerCount: 1
+      conventions: no
+      image: numblr/spotter-empirica:latest
+      storage: ./storage/
