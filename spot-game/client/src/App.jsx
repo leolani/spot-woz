@@ -5,7 +5,6 @@ import React from "react";
 import { Game } from "./Game";
 import { ExitSurvey } from "./intro-exit/ExitSurvey";
 import { Introduction } from "./intro-exit/Introduction";
-// import { SpotConsent } from "./SpotConsent.jsx";
 
 export default function App() {
   const urlParams = new URLSearchParams(window.location.search);

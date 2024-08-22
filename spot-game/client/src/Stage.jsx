@@ -8,7 +8,6 @@ import React from "react";
 import { Spot } from "./stages/Spot";
 
 export function Stage() {
-  // TODO need stages?
   const player = usePlayer();
   const stage = useStage();
 
