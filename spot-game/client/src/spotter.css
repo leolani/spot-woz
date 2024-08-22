@@ -5,12 +5,12 @@
 }
 
 #SpotterGameFrame {
-    flex: 0 0 60%;
+    flex: 0 0 70%;
     height: 100%;
 }
 
 #SpotterChatFrame {
-    flex: 0 0 40%;
+    flex: 0 0 30%;
     height: 100%;
 }
 
