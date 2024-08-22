@@ -18,22 +18,4 @@ export function Game() {
         </div>
       </div>
   );
-
-  // With empirica chat window
-  // return (
-  //     <div className="h-full w-full flex">
-  //       <div className="h-full w-full flex flex-col">
-  //         <Profile />
-  //         <div className="h-full flex items-center justify-center">
-  //           <Stage />
-  //         </div>
-  //       </div>
-  //
-  //       {playerCount > 0 && (
-  //           <div className="h-full w-128 border-l flex justify-center items-center">
-  //             <Chat scope={game} attribute="chat" customkey="kkklll" />
-  //           </div>
-  //       )}
-  //     </div>
-  // );
 }

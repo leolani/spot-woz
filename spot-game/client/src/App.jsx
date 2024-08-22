@@ -29,9 +29,6 @@ export default function App() {
           <div className="h-full overflow-auto">
             <EmpiricaContext introSteps={introSteps}
                              exitSteps={exitSteps}>
-              {/*<EmpiricaContext consent={SpotConsent}*/}
-              {/*                 introSteps={introSteps}*/}
-              {/*                 exitSteps={exitSteps}>*/}
               <Game />
             </EmpiricaContext>
           </div>

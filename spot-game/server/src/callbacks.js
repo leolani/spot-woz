@@ -7,7 +7,7 @@ import path from "path";
 
 export const Empirica = new ClassicListenersCollector();
 
-const docker_timeout = 7200 // 2h
+const GAME_TIMEOUT = 7200 // 2h
 
 
 function getFreePortFromDocker(gameId) {
@@ -43,7 +43,7 @@ function startContainer(image, port, storage, participantId, conventions) {
         try {
             const cmd_args = `--participant ${participantId} --name participant --session 1 --turntaking none --conventions ${conventions} --web`;
             const storage_mount = `--mount type=bind,source=${storagePath},target=/spot-woz/spot-woz/py-app/storage`;
-            output = execSync(`timeout -s 9 ${docker_timeout} docker run -d -p ${port}:8000 ${storage_mount} --name app_${participantId} ${image} ${cmd_args}`);
+            output = execSync(`docker run -d -p ${port}:8000 ${storage_mount} --name app_${participantId} ${image} ${cmd_args}`);
             break;
         } catch (error_) {
             warn(`Error launching Docker container for participant ${participantId} on port ${port}: ${error_}, retrying (${i})`);
@@ -110,7 +110,7 @@ Empirica.onGameStart(async ({game}) => {
     });
     round.addStage({
         name: "spotter",
-        duration: 600,
+        duration: GAME_TIMEOUT,
         gameLocation: `http://localhost:${port}/spot/start`,
         chatLocation: `http://localhost:${port}/userchat/static/chat.html`
     });
