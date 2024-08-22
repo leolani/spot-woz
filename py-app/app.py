@@ -509,13 +509,19 @@ class SpotDialogContainer(EmissorStorageContainer, InfraContainer, EnvironmentCo
                                            high_engagement=config.get_boolean("conventions"),
                                            force_commit=not allow_continuation,
                                            language='en')
+            rounds = 15
+            questionnaires = []
         else:
             disambigutator = Disambiguator(sp_characters, sp_robot_scene[self.session], high_engagement=config.get_boolean("conventions"),
                                            force_commit=not allow_continuation)
+            rounds = 6
+            questionnaires = [1, 6]
+
         with open(config.get("phrases"), 'r') as phrase_file:
             phrases = json.load(phrase_file)
 
         return DialogManager(disambigutator, phrases, preferences, self.session, config.get("storage"),
+                             rounds=rounds, questionnaires=questionnaires,
                              high_engagement=config.get_boolean("conventions"))
 
     @property
