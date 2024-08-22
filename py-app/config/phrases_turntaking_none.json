@@ -130,7 +130,7 @@
   "FINISH_ROUND_1_PHRASES": "We hebben ze allemaal gehad. Druk maar op de knop Ga Door. Voordat we doorgaan naar de volgende ronde, wil ik je vragen om eerst een paar vragen te beantwoorden. Ik ga stil zijn \\pau=50\\ terwijl jij de vragen beantwoord. Tik op het \\pau=5\\ \\vct=95\\ scherm \\pau=5\\ \\vct=100\\ op de knop, om door te gaan naar de vragen. Na de vragen gaan we weer door met het spel.",
   "FINISH_ROUND_PHRASES": "We hebben ze allemaal gehad. Druk maar op de knop Ga Door. Goed gedaan! Het spel is nu afgelopen. Maar \\pau=70\\ ik wil je nog wel vragen om wat vragen te beantwoorden. Ik ga stil zijn \\pau=50\\ terwijl jij de vragen beantwoord. Hierna zijn we klaar voor vandaag. Tik op het \\pau=5\\ \\vct=95\\scherm op de knop, om naar de vragen te gaan.",
   "FINISH_GAME_PHRASES": "Tot ziens!",
-  "YES_REGEX": "\bja\b",
-  "NO_REGEX": "\bnee\b",
+  "YES_REGEX": "\\bja\\b",
+  "NO_REGEX": "\\bnee\\b",
   "SIMPLE_DEICTIC": "die"
 }

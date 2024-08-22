@@ -41,9 +41,9 @@ function startContainer(image, port, storage, participantId, conventions) {
     let output = "";
     for (i of Array(10).keys()) {
         try {
-            const cmd_args = `--participant ${participantId} --name participant --session 1 --turntaking none --conventions ${conventions}`;
+            const cmd_args = `--participant ${participantId} --name participant --session 1 --turntaking none --conventions ${conventions} --web`;
             const storage_mount = `--mount type=bind,source=${storagePath},target=/spot-woz/spot-woz/py-app/storage`;
-            output = execSync(`timeout -s 9 ${docker_timeout} docker run -d -p ${port}:8000 ${storage_mount} --name app_${participantId} spot-game ${cmd_args}`);
+            output = execSync(`timeout -s 9 ${docker_timeout} docker run -d -p ${port}:8000 ${storage_mount} --name app_${participantId} ${image} ${cmd_args}`);
             break;
         } catch (error_) {
             warn(`Error launching Docker container for participant ${participantId} on port ${port}: ${error_}, retrying (${i})`);

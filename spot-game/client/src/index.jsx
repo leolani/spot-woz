@@ -5,6 +5,7 @@ import "virtual:uno.css";
 import "../node_modules/@empirica/core/dist/player.css";
 import App from "./App";
 import "./index.css";
+import "./spotter.css";
 
 const container = document.getElementById("root");
 const root = createRoot(container); // createRoot(container!) if you use TypeScript

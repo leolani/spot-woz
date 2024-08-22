@@ -24,10 +24,10 @@ export function Spot() {
     });
 
     return (
-        <div>
-            <IFrame id="SpotGameFrame" src={game.stage.get("gameLocation")} height="500" width="500"
+        <div id="Spotter">
+            <IFrame id="SpotterGameFrame" src={game.stage.get("gameLocation")} height="500" width="500"
                     onLoad={checkGameLoc}/>
-            <IFrame id="SpotChatFrame" src={game.stage.get("chatLocation")} height="500" width="500"/>
+            <IFrame id="SpotterChatFrame" src={game.stage.get("chatLocation")} height="500" width="500"/>
         </div>
     );
 }
