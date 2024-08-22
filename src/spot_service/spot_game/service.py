@@ -20,6 +20,7 @@ from spot_service.dialog.api import GameSignal, GameEvent
 logger = logging.getLogger(__name__)
 
 
+WEB_START = 'online_version/round_1.html'
 FOLDER_MAP = {1: 'first_interaction', 2: 'second_interaction', 3: 'third_interaction'}
 PREFERENCE_MAP = {
     1: {},
@@ -41,7 +42,7 @@ class Part(enum.Enum):
 
 class SpotGameService:
     @classmethod
-    def from_config(cls, session: int, preference: str,
+    def from_config(cls, session: int, preference: str, is_web: bool,
                     event_bus: EventBus, resource_manager: ResourceManager, config_manager: ConfigurationManager):
         config = config_manager.get_config("spot.game.events")
         scenario_topic = config.get("topic_scenario")
@@ -50,10 +51,10 @@ class SpotGameService:
         game_state_topic = config.get("topic_game_state")
         text_out_topic = config.get("topic_text_out")
 
-        return cls(session, preference, scenario_topic, image_topic, game_topic, game_state_topic, text_out_topic,
+        return cls(session, preference, is_web, scenario_topic, image_topic, game_topic, game_state_topic, text_out_topic,
                    event_bus, resource_manager)
 
-    def __init__(self, session: int, preference: str,
+    def __init__(self, session: int, preference: str, is_web: bool,
                  scenario_topic: str, image_topic: str, game_topic: str, game_state_topic: str,
                  text_out_topic: str, event_bus: EventBus, resource_manager: ResourceManager):
         self._scenario_topic = scenario_topic
@@ -64,6 +65,7 @@ class SpotGameService:
 
         self._session = session
         self._preference = preference
+        self._is_web = is_web
 
         self._scenario_id = None
 
@@ -102,7 +104,7 @@ class SpotGameService:
             start = (PREFERENCE_MAP[self._session][self._preference]
                      if self._preference in PREFERENCE_MAP[self._session]
                      else "start.html")
-            filename = f"{FOLDER_MAP[self._session]}/{start}"
+            filename = f"{FOLDER_MAP[self._session]}/{start}" if not self._is_web else WEB_START
 
             return redirect(url_for('static', filename=filename))
 

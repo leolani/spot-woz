@@ -53,6 +53,8 @@ from flask import Flask
 from spot.dialog.dialog_manager import DialogManager
 from spot.pragmatic_model.model_ambiguity import Disambiguator
 from spot.pragmatic_model.world_short_phrases_nl import sp_characters, sp_robot_scene
+from spot.pragmatic_model.world_short_phrases_en import sp_characters as sp_characters_en
+from spot.pragmatic_model.world_short_phrases_en import sp_robot_scene as sp_robot_scene_en
 from spot_service.dialog.service import SpotDialogService
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
 from werkzeug.serving import run_simple
@@ -103,6 +105,10 @@ class EnvironmentContainer(DIContainer):
 
     @property
     def session(self) -> int:
+        raise NotImplementedError()
+
+    @property
+    def is_web(self) -> bool:
         raise NotImplementedError()
 
 
@@ -477,7 +483,7 @@ class SpotGameContainer(InfraContainer, EnvironmentContainer):
         storage_path = self.config_manager.get_config("spot.dialog").get("storage")
         preference = DialogManager.load_preferences(self.participant_id, self.session, storage_path)
 
-        return SpotGameService.from_config(self.session, preference,
+        return SpotGameService.from_config(self.session, preference, self.is_web,
                                            self.event_bus, self.resource_manager, self.config_manager)
 
     def start(self):
@@ -498,8 +504,14 @@ class SpotDialogContainer(EmissorStorageContainer, InfraContainer, EnvironmentCo
         config = self.config_manager.get_config("spot.dialog")
         allow_continuation = "gap_timeout" in config and config.get_int("gap_timeout") > 0
         preferences = json.loads(config.get("preferences"))
-        disambigutator = Disambiguator(sp_characters, sp_robot_scene[self.session], high_engagement=config.get_boolean("conventions"),
-                                       force_commit=not allow_continuation)
+        if self.is_web:
+            disambigutator = Disambiguator(sp_characters_en, sp_robot_scene_en,
+                                           high_engagement=config.get_boolean("conventions"),
+                                           force_commit=not allow_continuation,
+                                           language='en')
+        else:
+            disambigutator = Disambiguator(sp_characters, sp_robot_scene[self.session], high_engagement=config.get_boolean("conventions"),
+                                           force_commit=not allow_continuation)
         with open(config.get("phrases"), 'r') as phrase_file:
             phrases = json.load(phrase_file)
 
@@ -545,10 +557,11 @@ class ApplicationContainer(ElizaComponentsContainer, ChatUIContainer, UserChatUI
                            SpotGameContainer, SpotDialogContainer, SpotTurnTakingContainer,
                            ASRContainer, VADContainer,
                            EmissorStorageContainer, BackendContainer, EnvironmentContainer):
-    def __init__(self, participant_id: str, participant_name: str, session: int):
+    def __init__(self, participant_id: str, participant_name: str, session: int, is_web: bool):
         self._participant_id = participant_id
         self._participant_name = participant_name
         self._session = session
+        self._is_web = is_web
 
     @property
     def participant_id(self) -> str:
@@ -561,6 +574,10 @@ class ApplicationContainer(ElizaComponentsContainer, ChatUIContainer, UserChatUI
     @property
     def session(self) -> int:
         return self._session
+
+    @property
+    def is_web(self) -> bool:
+        return self._is_web
 
     @property
     @singleton
@@ -625,16 +642,18 @@ def serializer(obj):
 
 def main(participant: str, name: str, session: int,
          turntaking: TurnTakingCondition, conventions: ConventionsCondition,
-         storage_path: str):
+         storage_path: str, is_web: bool):
     if session == 1:
         additional_configs = ADDITIONAL_CONFIGS + [f"config/condition_conv_{conventions.name.lower()}.config",
                                                    f"config/condition_turn_{turntaking.name.lower()}.config"]
+        if is_web:
+            additional_configs.append(f"config/web.config")
     else:
         additional_configs = ApplicationContainer.load_additional_configs(participant, storage_path)
 
     ApplicationContainer.load_configuration(additional_config_files=additional_configs)
     logger.info("Initialized Application with configs: %s", additional_configs)
-    application = ApplicationContainer(participant, name, session)
+    application = ApplicationContainer(participant, name, session, is_web)
     application.store_config(additional_configs)
 
     with application as started_app:
@@ -680,9 +699,11 @@ if __name__ == '__main__':
                         help="Convention forming condition, only specify for session 1")
     parser.add_argument('--storage', type=str, required=False, default="storage/spotter",
                         help="Storage folder to load previous configurations, should not be needed.")
+    parser.add_argument('--web', action='store_true', required=False, default=False,
+                        help="Start the web version.")
     args, _ = parser.parse_known_args()
 
     if args.session > 1 and (args.turntaking or args.conventions):
         raise ValueError("Conditions are loaded from disk as defined for session 1")
 
-    main(args.participant, args.name, args.session, args.turntaking, args.conventions, args.storage)
+    main(args.participant, args.name, args.session, args.turntaking, args.conventions, args.storage, args.web)

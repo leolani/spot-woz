@@ -17,13 +17,11 @@ export function Spot() {
         debug("Set gameLocation", location);
         game.stage.set("gameLocation", location);
 
-        if (location.includes("gameEnd")) {
+        if (location.includes("finish.html")) {
             info("Submit Game End", location);
-            player.stage.set("submit", true);
+            setTimeout(() => player.stage.set("submit", true), 3000);
         }
     });
-
-    info("XXXX 1", game.stage.get("gameLocation"), game.stage.get("gameLocation"));
 
     return (
         <div>
