@@ -1,10 +1,4 @@
 $(document).ready(function () {
-    $(window).on("message onmessage", function(event) {
-        if (event.originalEvent.data === "requestHref") {
-            event.originalEvent.source.postMessage($(location).attr("href"), event.originalEvent.origin);
-        }
-    });
-
     $('#showfaces').click(function () {
         $('.introduction').show();
         $('#continue').hide();

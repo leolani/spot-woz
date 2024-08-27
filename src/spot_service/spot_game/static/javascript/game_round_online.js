@@ -1,4 +1,11 @@
 $(document).ready(function() {
+    $(window).on("message onmessage", function(event) {
+        console.log("Received event", event);
+        if (event.originalEvent.data === "requestHref") {
+            event.originalEvent.source.postMessage($(location).attr("href"), event.originalEvent.origin);
+        }
+    });
+
     let score = 0;
     let shown = 0;
 
@@ -12,7 +19,7 @@ $(document).ready(function() {
             return $.post(restPath + scenarioId + "/image/" + imageId, {})
         }).then(data => {
             console.log("Put image", restPath + scenarioId + "/image/" + imageId);
-            $('#submit').hide();
+            $('#submit').css("visibility", "hidden");
             checkStatus();
         });
 
@@ -30,13 +37,14 @@ $(document).ready(function() {
         $.get(restPath + scenarioId + "/part/round/continue")
             .done(data => {
                 if(data === "true"){
-                    $('#submit').show()}
-                else{
+                    $('#submit').css("visibility", "visible");
+                }
+                else {
                     setTimeout(checkStatus, 1000);
                 }
             }).fail(data => {
                 console.log("Failure", data );
-                $('#submit').show();
+                $('#submit').css("visibility", "visible");;
             });
     }
 

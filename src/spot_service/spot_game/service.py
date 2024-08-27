@@ -20,7 +20,8 @@ from spot_service.dialog.api import GameSignal, GameEvent
 logger = logging.getLogger(__name__)
 
 
-WEB_START = 'online_version/round_1.html'
+# WEB_START = 'online_version/round_1.html'
+WEB_START = 'online_version/practice_round.html'
 FOLDER_MAP = {1: 'first_interaction', 2: 'second_interaction', 3: 'third_interaction'}
 PREFERENCE_MAP = {
     1: {},
@@ -36,7 +37,7 @@ PREFERENCE_MAP = {
 class Part(enum.Enum):
     INTRODUCTION = ["Druk maar op de knop om door te gaan naar de oefenronde", "Druk maar op de knop om naar de eerste ronde te gaan.",
                     "Na een paar seconden verschijnt er een knop waar je op moet drukken, en dan gaan we weer beginnen met ons spel."]
-    PRACTICE = ["Klik maar op de knop Ga door op het scherm om te beginnen."]
+    PRACTICE = ["Klik maar op de knop Ga door op het scherm om te beginnen.", "Please press the button to continue to the first round."]
     ROUND = None
 
 

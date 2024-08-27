@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="nl">
+<style>
+    #pos1{
+        top: 15%;
+        left: 33%;
+        position: absolute;
+    }
+    #pos2{
+        top: 15%;
+        left: 58%;
+        position: absolute;
+    }
+    h2{
+        font-family: Arial, Helvetica, sans-serif;
+    }
+</style>
+<head>
+    <link rel="stylesheet" href="../css/game_round.css">
+    <link rel="stylesheet" href="../css/game_round_online.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <script src="../javascript/practice_round_online.js"></script>
+    <meta charset="UTF-8">
+    <title>"scene_1"</title>
+</head>
+<body>
+<div class='center' id="scene_title">
+    <h1>In the forest</h1>
+</div>
+
+<h2><i>Read Robin's explanation and fill in the correct position!</i></h2>
+
+<div>
+<div class="image_container">
+    <img src="../images/scenes/Oefenronde_Human_Adult.png" class="hide">
+    <form action="round_1.html" id="selectform">
+        <div id="pos1" class="positions">
+        <span id="check1" style="display: none">&#10004</span>
+        <label for="drop1">1</label>
+        <select id="drop1" class="2" name="check1" required>
+            <option value=""></option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+        </select>
+        </div>
+        <div id="pos2" class="positions">
+            <span id="check2" style="display: none">&#10004</span>
+        <label for="drop2">2</label>
+        <select id="drop2" class="1" name="check2">
+            <option value=""></option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+        </select>
+        </div>
+        <input type="hidden" name="shown" value="0" id="shown">
+        <input type="hidden" name="score" value="0" id="score">
+        <input type="submit" id="submit" value="Continue">
+    </form>
+</div>
+</div>
+</body>
+</html>

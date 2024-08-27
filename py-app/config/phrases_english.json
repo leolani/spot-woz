@@ -1,13 +1,20 @@
 {
   "1": {
     "start": [],
-    "intro": [],
-    "outro": [],
+    "intro": [
+      "Hello! I am Robin. Let's play this game! Before we start with the real game, let's practice the basics. Are you ready?",
+      "Great. Now describe the character to me that you see in the first spot. For example, you can tell me what their face looks like, or something else that catches your eye.",
+      "Ah yes, that one is in the second spot for me. You can now click the number 1. A menu will open where you can click on the number 2, indicating that the one you just described is in the second spot in my picture. When you've done this, you will see a checkmark indicating that you've filled in this position. Is that correct?",
+      "Great! In the real game, we have to find the answers for all the characters. Please press the button to continue to the first round."
+    ],
+    "outro": [
+      ["Great work! The game is now finished. Thank you for playing and have a nice day! You can press the button to end the game.",
+      false]
+    ],
     "ENCOURAGEMENT_PHRASES": [
       "It's going well!",
       "Keep it up!"
-    ]
-  },
+    ]},
   "2": {},
   "3": {},
   "START_ROUND_1_PHRASES": "Let's start!",
@@ -61,8 +68,14 @@
     "Hmm, let's see, I thought we already talked about this one before. Let's try again. Can you name something specific for this figure?"
   ],
   "REPAIR_NEG_RESPONSE_PHRASES": ["Okay, can you describe it differently?"],
-  "FINISH_ROUND_1_PHRASES": "We went through all of them. Let's continue. Great work! The game is now finished. Thank you for playing and have a nice day!",
-  "FINISH_ROUND_PHRASES": "We went through all of them. Let's continue. Great work!",
+  "FINISH_ROUND_1_PHRASES": [
+    "That was all of them. We can continue to the next round.",
+    "That's all for this round. Let's continue to the next round.",
+    "Okay. Let's move on to the next round.",
+    "Okay, we went through all of them. Let's move on to the next round.",
+    "This round is finished. Please press the button to continue to the next one."
+  ],
+  "FINISH_ROUND_PHRASES": "We went through all of them. This was the last round! You can press the button to finish the game.",
   "FINISH_GAME_PHRASES": "Goodbye!",
   "YES_REGEX": "\\byes\\b",
   "NO_REGEX": "\\bno\\b",
