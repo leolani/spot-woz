@@ -7,15 +7,29 @@ export function Spot() {
     const player = usePlayer();
     const game = useGame();
 
+    const getRoundNumber = (location) => {
+        const regex1 = RegExp('.*round_(\\d+).html.*', 'g');
+        const result = regex1.exec(location);
+
+        return (result && result.length > 1) ? result[1] : "-";
+    }
+
     const checkGameLoc = (location) => {
-        document.getElementById('SpotGameFrame').contentWindow.postMessage('requestHref', '*');
+        info("XXX Request location");
+        document.getElementById('SpotterGameFrame').contentWindow.postMessage('requestHref', '*');
     };
 
     window.addEventListener("message", (mess) => {
         const location = mess.data;
 
+        info("XXX Set location", location);
         debug("Set gameLocation", location);
         game.stage.set("gameLocation", location);
+
+        // let step = ((location.split('/').slice(-1)[0]).split('.html')[0]).split('_').slice(-1)[0];
+        let step = getRoundNumber(location);
+        game.stage.set("step", step)
+        info("XXX Set step", step);
 
         if (location.includes("finish.html")) {
             info("Submit Game End", location);

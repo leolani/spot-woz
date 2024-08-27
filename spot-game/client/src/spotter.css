@@ -14,3 +14,31 @@
     height: 100%;
 }
 
+.introduction, .exit {
+    position: relative;
+    padding: 10%;
+    font-size: large;
+    font-family: "Helvetica Neue", Helvetica, sans-serif;
+    text-align: center;
+}
+
+.intropara {
+    margin: 20px;
+}
+
+.examples {
+    margin: auto;
+    text-align: center;
+    display: inline-block;
+    width: 200px;
+}
+
+.faces {
+    text-align: center;
+    display: inline-block;
+}
+
+.faceimg {
+    width: 200px;
+    object-fit: contain;
+}
