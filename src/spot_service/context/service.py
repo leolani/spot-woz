@@ -87,7 +87,7 @@ class ContextService:
                 self._stop_scenario()
                 # Shutdown the application
                 logger.info("Preparing for application shutdown")
-                time.sleep(5)
+                time.sleep(600)
                 logger.info("Shutting down the application")
                 os.kill(os.getpid(), signal.SIGINT)
         elif event.metadata.topic == self._speaker_topic:
