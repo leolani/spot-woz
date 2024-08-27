@@ -7,6 +7,20 @@ The chat UI can be used to display text signals and create text signals from use
 This repository is a component of the [Leolani framework](https://github.com/leolani/cltl-combot).
 For usage of the component within the framework see the instructions there.
 
+## Empirica Game
+
+### Setup Game
+
+* Build Docker image:
+     
+      docker build -t <TAG_NAME> .
+
+  according to the [documentation](https://docs.docker.com/get-started/docker-concepts/building-images/build-tag-and-publish-an-image/)
+  and configure the tag name in `spot-game/.empirica/treatments.yaml` or the Empirica Admin console.
+
+* Install [Empirica](https://docs.empirica.ly/)
+* Deploy Empirica Game from the `spot-game/` folder according to the [documentation](https://docs.empirica.ly/guides/deploying-my-experiment).
+
 
 ## Contributing
 
