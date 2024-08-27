@@ -118,7 +118,7 @@ class SpotGameService:
 
         @self._app.route('/rest/<scenario_id>/part/<part>/continue', methods=['GET'])
         def is_part_finished(scenario_id: str, part: str):
-            if Part[part.upper()] in self._finished_parts:
+            if self._finished_parts and Part[part.upper()] in self._finished_parts:
                 return "true"
             else:
                 return "false"
@@ -183,6 +183,8 @@ class SpotGameService:
                         logger.info("Finished part %s", part)
         elif event.metadata.topic == self._game_state_topic:
             logger.debug("Handling game event %s", event.payload.signal.value)
-            if self._finished_parts is not None and event.payload.signal.value.state == ConvState.QUESTIONNAIRE.name:
+            if (self._finished_parts is not None
+                    and (event.payload.signal.value.state == ConvState.QUESTIONNAIRE.name
+                         or event.payload.signal.value.state == ConvState.OUTRO.name)):
                 self._finished_parts += (Part.ROUND,)
                 logger.info("Finished part %s", Part.ROUND)
