@@ -35,9 +35,9 @@
     "And spot {position}?",
     "Okay, let's move on to spot {position}.",
     "Okay, and spot {position}?",
-    "And the figure on spot {position}?",
+    "And the figure in spot {position}?",
     "And the one in spot {position}?",
-    "Okay, and the on in spot {position}?"
+    "Okay, and the one in spot {position}?"
   ],
   "QUERY_NEXT_REPAIR_PHRASES": "Who is in spot {position} for you?",
   "ACKNOWLEDGE_NEE_PHRASES": ["Okay, let's try again."],
@@ -52,16 +52,16 @@
   "ACKNOWLEDGE_DIFFERENT_POSITION_PHRASES": [
     "For me %s is in spot {position}.",
     "Oh, %s is in spot {position} for me.",
-    "Let's see, no, for my %s is in spot {position}."
+    "Let's see, no, for me %s is in spot {position}."
   ],
-  "ACKNOWLEDGE_HINT_ROUND_1_PHRASES": "You can enter that on the tablet.",
+  "ACKNOWLEDGE_HINT_ROUND_1_PHRASES": "You can now fill in this position.",
   "NO_MATCH_PHRASES": [
     "Sorry, I didn't understand you very well. Can you describe it again?",
     "I didn't understand you. Could you describe it differently?",
     "I'm sorry, I didn't understand you. Could you describe it again?"
   ],
   "SKIP_CHARACTER_PHRASES": [
-    "Sorry, I think I can't find this one. Let's skip this spot and move on to the next one. You can enter on the tablet: 'not found'."
+    "Sorry, I think I can't find this one. Let's skip this spot and move on to the next one. Please select 'not found' in the dropdown menu."
   ],
   "MATCH_PREVIOUS_PHRASES": [
     "Wait a second, I thought we already had this one before. Can you describe it again?",
