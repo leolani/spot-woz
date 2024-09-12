@@ -10,6 +10,11 @@ export const Empirica = new ClassicListenersCollector();
 const GAME_TIMEOUT = 7200 // 2h
 
 
+let BASE_URL = process.env.SPOTTER_BASE_URL || 'http://localhost:';
+let MIN_PORT = parseInt(process.env.SPOTTER_MIN_PORT || 8000);
+let MAX_PORT = parseInt(process.env.SPOTTER_MAX_PORT || 8100);
+
+
 function getFreePortFromDocker(gameId) {
     // Process stdout to parse the port information
     const docker_out = execSync("docker ps --format \"{{.Ports}}\"");
@@ -23,7 +28,7 @@ function getFreePortFromDocker(gameId) {
         .filter(port => port != null));  // Remove nulls if no match was found
 
     debug("Used ports: ", ports);
-    const available = [...Array(1000).keys()].map(i => 8000 + i).filter(i => !ports.has(i));
+    const available = [...Array(MAX_PORT - MIN_PORT).keys()].map(i => MIN_PORT + i).filter(i => !ports.has(i));
 
     if (!available) {
         throw new Error(`No free port available for ${gameId}`);
@@ -58,7 +63,7 @@ function startContainer(image, port, storage, participantId, conventions) {
 }
 
 function getScenario(port, startTime) {
-    return axios.get(`http://localhost:${port}/chatui/chat/current`)
+    return axios.get(`${BASE_URL}${port}/chatui/chat/current`)
         .then(response => {
             if (!response.data) {
                 throw new Error(`No scenario yet ${response.status}`);
@@ -79,12 +84,13 @@ function getScenario(port, startTime) {
 }
 
 function startGame(port, scenarioId) {
-    return axios.post(`http://localhost:${port}/chatui/chat/${scenarioId}/start`);
+    return axios.post(`${BASE_URL}${port}/chatui/chat/${scenarioId}/start`);
 }
 
 Empirica.onGameStart(async ({game}) => {
-    const participantId = game.players[0].id;
+    info(`Starting game for ${game.players[0].id} with port range ${MIN_PORT}-${MAX_PORT} on base url ${BASE_URL}`);
 
+    const participantId = game.players[0].id;
     const port = getFreePortFromDocker(game.id);
 
     info(`Starting a new container for participant ${participantId} on port ${port}...`);
@@ -108,11 +114,12 @@ Empirica.onGameStart(async ({game}) => {
         name: "Round Spotter",
         task: "spotter",
     });
+
     round.addStage({
         name: "spotter",
         duration: GAME_TIMEOUT,
-        gameLocation: `http://localhost:${port}/spot/start`,
-        chatLocation: `http://localhost:${port}/userchat/static/chat.html`
+        gameLocation: `${BASE_URL}${port}/spot/start`,
+        chatLocation: `${BASE_URL}${port}/userchat/static/chat.html`
     });
 });
 
