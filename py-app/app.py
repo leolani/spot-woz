@@ -37,7 +37,6 @@ from cltl.emissordata.api import EmissorDataStorage
 from cltl.emissordata.file_storage import EmissorDataFileStorage
 from cltl.vad.api import VAD
 from cltl.vad.controller_vad import ControllerVAD
-from cltl.vad.webrtc_vad import WebRtcVAD
 from cltl_service.asr.service import AsrService
 from cltl_service.backend.backend import BackendService
 from cltl_service.backend.storage import StorageService
@@ -278,6 +277,7 @@ class VADContainer(InfraContainer):
 
         implementation = service_config.get('implementation', multi=True)
         if 'webrtc' in implementation:
+            from cltl.vad.webrtc_vad import WebRtcVAD
             config = self.config_manager.get_config("cltl.vad.webrtc")
             activity_window = config.get_int("activity_window")
             activity_threshold = config.get_float("activity_threshold")
