@@ -107,6 +107,10 @@ class EnvironmentContainer(DIContainer):
         raise NotImplementedError()
 
     @property
+    def history(self) -> float:
+        raise NotImplementedError()
+
+    @property
     def is_web(self) -> bool:
         raise NotImplementedError()
 
@@ -508,6 +512,7 @@ class SpotDialogContainer(EmissorStorageContainer, InfraContainer, EnvironmentCo
             disambigutator = Disambiguator(sp_characters_en, sp_robot_scene_en,
                                            high_engagement=config.get_boolean("conventions"),
                                            force_commit=not allow_continuation,
+                                           history_factor=self.history,
                                            language='en')
             rounds = 15
             rounds = 2
@@ -564,10 +569,11 @@ class ApplicationContainer(ElizaComponentsContainer, ChatUIContainer, UserChatUI
                            SpotGameContainer, SpotDialogContainer, SpotTurnTakingContainer,
                            ASRContainer, VADContainer,
                            EmissorStorageContainer, BackendContainer, EnvironmentContainer):
-    def __init__(self, participant_id: str, participant_name: str, session: int, is_web: bool):
+    def __init__(self, participant_id: str, participant_name: str, session: int, history: float, is_web: bool):
         self._participant_id = participant_id
         self._participant_name = participant_name
         self._session = session
+        self._history = history
         self._is_web = is_web
 
     @property
@@ -581,6 +587,10 @@ class ApplicationContainer(ElizaComponentsContainer, ChatUIContainer, UserChatUI
     @property
     def session(self) -> int:
         return self._session
+
+    @property
+    def history(self) -> float:
+        return self._history
 
     @property
     def is_web(self) -> bool:
@@ -648,8 +658,8 @@ def serializer(obj):
 
 
 def main(participant: str, name: str, session: int,
-         turntaking: TurnTakingCondition, conventions: ConventionsCondition,
-         storage_path: str, is_web: bool):
+         turntaking: TurnTakingCondition, conventions: ConventionsCondition, history: float,
+         storage_path: str, is_web: bool, basepath: str):
     if session == 1:
         additional_configs = ADDITIONAL_CONFIGS + [f"config/condition_conv_{conventions.name.lower()}.config",
                                                    f"config/condition_turn_{turntaking.name.lower()}.config"]
@@ -660,7 +670,7 @@ def main(participant: str, name: str, session: int,
 
     ApplicationContainer.load_configuration(additional_config_files=additional_configs)
     logger.info("Initialized Application with configs: %s", additional_configs)
-    application = ApplicationContainer(participant, name, session, is_web)
+    application = ApplicationContainer(participant, name, session, history, is_web)
     application.store_config(additional_configs)
 
     with application as started_app:
@@ -668,20 +678,20 @@ def main(participant: str, name: str, session: int,
         started_app.event_bus.publish(intention_topic, Event.for_payload(IntentionEvent([Intention("init", None)])))
 
         routes = {
-            '/storage': started_app.storage_service.app,
-            '/emissor': started_app.emissor_data_service.app,
-            '/chatui': started_app.chatui_service.app,
-            '/userchat': started_app.user_chatui_service.app,
-            '/spot': started_app.spot_game_service.app,
+            f"{basepath}/storage": started_app.storage_service.app,
+            f"{basepath}/emissor": started_app.emissor_data_service.app,
+            f"{basepath}/chatui": started_app.chatui_service.app,
+            f"{basepath}/userchat": started_app.user_chatui_service.app,
+            f"{basepath}/spot": started_app.spot_game_service.app,
         }
 
         if started_app.vad_service and started_app.vad_service.app:
             logger.info("VAD endpoint added at /vad")
-            routes['/vad'] = started_app.vad_service.app
+            routes[f"{basepath}/vad"] = started_app.vad_service.app
 
         if started_app.server:
             logger.info("Backend Server endpoint added at /host")
-            routes['/host'] = started_app.server.app
+            routes[f"{basepath}/host"] = started_app.server.app
 
         web_app = DispatcherMiddleware(Flask("Eliza app"), routes)
 
@@ -704,13 +714,17 @@ if __name__ == '__main__':
                         help="Turn taking condition, only specify for session 1")
     parser.add_argument('--conventions', type=ConventionsCondition, choices=list(ConventionsCondition), required=False,
                         help="Convention forming condition, only specify for session 1")
+    parser.add_argument('--history', type=float, required=False, default=1.0,
+                        help="Amount of history to use")
     parser.add_argument('--storage', type=str, required=False, default="storage/spotter",
                         help="Storage folder to load previous configurations, should not be needed.")
     parser.add_argument('--web', action='store_true', required=False, default=False,
                         help="Start the web version.")
+    parser.add_argument('--basepath', type=str, required=False, default="",
+                        help="Base URL for the Flask application.")
     args, _ = parser.parse_known_args()
 
     if args.session > 1 and (args.turntaking or args.conventions):
         raise ValueError("Conditions are loaded from disk as defined for session 1")
 
-    main(args.participant, args.name, args.session, args.turntaking, args.conventions, args.storage, args.web)
+    main(args.participant, args.name, args.session, args.turntaking, args.conventions, args.history, args.storage, args.web, args.basepath)

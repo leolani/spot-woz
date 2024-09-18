@@ -1,6 +1,6 @@
 spot-game.tar.zst
 
-.empirica
+.empirica/local
 
 server/storage/**/*
 

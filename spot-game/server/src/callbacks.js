@@ -10,12 +10,7 @@ export const Empirica = new ClassicListenersCollector();
 const GAME_TIMEOUT = 7200 // 2h
 
 
-let BASE_URL = process.env.SPOTTER_BASE_URL || 'http://localhost:';
-let MIN_PORT = parseInt(process.env.SPOTTER_MIN_PORT || 8000);
-let MAX_PORT = parseInt(process.env.SPOTTER_MAX_PORT || 8100);
-
-
-function getFreePortFromDocker(gameId) {
+function getFreePortFromDocker(gameId, min_port, max_port) {
     // Process stdout to parse the port information
     const docker_out = execSync("docker ps --format \"{{.Ports}}\"");
     const ports =  new Set(docker_out.toString().split('\n')
@@ -28,7 +23,7 @@ function getFreePortFromDocker(gameId) {
         .filter(port => port != null));  // Remove nulls if no match was found
 
     debug("Used ports: ", ports);
-    const available = [...Array(MAX_PORT - MIN_PORT).keys()].map(i => MIN_PORT + i).filter(i => !ports.has(i));
+    const available = [...Array(max_port - min_port).keys()].map(i => min_port + i).filter(i => !ports.has(i));
 
     if (!available) {
         throw new Error(`No free port available for ${gameId}`);
@@ -37,7 +32,7 @@ function getFreePortFromDocker(gameId) {
     return available[Math.floor(Math.random() * available.length)];
 }
 
-function startContainer(image, port, storage, participantId, conventions) {
+function startContainer(image, port, storage, participantId, history, base_path) {
     const storagePath = path.resolve(path.join(storage, participantId));
     fs.mkdirSync(storagePath, { recursive: true });
 
@@ -46,7 +41,9 @@ function startContainer(image, port, storage, participantId, conventions) {
     let output = "";
     for (i of Array(10).keys()) {
         try {
-            const cmd_args = `--participant ${participantId} --name participant --session 1 --turntaking none --conventions ${conventions} --web`;
+            let cmd_args = `--participant ${participantId} --name participant --session 1 --turntaking none --conventions yes`;
+            cmd_args += ` --history ${history} --web --basepath "${base_path}/${port}"`;
+
             const storage_mount = `--mount type=bind,source=${storagePath},target=/spot-woz/spot-woz/py-app/storage`;
             output = execSync(`docker run -d -p ${port}:8000 ${storage_mount} --name app_${participantId} ${image} ${cmd_args}`);
             break;
@@ -62,8 +59,8 @@ function startContainer(image, port, storage, participantId, conventions) {
     return output.toString().trim();  // Docker returns the new container ID in stdout
 }
 
-function getScenario(port, startTime) {
-    return axios.get(`${BASE_URL}${port}/chatui/chat/current`)
+function getScenario(base_url, port, startTime) {
+    return axios.get(`${base_url}${port}/chatui/chat/current`)
         .then(response => {
             if (!response.data) {
                 throw new Error(`No scenario yet ${response.status}`);
@@ -73,39 +70,44 @@ function getScenario(port, startTime) {
         })
         .catch(error => {
             if (Date.now() - startTime > 120000) {
-                throw new Error('Timeout exceeded while waiting for Scenario');
+                throw new Error(`Timeout exceeded while waiting for Scenario on ${base_url}${port}/chatui/chat/current`);
             } else {
                 debug("Await scenario", port);
                 return new Promise((resolve) => {
-                    setTimeout(() => resolve(getScenario(port, startTime)), 1000);
+                    setTimeout(() => resolve(getScenario(base_url, port, startTime)), 1000);
                 });
             }
         });
 }
 
-function startGame(port, scenarioId) {
-    return axios.post(`${BASE_URL}${port}/chatui/chat/${scenarioId}/start`);
+function startGame(base_url, port, scenarioId) {
+    return axios.post(`${base_url}${port}/chatui/chat/${scenarioId}/start`);
 }
 
 Empirica.onGameStart(async ({game}) => {
-    info(`Starting game for ${game.players[0].id} with port range ${MIN_PORT}-${MAX_PORT} on base url ${BASE_URL}`);
+    let { image, storage, history, base_url, base_path, min_port, max_port } = game.get("treatment");
+    base_url = base_url || 'http://localhost:';
+    base_path = base_path || '';
+    min_port = min_port || 8000;
+    max_port = max_port || 8100;
+
+    info(`Starting game for ${game.players[0].id} with history ${history}, port range ${min_port}-${max_port} on base url ${base_url} (${base_path})`);
 
     const participantId = game.players[0].id;
-    const port = getFreePortFromDocker(game.id);
+    const port = getFreePortFromDocker(game.id, min_port, max_port);
 
     info(`Starting a new container for participant ${participantId} on port ${port}...`);
 
-    let { image, storage, conventions } = game.get("treatment");
-    let containerId = startContainer(image, port, storage, participantId, conventions);
+    let containerId = startContainer(image, port, storage, participantId, history, base_path);
     info(`Container (${image}) with ID: ${containerId} for participant ${participantId} started`);
     game.set("containerId", containerId);
     game.set("containerPort", port);
 
-    await getScenario(port, Date.now())
+    await getScenario(base_url, port, Date.now())
         .then((scenarioId) => {
             info("Started scenario " + scenarioId);
             return new Promise((resolve) => {
-                setTimeout(() => resolve(startGame(port, scenarioId)), 5000);
+                setTimeout(() => resolve(startGame(base_url, port, scenarioId)), 5000);
             });
         })
         .then(() => info("Started Game"));
@@ -118,8 +120,8 @@ Empirica.onGameStart(async ({game}) => {
     round.addStage({
         name: "spotter",
         duration: GAME_TIMEOUT,
-        gameLocation: `${BASE_URL}${port}/spot/start`,
-        chatLocation: `${BASE_URL}${port}/userchat/static/chat.html`
+        gameLocation: `${base_url}${port}/spot/start`,
+        chatLocation: `${base_url}${port}/userchat/static/chat.html`
     });
 });
 

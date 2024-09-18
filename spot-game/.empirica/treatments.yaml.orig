@@ -1,0 +1,50 @@
+factors:
+  - name: playerCount
+    desc: playerCount determines the number of Players are in a Game.
+    values:
+      - value: 1
+  - name: image
+    desc: Docker image name
+    type: str
+  - name: storage
+    desc: Storage location
+    type: string
+  - name: history
+    desc: History factor to use in the disambiguator
+    type: float
+  - name: base_url
+    desc: Full base URL of the spot-woz application as seem from outside (with trailing slash), like https://spotter.labs.vu.nl/spottergame/
+    type: string
+  - name: base_path
+    desc: Base path for the spot-woz application, determined by routing on the server, like /spottergame
+    type: string
+  - name: min_port
+    desc: Minimum port to use for docker containers
+    type: int
+  - name: max_port
+    desc: Maximum port to use for docker containers
+    type: int
+
+treatments:
+  - name: history
+    desc: Game using conventions
+    factors:
+      playerCount: 1
+      history: 0.0
+      image: numblr/spotter-empirica:latest
+      storage: ./storage/
+      base_url: 'localhost:'
+      base_path: ''
+      min_port: 8000
+      max_port: 8100
+  - name: noHistory
+    desc: Game not using conventions
+    factors:
+      playerCount: 1
+      history: 1.0
+      image: numblr/spotter-empirica:latest
+      storage: ./storage/
+      base_url: 'localhost:'
+      base_path: ''
+      min_port: 8000
+      max_port: 8100
