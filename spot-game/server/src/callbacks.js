@@ -32,7 +32,7 @@ function getFreePortFromDocker(gameId, min_port, max_port) {
     return available[Math.floor(Math.random() * available.length)];
 }
 
-function startContainer(image, base_path, port, storage, participantId, history) {
+function startContainer(image, basePath, port, storage, participantId, history) {
     const storagePath = path.resolve(path.join(storage, participantId));
     fs.mkdirSync(storagePath, { recursive: true });
 
@@ -41,12 +41,12 @@ function startContainer(image, base_path, port, storage, participantId, history)
     let output = "";
     for (i of Array(10).keys()) {
         try {
-            let cmd_args = `--participant ${participantId} --name participant --session 1 --turntaking none --conventions yes`;
-            cmd_args += ` --history ${history} --web`;
-            cmd_args += base_path ? ' --basepath "${base_path}/${port}"' : '';
+            let cmdArgs = `--participant ${participantId} --name participant --session 1 --turntaking none --conventions yes`;
+            cmdArgs += ` --history ${history} --web`;
+            cmdArgs += basePath ? ` --basepath "${basePath}/${port}"` : '';
 
             const storage_mount = `--mount type=bind,source=${storagePath},target=/spot-woz/spot-woz/py-app/storage`;
-            output = execSync(`docker run -d -p ${port}:8000 ${storage_mount} --name app_${participantId} ${image} ${cmd_args}`);
+            output = execSync(`docker run -d -p ${port}:8000 ${storage_mount} --name app_${participantId} ${image} ${cmdArgs}`);
             break;
         } catch (error_) {
             warn(`Error launching Docker container for participant ${participantId} on port ${port}: ${error_}, retrying (${i})`);
@@ -91,11 +91,14 @@ function startGame(baseUrl, basePath, port, scenarioId) {
  * Construct an URL of either baseURL:port/basePath or baseURL/basePath/port where basePath maybe empty.
  */
 function getPath(baseUrl, basePath, port) {
+    let pathUrl;
     if (baseUrl.endsWith(':')) {
-        return basePath ? new URL(basePath, baseUrl + port.toString()) : new URL(baseUrl + port.toString());
+        pathUrl = basePath ? new URL(basePath, baseUrl + port.toString()) : new URL(baseUrl + port.toString());
+    } else {
+        pathUrl = basePath ? new URL(path.join(basePath, port.toString()), baseUrl) : new URL(port.toString(), baseUrl);
     }
 
-    return basePath ? new URL(path.join(basePath, port.toString()), baseUrl) : new URL(port.toString(), baseUrl);
+    return pathUrl.toString().endsWith('/') ? pathUrl.toString() : pathUrl.toString() + "/";
 }
 
 Empirica.onGameStart(async ({game}) => {
