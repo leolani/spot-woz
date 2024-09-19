@@ -264,7 +264,7 @@ class EmissorStorageContainer(InfraContainer, EnvironmentContainer):
     @property
     @singleton
     def emissor_data_client(self) -> EmissorDataClient:
-        path = "{self.base_path}/emissor" if self.base_path else "emissor"
+        path = f"{self.base_path}/emissor" if self.base_path else "emissor"
 
         return EmissorDataClient(f"http://0.0.0.0:8000/{path}")
 
