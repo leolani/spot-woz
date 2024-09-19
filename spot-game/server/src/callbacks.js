@@ -32,7 +32,7 @@ function getFreePortFromDocker(gameId, min_port, max_port) {
     return available[Math.floor(Math.random() * available.length)];
 }
 
-function startContainer(image, port, storage, participantId, history, base_path) {
+function startContainer(image, base_path, port, storage, participantId, history) {
     const storagePath = path.resolve(path.join(storage, participantId));
     fs.mkdirSync(storagePath, { recursive: true });
 
@@ -42,7 +42,8 @@ function startContainer(image, port, storage, participantId, history, base_path)
     for (i of Array(10).keys()) {
         try {
             let cmd_args = `--participant ${participantId} --name participant --session 1 --turntaking none --conventions yes`;
-            cmd_args += ` --history ${history} --web --basepath "${base_path}/${port}"`;
+            cmd_args += ` --history ${history} --web`;
+            cmd_args += base_path ? ' --basepath "${base_path}/${port}"' : '';
 
             const storage_mount = `--mount type=bind,source=${storagePath},target=/spot-woz/spot-woz/py-app/storage`;
             output = execSync(`docker run -d -p ${port}:8000 ${storage_mount} --name app_${participantId} ${image} ${cmd_args}`);
@@ -59,8 +60,10 @@ function startContainer(image, port, storage, participantId, history, base_path)
     return output.toString().trim();  // Docker returns the new container ID in stdout
 }
 
-function getScenario(base_url, port, startTime) {
-    return axios.get(`${base_url}${port}/chatui/chat/current`)
+function getScenario(baseUrl, basePath, port, startTime) {
+    const scenarioUrl = new URL('chatui/chat/current', getPath(baseUrl, basePath, port));
+
+    return axios.get(scenarioUrl)
         .then(response => {
             if (!response.data) {
                 throw new Error(`No scenario yet ${response.status}`);
@@ -70,44 +73,55 @@ function getScenario(base_url, port, startTime) {
         })
         .catch(error => {
             if (Date.now() - startTime > 120000) {
-                throw new Error(`Timeout exceeded while waiting for Scenario on ${base_url}${port}/chatui/chat/current`);
+                throw new Error(`Timeout exceeded while waiting for Scenario on ${scenarioUrl}: ` + error);
             } else {
                 debug("Await scenario", port);
                 return new Promise((resolve) => {
-                    setTimeout(() => resolve(getScenario(base_url, port, startTime)), 1000);
+                    setTimeout(() => resolve(getScenario(baseUrl, basePath, port, startTime)), 1000);
                 });
             }
         });
 }
 
-function startGame(base_url, port, scenarioId) {
-    return axios.post(`${base_url}${port}/chatui/chat/${scenarioId}/start`);
+function startGame(baseUrl, basePath, port, scenarioId) {
+    return axios.post(new URL(`chatui/chat/${scenarioId}/start`, getPath(baseUrl, basePath, port)));
+}
+
+/**
+ * Construct an URL of either baseURL:port/basePath or baseURL/basePath/port where basePath maybe empty.
+ */
+function getPath(baseUrl, basePath, port) {
+    if (baseUrl.endsWith(':')) {
+        return basePath ? new URL(basePath, baseUrl + port.toString()) : new URL(baseUrl + port.toString());
+    }
+
+    return basePath ? new URL(path.join(basePath, port.toString()), baseUrl) : new URL(port.toString(), baseUrl);
 }
 
 Empirica.onGameStart(async ({game}) => {
-    let { image, storage, history, base_url, base_path, min_port, max_port } = game.get("treatment");
-    base_url = base_url || 'http://localhost:';
-    base_path = base_path || '';
-    min_port = min_port || 8000;
-    max_port = max_port || 8100;
+    let { image, storage, history, baseUrl, basePath, minPort, maxPort } = game.get("treatment");
+    baseUrl = baseUrl || 'http://localhost:';
+    basePath = basePath || '';
+    minPort = minPort || 8000;
+    maxPort = maxPort || 8100;
 
-    info(`Starting game for ${game.players[0].id} with history ${history}, port range ${min_port}-${max_port} on base url ${base_url} (${base_path})`);
+    info(`Starting game for ${game.players[0].id} with history ${history}, port range ${minPort}-${maxPort} on base url ${baseUrl} (${basePath})`);
 
     const participantId = game.players[0].id;
-    const port = getFreePortFromDocker(game.id, min_port, max_port);
+    const port = getFreePortFromDocker(game.id, minPort, maxPort);
 
     info(`Starting a new container for participant ${participantId} on port ${port}...`);
 
-    let containerId = startContainer(image, port, storage, participantId, history, base_path);
+    let containerId = startContainer(image, basePath, port, storage, participantId, history);
     info(`Container (${image}) with ID: ${containerId} for participant ${participantId} started`);
     game.set("containerId", containerId);
     game.set("containerPort", port);
 
-    await getScenario(base_url, port, Date.now())
+    await getScenario(baseUrl, basePath, port, Date.now())
         .then((scenarioId) => {
             info("Started scenario " + scenarioId);
             return new Promise((resolve) => {
-                setTimeout(() => resolve(startGame(base_url, port, scenarioId)), 5000);
+                setTimeout(() => resolve(startGame(baseUrl, basePath, port, scenarioId)), 5000);
             });
         })
         .then(() => info("Started Game"));
@@ -117,11 +131,14 @@ Empirica.onGameStart(async ({game}) => {
         task: "spotter",
     });
 
+    const gameLocation = new URL('spot/start', getPath(baseUrl, basePath, port));
+    const chatLocation = new URL('userchat/static/chat.html', getPath(baseUrl, basePath, port));
+
     round.addStage({
         name: "spotter",
         duration: GAME_TIMEOUT,
-        gameLocation: `${base_url}${port}/spot/start`,
-        chatLocation: `${base_url}${port}/userchat/static/chat.html`
+        gameLocation: gameLocation,
+        chatLocation: chatLocation
     });
 });
 

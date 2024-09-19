@@ -114,6 +114,10 @@ class EnvironmentContainer(DIContainer):
     def is_web(self) -> bool:
         raise NotImplementedError()
 
+    @property
+    def base_path(self) -> str:
+        raise NotImplementedError()
+
 
 class InfraContainer(SynchronousEventBusContainer, K8LocalConfigurationContainer, ThreadedResourceContainer):
     def start(self):
@@ -243,7 +247,7 @@ class BackendContainer(InfraContainer):
         super().stop()
 
 
-class EmissorStorageContainer(InfraContainer):
+class EmissorStorageContainer(EnvironmentContainer, InfraContainer):
     @property
     @singleton
     def emissor_storage(self) -> EmissorDataStorage:
@@ -260,7 +264,9 @@ class EmissorStorageContainer(InfraContainer):
     @property
     @singleton
     def emissor_data_client(self) -> EmissorDataClient:
-        return EmissorDataClient("http://0.0.0.0:8000/emissor")
+        path = "{self.base_path}/emissor" if self.base_path else "emissor"
+
+        return EmissorDataClient(f"http://0.0.0.0:8000/{path}")
 
     def start(self):
         logger.info("Start Emissor Data Storage")
@@ -569,12 +575,13 @@ class ApplicationContainer(ElizaComponentsContainer, ChatUIContainer, UserChatUI
                            SpotGameContainer, SpotDialogContainer, SpotTurnTakingContainer,
                            ASRContainer, VADContainer,
                            EmissorStorageContainer, BackendContainer, EnvironmentContainer):
-    def __init__(self, participant_id: str, participant_name: str, session: int, history: float, is_web: bool):
+    def __init__(self, participant_id: str, participant_name: str, session: int, history: float, is_web: bool, base_path: str):
         self._participant_id = participant_id
         self._participant_name = participant_name
         self._session = session
         self._history = history
         self._is_web = is_web
+        self._base_path = base_path
 
     @property
     def participant_id(self) -> str:
@@ -595,6 +602,10 @@ class ApplicationContainer(ElizaComponentsContainer, ChatUIContainer, UserChatUI
     @property
     def is_web(self) -> bool:
         return self._is_web
+
+    @property
+    def base_path(self) -> str:
+        return self._base_path
 
     @property
     @singleton
@@ -670,7 +681,7 @@ def main(participant: str, name: str, session: int,
 
     ApplicationContainer.load_configuration(additional_config_files=additional_configs)
     logger.info("Initialized Application with configs: %s", additional_configs)
-    application = ApplicationContainer(participant, name, session, history, is_web)
+    application = ApplicationContainer(participant, name, session, history, is_web, basepath)
     application.store_config(additional_configs)
 
     with application as started_app:
@@ -723,6 +734,8 @@ if __name__ == '__main__':
     parser.add_argument('--basepath', type=str, required=False, default="",
                         help="Base URL for the Flask application.")
     args, _ = parser.parse_known_args()
+
+    logger.info("Started with args: %s", args)
 
     if args.session > 1 and (args.turntaking or args.conventions):
         raise ValueError("Conditions are loaded from disk as defined for session 1")

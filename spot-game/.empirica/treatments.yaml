@@ -1,60 +1,57 @@
----
 factors:
-  - name: playerCount
-    desc: playerCount determines the number of Players are in a Game.
-    values:
-      - value: 1
-  - name: image
-    desc: Docker image name
-    values:
-      - value: numblr/spotter-empirica:latest
-  - name: storage
-    desc: Storage location
-    values:
-      - value: ./storage/
-  - name: history
-    desc: History factor to use in the disambiguator
-    values:
-      - value: 0
-      - value: 1
-  - name: baseUrl
-    desc: Full base URL of the spot-woz application as seem from outside (with
-      trailing slash), like https://spotter.labs.vu.nl/spottergame/
-    values:
-      - value: "localhost:"
-  - name: basePath
-    desc: Base path for the spot-woz application, determined by routing on the
-      server, like /spottergame
-    values:
-      - value: ""
-  - name: minPort
-    desc: Minimum port to use for docker containers
-    values:
-      - value: 0.8
-  - name: maxPort
-    desc: Maximum port to use for docker containers
-    values:
-      - value: 8010
+    - name: playerCount
+      desc: playerCount determines the number of Players are in a Game.
+      values:
+        - value: 1
+    - name: image
+      desc: Docker image name
+      values:
+        - value: numblr/spotter-empirica:latest
+    - name: storage
+      desc: Storage location
+      values:
+        - value: ./storage/
+    - name: history
+      desc: History factor to use in the disambiguator
+      values:
+        - value: 0
+        - value: 1
+    - name: basePath
+      desc: Base path for the spot-woz application, determined by routing on the server, like /spottergame
+      values:
+        - value: ""
+    - name: minPort
+      desc: Minimum port to use for docker containers
+      values:
+        - value: 8000
+    - name: baseUrl
+      desc: Full base URL of the spot-woz application as seem from outside (with trailing slash), like https://spotter.labs.vu.nl/spottergame/
+      values:
+        - value: 'localhost:'
+        - value: 'http://localhost:'
+    - name: maxPort
+      desc: Maximum port to use for docker containers
+      values:
+        - value: 8010
+        - value: 8100
 treatments:
-  - name: history
-    desc: Game using conventions
-    factors:
-      playerCount: 1
-      history: 0
-      image: numblr/spotter-empirica:latest
-      storage: ./storage/
-      baseUrl: "localhost:"
-      basePath: ""
-      minPort: 8000
-      maxPort: 8100
-  - name: noHistory
-    desc: Game not using conventions
-    factors:
-      playerCount: 1
-      history: 1
-      image: numblr/spotter-empirica:latest
-      storage: ./storage/
-      baseUrl: "localhost:"
-      basePath: ""
-      minPort: 8000
-      maxPort: 8100
+    - name: noHistory
+      desc: Game not using conventions
+      factors:
+        basePath: ""
+        baseUrl: 'http://localhost:'
+        history: 1
+        image: numblr/spotter-empirica:latest
+        maxPort: 8100
+        minPort: 8000
+        playerCount: 1
+        storage: ./storage/
+    - name: history
+      desc: Game using conventions
+      factors:
+        baseUrl: 'http://localhost:'
+        image: numblr/spotter-empirica:latest
+        maxPort: 8100
+        minPort: 8000
+        playerCount: 1
+        storage: ./storage/

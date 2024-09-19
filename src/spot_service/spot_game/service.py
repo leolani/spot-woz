@@ -107,7 +107,10 @@ class SpotGameService:
                      else "start.html")
             filename = f"{FOLDER_MAP[self._session]}/{start}" if not self._is_web else WEB_START
 
-            return redirect(url_for('static', filename=filename))
+            redirect_location = url_for('static', filename=filename)
+            logger.info("Redirected to game start at %s", redirect_location)
+
+            return redirect(redirect_location)
 
         @self._app.route('/rest/scenario', methods=['GET'])
         def current_scenario():
