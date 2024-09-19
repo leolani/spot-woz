@@ -247,7 +247,7 @@ class BackendContainer(InfraContainer):
         super().stop()
 
 
-class EmissorStorageContainer(EnvironmentContainer, InfraContainer):
+class EmissorStorageContainer(InfraContainer, EnvironmentContainer):
     @property
     @singleton
     def emissor_storage(self) -> EmissorDataStorage:
