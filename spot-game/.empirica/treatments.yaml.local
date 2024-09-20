@@ -42,7 +42,7 @@ treatments:
       maxPort: 8110
       minPort: 8100
       playerCount: 1
-      storage: /home/spotter/storage/
+      storage: ./storage/
       history: 0.0
   - name: history
     desc: Game using history
