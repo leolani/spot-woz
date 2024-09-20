@@ -56,6 +56,7 @@ from spot.pragmatic_model.world_short_phrases_en import sp_characters as sp_char
 from spot.pragmatic_model.world_short_phrases_en import sp_robot_scene as sp_robot_scene_en
 from spot_service.dialog.service import SpotDialogService
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
+from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.serving import run_simple
 
 from spot.chatui.api import Chats
@@ -704,7 +705,7 @@ def main(participant: str, name: str, session: int,
             logger.info("Backend Server endpoint added at /host")
             routes[f"{basepath}/host"] = started_app.server.app
 
-        web_app = DispatcherMiddleware(Flask("Eliza app"), routes)
+        web_app = ProxyFix(DispatcherMiddleware(Flask("Eliza app"), routes))
 
         run_simple('0.0.0.0', 8000, web_app, threaded=True, use_reloader=False, use_debugger=False, use_evalex=True)
 
