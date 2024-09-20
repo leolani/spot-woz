@@ -3,48 +3,55 @@ factors:
     desc: playerCount determines the number of Players are in a Game.
     values:
       - value: 1
-  - name: image
-    desc: Docker image name
-    type: str
-  - name: storage
-    desc: Storage location
-    type: string
   - name: history
     desc: History factor to use in the disambiguator
-    type: float
-  - name: base_url
-    desc: Full base URL of the spot-woz application as seem from outside (with trailing slash), like https://spotter.labs.vu.nl/spottergame/
-    type: string
-  - name: base_path
+    values:
+      - value: 0.0
+      - value: 1.0
+  - name: basePath
     desc: Base path for the spot-woz application, determined by routing on the server, like /spottergame
-    type: string
-  - name: min_port
-    desc: Minimum port to use for docker containers
-    type: int
-  - name: max_port
+    values:
+      - value:
+  - name: baseUrl
+    desc: Full base URL of the spot-woz application as seem from outside (with trailing slash), like https://spotter.labs.vu.nl/spottergame/
+    values: ''
+      - value: 'http://localhost:'
+  - name: image
+    desc: Docker image name
+    values:
+      - value: numblr/spotter-empirica:server
+  - name: maxPort
     desc: Maximum port to use for docker containers
-    type: int
-
+    values:
+      - value: 8100
+  - name: minPort
+    desc: Minimum port to use for docker containers
+    values:
+      - value: 8110
+  - name: storage
+    desc: Storage location
+    values:
+      - value: ./storage/
 treatments:
-  - name: history
-    desc: Game using conventions
-    factors:
-      playerCount: 1
-      history: 0.0
-      image: numblr/spotter-empirica:latest
-      storage: ./storage/
-      base_url: 'localhost:'
-      base_path: ''
-      min_port: 8000
-      max_port: 8100
   - name: noHistory
-    desc: Game not using conventions
+    desc: Game not using history
     factors:
-      playerCount: 1
-      history: 1.0
+      basePath: ''
+      baseUrl: 'http://localhost:'
       image: numblr/spotter-empirica:latest
+      maxPort: 8110
+      minPort: 8100
+      playerCount: 1
+      storage: /home/spotter/storage/
+      history: 0.0
+  - name: history
+    desc: Game using history
+    factors:
+      basePath: ''
+      baseUrl: 'http://localhost:'
+      image: numblr/spotter-empirica:latest
+      maxPort: 8110
+      minPort: 8100
+      playerCount: 1
       storage: ./storage/
-      base_url: 'localhost:'
-      base_path: ''
-      min_port: 8000
-      max_port: 8100
+      history: 1.0
