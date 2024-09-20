@@ -11,7 +11,7 @@ factors:
   - name: basePath
     desc: Base path for the spot-woz application, determined by routing on the server, like /spottergame
     values:
-      - value:
+      - value: ''
   - name: baseUrl
     desc: Full base URL of the spot-woz application as seem from outside (with trailing slash), like https://spotter.labs.vu.nl/spottergame/
     values:
