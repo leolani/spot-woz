@@ -14,7 +14,7 @@ factors:
       - value:
   - name: baseUrl
     desc: Full base URL of the spot-woz application as seem from outside (with trailing slash), like https://spotter.labs.vu.nl/spottergame/
-    values: ''
+    values:
       - value: 'http://localhost:'
   - name: image
     desc: Docker image name
@@ -54,4 +54,4 @@ treatments:
       minPort: 8100
       playerCount: 1
       storage: ./storage/
-      history: 1.0
+      history: 1.0s
