@@ -10,6 +10,9 @@ export const Empirica = new ClassicListenersCollector();
 const GAME_TIMEOUT = 7200 // 2h
 
 
+const httpClient = axios.create({ proxy: false });
+
+
 function getFreePortFromDocker(gameId, min_port, max_port) {
     // Process stdout to parse the port information
     const docker_out = execSync("docker ps --format \"{{.Ports}}\"");
@@ -63,7 +66,7 @@ function startContainer(image, basePath, port, storage, participantId, history) 
 function getScenario(baseUrl, basePath, port, startTime) {
     const scenarioUrl = new URL('chatui/chat/current', getPath(baseUrl, basePath, port));
 
-    return axios.get(scenarioUrl)
+    return httpClient.get(scenarioUrl)
         .then(response => {
             if (!response.data) {
                 throw new Error(`No scenario yet ${response.status}`);
@@ -84,7 +87,7 @@ function getScenario(baseUrl, basePath, port, startTime) {
 }
 
 function startGame(baseUrl, basePath, port, scenarioId) {
-    return axios.post(new URL(`chatui/chat/${scenarioId}/start`, getPath(baseUrl, basePath, port)));
+    return httpClient.post(new URL(`chatui/chat/${scenarioId}/start`, getPath(baseUrl, basePath, port)));
 }
 
 /**
@@ -157,16 +160,20 @@ Empirica.onStageEnded(({stage}) => {
 Empirica.onRoundEnded(({round}) => {
 });
 
-Empirica.onGameEnded(({game}) => {
+function stopContainer(containerId, gameId, playerId) {
+    const {exec} = require("child_process");
+    exec(`docker container inspect ${containerId} || true && docker stop -t 60 ${containerId} && docker rm ${containerId}`, (error_, stdout, stderr) => {
+        if (error_) {
+            error(`Error stopping and removing container for player ${playerId}: ${error_}`);
+            return;
+        }
+        info(`Container ${containerId} for player ${gameId} stopped and removed successfully.`);
+    });
+}
+
+Empirica.onGameEnded(async ({game}) => {
     const containerId = game.get("containerId");
     if (containerId) {
-        const { exec } = require("child_process");
-        exec(`docker stop ${containerId} && docker rm ${containerId}`, (error_, stdout, stderr) => {
-            if (error_) {
-                error(`Error stopping and removing container for player ${player.id}: ${error_}`);
-                return;
-            }
-            info(`Container ${containerId} for player ${game.id} stopped and removed successfully.`);
-        });
+        setTimeout(() => stopContainer(containerId, game.get("containerId"), game.players[0].id), 20000);
     }
 });
