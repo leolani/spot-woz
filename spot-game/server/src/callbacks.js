@@ -113,7 +113,7 @@ Empirica.onGameStart(async ({game}) => {
 
     info(`Starting game for ${game.players[0].id} with history ${history}, port range ${minPort}-${maxPort} on base url ${baseUrl} (${basePath})`);
 
-    const participantId = game.players[0].id;
+    const participantId = `${game.players[0].get("participantIdentifier")}_${game.players[0].id}`;
     const port = getFreePortFromDocker(game.id, minPort, maxPort);
 
     info(`Starting a new container for participant ${participantId} on port ${port}...`);
