@@ -66,8 +66,10 @@ $(document).ready(function() {
             $('#score').val(score);
             $('#total').val(total)
         }
-        $.post(restPath + scenarioId + "/image/" + imageId + "/choice?check=" + checkmark + "?choice=" + answer);
-        console.log("Game choice", restPath, checkmark, answer);
+
+        const postPath = restPath + scenarioId + "/image/" + imageId + "/choice";
+        $.post(postPath + "?check=" + checkmark + "?choice=" + answer + "?score=" + score + "?total=" + total);
+        console.log("Game choice", restPath, checkmark, answer, score, total);
     });
 
     $('#show').click(function(){
