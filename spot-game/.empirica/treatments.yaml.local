@@ -32,6 +32,10 @@ factors:
     desc: Storage location
     values:
       - value: ./storage/
+  - name: tokenLink
+    desc: Link to retrieve the claim token
+    values:
+      - value: https://nos.nl/
 treatments:
   - name: noHistory
     desc: Game not using history
@@ -44,6 +48,7 @@ treatments:
       playerCount: 1
       storage: ./storage/
       history: 0.0
+      tokenLink: https://nos.nl/
   - name: history
     desc: Game using history
     factors:
@@ -55,3 +60,4 @@ treatments:
       playerCount: 1
       storage: ./storage/
       history: 1.0s
+      tokenLink: https://nos.nl/

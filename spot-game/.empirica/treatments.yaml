@@ -1,57 +1,63 @@
 factors:
-    - name: playerCount
-      desc: playerCount determines the number of Players are in a Game.
-      values:
-        - value: 1
-    - name: image
-      desc: Docker image name
-      values:
-        - value: numblr/spotter-empirica:latest
-    - name: storage
-      desc: Storage location
-      values:
-        - value: ./storage/
-    - name: history
-      desc: History factor to use in the disambiguator
-      values:
-        - value: 0
-        - value: 1
-    - name: basePath
-      desc: Base path for the spot-woz application, determined by routing on the server, like /spottergame
-      values:
-        - value: ""
-    - name: minPort
-      desc: Minimum port to use for docker containers
-      values:
-        - value: 8000
-    - name: baseUrl
-      desc: Full base URL of the spot-woz application as seem from outside (with trailing slash), like https://spotter.labs.vu.nl/spottergame/
-      values:
-        - value: 'localhost:'
-        - value: 'http://localhost:'
-    - name: maxPort
-      desc: Maximum port to use for docker containers
-      values:
-        - value: 8010
-        - value: 8100
+  - name: playerCount
+    desc: playerCount determines the number of Players are in a Game.
+    values:
+      - value: 1
+  - name: history
+    desc: History factor to use in the disambiguator
+    values:
+      - value: 0.0
+      - value: 1.0
+  - name: basePath
+    desc: Base path for the spot-woz application, determined by routing on the server, like /spottergame
+    values:
+      - value: /spottergame
+  - name: baseUrl
+    desc: Full base URL of the spot-woz application as seem from outside (with trailing slash), like https://spotter.labs.vu.nl/spottergame/
+    values:
+      - value: https://spotter.labs.vu.nl/
+  - name: image
+    desc: Docker image name
+    values:
+      - value: numblr/spotter-empirica:server
+  - name: maxPort
+    desc: Maximum port to use for docker containers
+    values:
+      - value: 8100
+  - name: minPort
+    desc: Minimum port to use for docker containers
+    values:
+      - value: 8110
+  - name: storage
+    desc: Storage location
+    values:
+      - value: /home/spotter/storage/
+  - name: tokenLink
+    desc: Link to retrieve the claim token
+    values:
+      - value: https://nos.nl/
 treatments:
-    - name: noHistory
-      desc: Game not using conventions
-      factors:
-        basePath: ""
-        baseUrl: 'http://localhost:'
-        history: 1
-        image: numblr/spotter-empirica:latest
-        maxPort: 8100
-        minPort: 8000
-        playerCount: 1
-        storage: ./storage/
-    - name: history
-      desc: Game using conventions
-      factors:
-        baseUrl: 'http://localhost:'
-        image: numblr/spotter-empirica:latest
-        maxPort: 8100
-        minPort: 8000
-        playerCount: 1
-        storage: ./storage/
+  - name: noHistory
+    desc: Game not using history
+    factors:
+      basePath: /spottergame
+      baseUrl: https://spotter.labs.vu.nl/
+      image: numblr/spotter-empirica:server
+      maxPort: 8110
+      minPort: 8100
+      playerCount: 1
+      storage: /home/spotter/storage/
+      history: 0.0
+      tokenLink: https://nos.nl/
+  - name: history
+    desc: Game using history
+    factors:
+      basePath: /spottergame
+      baseUrl: https://spotter.labs.vu.nl/
+      image: numblr/spotter-empirica:server
+      maxPort: 8110
+      minPort: 8100
+      playerCount: 1
+      storage: /home/spotter/storage/
+      history: 1.0
+      tokenLink: https://nos.nl/

@@ -15,21 +15,18 @@ export function Spot() {
     }
 
     const checkGameLoc = (location) => {
-        info("XXX Request location");
         document.getElementById('SpotterGameFrame').contentWindow.postMessage('requestHref', '*');
     };
 
     window.addEventListener("message", (mess) => {
         const location = mess.data;
 
-        info("XXX Set location", location);
         debug("Set gameLocation", location);
         game.stage.set("gameLocation", location);
 
         // let step = ((location.split('/').slice(-1)[0]).split('.html')[0]).split('_').slice(-1)[0];
         let step = getRoundNumber(location);
         game.stage.set("step", step)
-        info("XXX Set step", step);
 
         if (location.includes("finish.html")) {
             info("Submit Game End", location);
