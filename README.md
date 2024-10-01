@@ -11,6 +11,8 @@ For usage of the component within the framework see the instructions there.
 
 ### Setup Game
 
+#### Setup the server
+
 * Build Docker image:
      
       docker build -t <TAG_NAME> .
@@ -21,6 +23,45 @@ For usage of the component within the framework see the instructions there.
 * Install [Empirica](https://docs.empirica.ly/)
 * Deploy Empirica Game from the `spot-game/` folder according to the [documentation](https://docs.empirica.ly/guides/deploying-my-experiment).
 
+#### Deploy Empirica game
+
+To deploy a new version of the Empirica game:
+* in _spot-game/.empirica_ set the admin password for the server (don't commit this to _git_)
+* in _spot-game/.empirica/empirica.toml_ copy _treatments.yaml.server_ to _treatments.yaml_
+* in _spot-game/_ run
+
+      empirica bundle
+
+* upload the created bundle to the server:
+
+      scp spot-game.tar.zst <username>@spotter.labs.vu.nl:empirica
+
+* login to the server, navigate to the _empirica/_ folder and run
+
+      ./deploy.sh
+
+  to deploy the new version. To also clear the Empirica data (_/home/spotter/empirica/.empirica/local/tajriba.json_), run
+
+      ./deploy.sh clean
+
+* check the logs of the Empirica server with
+
+      ./logs.sh empirica
+
+  from the home directory.
+
+#### Deploy Spotter game
+
+To update the docker image of the Spotter game
+
+* commit and push all changes in the modules and the parent (_spot-woz-parent_)
+* login to the server, navigate to the _dockerbuild/_ folder and run
+
+      rm nohup.out
+      nohup ./build.sh &
+
+  to clear the previous output of _nohup_ and run the build in the background.
+  Check the _nohup.out_ file for progress. The build will continue to run in the background also if you logout of the server.
 
 ## Contributing
 
