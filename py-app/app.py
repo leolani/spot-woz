@@ -522,7 +522,6 @@ class SpotDialogContainer(EmissorStorageContainer, InfraContainer, EnvironmentCo
                                            history_factor=self.history,
                                            language='en')
             rounds = 15
-            rounds = 10
             questionnaires = []
         else:
             disambigutator = Disambiguator(sp_characters, sp_robot_scene[self.session], high_engagement=config.get_boolean("conventions"),
