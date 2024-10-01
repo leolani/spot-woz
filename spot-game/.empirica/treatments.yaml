@@ -11,11 +11,11 @@ factors:
   - name: basePath
     desc: Base path for the spot-woz application, determined by routing on the server, like /spottergame
     values:
-      - value: /spottergame
+      - value: ''
   - name: baseUrl
     desc: Full base URL of the spot-woz application as seem from outside (with trailing slash), like https://spotter.labs.vu.nl/spottergame/
     values:
-      - value: https://spotter.labs.vu.nl/
+      - value: 'http://localhost:'
   - name: image
     desc: Docker image name
     values:
@@ -31,7 +31,7 @@ factors:
   - name: storage
     desc: Storage location
     values:
-      - value: /home/spotter/storage/
+      - value: ./storage/
   - name: tokenLink
     desc: Link to retrieve the claim token
     values:
@@ -40,24 +40,24 @@ treatments:
   - name: noHistory
     desc: Game not using history
     factors:
-      basePath: /spottergame
-      baseUrl: https://spotter.labs.vu.nl/
-      image: numblr/spotter-empirica:server
+      basePath: ''
+      baseUrl: 'http://localhost:'
+      image: numblr/spotter-empirica:latest
       maxPort: 8110
       minPort: 8100
       playerCount: 1
-      storage: /home/spotter/storage/
+      storage: ./storage/
       history: 0.0
       tokenLink: https://nos.nl/
   - name: history
     desc: Game using history
     factors:
-      basePath: /spottergame
-      baseUrl: https://spotter.labs.vu.nl/
-      image: numblr/spotter-empirica:server
+      basePath: ''
+      baseUrl: 'http://localhost:'
+      image: numblr/spotter-empirica:latest
       maxPort: 8110
       minPort: 8100
       playerCount: 1
-      storage: /home/spotter/storage/
+      storage: ./storage/
       history: 1.0
       tokenLink: https://nos.nl/
