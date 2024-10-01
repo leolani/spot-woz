@@ -50,6 +50,8 @@ To deploy a new version of the Empirica game:
       ./logs.sh empirica
 
   from the home directory.
+* If there were changes to the treatments (e.g. update the token link), make sure you stop the current batch and create a new
+  one in the admin console and check if the changes are picked up.
 
 #### Deploy Spotter game
 
