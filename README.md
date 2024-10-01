@@ -26,8 +26,8 @@ For usage of the component within the framework see the instructions there.
 #### Deploy Empirica game
 
 To deploy a new version of the Empirica game:
-* in _spot-game/.empirica_ set the admin password for the server (don't commit this to _git_)
-* in _spot-game/.empirica/empirica.toml_ copy _treatments.yaml.server_ to _treatments.yaml_
+* in _spot-game/.empirica/empirica.toml_ set the admin password for the server (don't commit this to _git_)
+* in _spot-game/.empirica_ copy _treatments.yaml.server_ to _treatments.yaml_
 * in _spot-game/_ run
 
       empirica bundle
