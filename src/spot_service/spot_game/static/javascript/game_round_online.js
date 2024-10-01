@@ -67,9 +67,14 @@ $(document).ready(function() {
             $('#total').val(total)
         }
 
-        const postPath = restPath + scenarioId + "/image/" + imageId + "/choice";
-        $.post(postPath + "?check=" + checkmark + "?choice=" + answer + "?score=" + score + "?total=" + total);
         console.log("Game choice", restPath, checkmark, answer, score, total);
+        const parameters = new URLSearchParams();
+        parameters.append("round", imageId);
+        parameters.append("position", checkmark);
+        parameters.append("choice", answer);
+        parameters.append("score", score);
+        parameters.append("total", total);
+        $.post(restPath + scenarioId + "/image/" + imageId + "/choice?" + parameters.toString());
     });
 
     $('#show').click(function(){
