@@ -23,6 +23,11 @@ function humanTimer(seconds) {
     return "--:--";
   }
 
+  // Show the timer only at the end as warning that there is a timeout
+  if (seconds > 60 * 15) {
+    return "";
+  }
+
   let out = "";
   const s = seconds % 60;
   out += s < 10 ? "0" + s : s;
