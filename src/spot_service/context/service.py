@@ -1,13 +1,12 @@
 import logging
 import os
 import signal
-
-import flask
-import time
+import threading
 import uuid
 from datetime import datetime
 
 import requests
+import time
 from cltl.combot.event.emissor import LeolaniContext, Agent, ScenarioStarted, ScenarioStopped, ScenarioEvent
 from cltl.combot.infra.config import ConfigurationManager
 from cltl.combot.infra.event import Event, EventBus
@@ -15,7 +14,6 @@ from cltl.combot.infra.resource import ResourceManager
 from cltl.combot.infra.time_util import timestamp_now
 from cltl.combot.infra.topic_worker import TopicWorker
 from emissor.representation.scenario import Modality, Scenario
-from flask import request, url_for
 
 logger = logging.getLogger(__name__)
 
@@ -85,11 +83,14 @@ class ContextService:
             achieved = event.payload.achieved
             if "quit" in achieved:
                 self._stop_scenario()
+
                 # Shutdown the application
                 logger.info("Preparing for application shutdown")
-                time.sleep(600)
-                logger.info("Shutting down the application")
-                os.kill(os.getpid(), signal.SIGINT)
+                def send_kill():
+                    lambda: logger.info("Shutting down the application")
+                    os.kill(os.getpid(), signal.SIGINT)
+                self._timer = threading.Timer(60, send_kill)
+                self._timer.start()
         elif event.metadata.topic == self._speaker_topic:
             self._update_scenario_speaker(event)
         else:

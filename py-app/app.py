@@ -65,6 +65,7 @@ from spot.emissor.storage import SpotterScenarioStorage
 from spot.turntaking.textout import TurnTakingTextOutput
 from spot_service.chatui.service import ChatUiService
 from spot_service.context.service import ContextService
+from spot_service.context.timeout_service import TimeoutService
 from spot_service.spot_game.service import SpotGameService
 from spot_service.turntaking.service import SpotTurnTakingService
 
@@ -404,6 +405,28 @@ class ASRContainer(EmissorStorageContainer, InfraContainer):
         super().stop()
 
 
+class TimeoutContainer(InfraContainer, EnvironmentContainer):
+    @property
+    @singleton
+    def timeout_service(self) -> TimeoutService:
+        if self.is_web:
+            return TimeoutService.from_config(self.event_bus, self.resource_manager, self.config_manager)
+
+        return False
+
+    def start(self):
+        logger.info("Start Timeout service")
+        super().start()
+        if self.timeout_service:
+            self.timeout_service.start()
+
+    def stop(self):
+        if self.timeout_service:
+            logger.info("Stop Timeout service")
+            self.timeout_service.stop()
+        super().stop()
+
+
 class ElizaComponentsContainer(EmissorStorageContainer, InfraContainer):
     @property
     @singleton
@@ -571,7 +594,7 @@ class SpotTurnTakingContainer(EmissorStorageContainer, BackendContainer, InfraCo
         super().stop()
 
 
-class ApplicationContainer(ElizaComponentsContainer, ChatUIContainer, UserChatUIContainer,
+class ApplicationContainer(TimeoutContainer, ElizaComponentsContainer, ChatUIContainer, UserChatUIContainer,
                            SpotGameContainer, SpotDialogContainer, SpotTurnTakingContainer,
                            ASRContainer, VADContainer,
                            EmissorStorageContainer, BackendContainer, EnvironmentContainer):
