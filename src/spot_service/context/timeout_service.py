@@ -81,8 +81,9 @@ class TimeoutService:
                 self._status = Status.TERMINATED
                 logger.info("Quit due to timeout")
             else:
-                self._event_bus.publish(self._text_out_topic, Event.for_payload(self._create_payload("Are you still there?")))
+                self._event_bus.publish(self._text_out_topic, Event.for_payload(self._create_payload("If you are still there, could you please respond to my previous question?")))
                 self._status = Status.CONFIRMED
+                logger.info("Confirmed absence")
         elif event.metadata.topic == self._scenario_topic:
             if event.payload.type == ScenarioStarted.__name__:
                 self._scenario_id = event.payload.scenario.id
