@@ -23,11 +23,11 @@ factors:
   - name: maxPort
     desc: Maximum port to use for docker containers
     values:
-      - value: 8100
+      - value: 8116
   - name: minPort
     desc: Minimum port to use for docker containers
     values:
-      - value: 8110
+      - value: 8100
   - name: storage
     desc: Storage location
     values:
@@ -43,7 +43,7 @@ treatments:
       basePath: /spottergame
       baseUrl: https://spotter.labs.vu.nl/
       image: numblr/spotter-empirica:server
-      maxPort: 8110
+      maxPort: 8116
       minPort: 8100
       playerCount: 1
       storage: /home/spotter/storage/
@@ -55,7 +55,7 @@ treatments:
       basePath: /spottergame
       baseUrl: https://spotter.labs.vu.nl/
       image: numblr/spotter-empirica:server
-      maxPort: 8110
+      maxPort: 8116
       minPort: 8100
       playerCount: 1
       storage: /home/spotter/storage/

@@ -30,6 +30,7 @@ export function Spot() {
 
         if (location.includes("finish.html")) {
             info("Submit Game End", location);
+            game.set("token", "true");
             setTimeout(() => player.stage.set("submit", true), 3000);
         }
     });

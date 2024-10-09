@@ -7,7 +7,7 @@ import path from "path";
 
 export const Empirica = new ClassicListenersCollector();
 
-const GAME_TIMEOUT = 7200 // 2h
+const GAME_TIMEOUT = 3600 // 1h
 
 
 const httpClient = axios.create({ proxy: false });
@@ -29,7 +29,8 @@ function getFreePortFromDocker(gameId, min_port, max_port) {
     const available = [...Array(max_port - min_port).keys()].map(i => min_port + i).filter(i => !ports.has(i));
 
     if (!available) {
-        throw new Error(`No free port available for ${gameId}`);
+        warn(`No free port available for ${gameId}`);
+        return null;
     }
 
     return available[Math.floor(Math.random() * available.length)];
@@ -116,32 +117,36 @@ Empirica.onGameStart(async ({game}) => {
     const participantId = `${game.players[0].get("participantIdentifier")}_${game.players[0].id}`;
     const port = getFreePortFromDocker(game.id, minPort, maxPort);
 
-    info(`Starting a new container for participant ${participantId} on port ${port}...`);
+    if (port) {
+        info(`Starting a new container for participant ${participantId} on port ${port}...`);
 
-    let containerId = startContainer(image, basePath, port, storage, participantId, history);
-    info(`Container (${image}) with ID: ${containerId} for participant ${participantId} started`);
-    game.set("containerId", containerId);
-    game.set("containerPort", port);
+        let containerId = startContainer(image, basePath, port, storage, participantId, history);
+        info(`Container (${image}) with ID: ${containerId} for participant ${participantId} started`);
+        game.set("containerId", containerId);
+        game.set("containerPort", port);
 
-    await getScenario(baseUrl, basePath, port, Date.now())
-        .then((scenarioId) => {
-            info("Started scenario " + scenarioId);
-            return new Promise((resolve) => {
-                setTimeout(() => resolve(startGame(baseUrl, basePath, port, scenarioId)), 5000);
-            });
-        })
-        .then(() => info("Started Game"));
+        await getScenario(baseUrl, basePath, port, Date.now())
+            .then((scenarioId) => {
+                info("Started scenario " + scenarioId);
+                return new Promise((resolve) => {
+                    setTimeout(() => resolve(startGame(baseUrl, basePath, port, scenarioId)), 5000);
+                });
+            })
+            .then(() => info("Started Game"));
+    } else {
+         info(`No free docker port available for ${game.players[0].id}`);
+    }
 
     const round = game.addRound({
         name: "Round Spotter",
         task: "spotter",
     });
 
-    const gameLocation = new URL('spot/start', getPath(baseUrl, basePath, port));
-    const chatLocation = new URL('userchat/static/chat.html', getPath(baseUrl, basePath, port));
+    const gameLocation = port ? new URL('spot/start', getPath(baseUrl, basePath, port)) : null;
+    const chatLocation = port ? new URL('userchat/static/chat.html', getPath(baseUrl, basePath, port)) : null;
 
     round.addStage({
-        name: "spotter",
+        name: port ? "spotter" : "failed",
         duration: GAME_TIMEOUT,
         gameLocation: gameLocation,
         chatLocation: chatLocation

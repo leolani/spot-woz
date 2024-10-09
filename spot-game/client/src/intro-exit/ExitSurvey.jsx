@@ -14,13 +14,13 @@ export function ExitSurvey({next}) {
         window.location.href = tokenLink;
     };
 
+    const showClaim = game.get("token");
+
     return (
         <div className="exit">
-            <p className="intropara">Thank you for playing this game! You will now be led back to Prolific to receive
-                your payment.</p>
-            <Button handleClick={claim} autoFocus>
-                <p>Claim your payment</p>
-            </Button>
+            <p className="intropara">Thank you for playing this game!</p>
+            { showClaim && (<p> You will now be led back to Prolific to receive your payment.</p>) }
+            { showClaim && (<Button handleClick={claim} autoFocus ><p>Claim your payment</p></Button>) }
         </div>
     );
 }

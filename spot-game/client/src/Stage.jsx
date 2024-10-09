@@ -6,6 +6,7 @@ import { Loading } from "@empirica/core/player/react";
 
 import React from "react";
 import { Spot } from "./stages/Spot";
+import {NoGame} from "./intro-exit/NoGame";
 
 export function Stage() {
   const player = usePlayer();
@@ -18,6 +19,8 @@ export function Stage() {
   switch (stage.get("name")) {
     case "spotter":
       return <Spot />;
+    case "failed":
+      return <NoGame />;
     default:
       return <Loading />;
   }
