@@ -41,7 +41,8 @@ class TimeoutService:
         self._text_out_topic = text_out_topic
         self._desire_topic = desire_topic
 
-        self._timeout = timeout * 1000
+        self._base_timeout = timeout * 1000
+        self._timeout = self._base_timeout // 3
         self._scenario_id = None
         self._last_utterance = None
         self._status = None
@@ -90,6 +91,7 @@ class TimeoutService:
                 self._last_utterance = timestamp_now()
                 self._status = None
         elif event.metadata.topic == self._text_in_topic:
+            self._timeout = self._base_timeout
             self._last_utterance = timestamp_now()
             self._status = None
         else:

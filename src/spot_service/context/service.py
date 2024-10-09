@@ -89,6 +89,7 @@ class ContextService:
                 def send_kill():
                     lambda: logger.info("Shutting down the application")
                     os.kill(os.getpid(), signal.SIGINT)
+                    os.system(os.system("nohup sleep 60 && (ps -C python -o pid= | xargs kill) &"))
                 self._timer = threading.Timer(60, send_kill)
                 self._timer.start()
         elif event.metadata.topic == self._speaker_topic:
